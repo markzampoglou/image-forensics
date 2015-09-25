@@ -370,7 +370,10 @@ public class Util {
         if (!iter.hasNext()) {
             throw new RuntimeException("No readers found! I don't think this is an image file");
         }
+        System.out.println(1);
+        System.out.println(System.getProperty("java.library.path"));
         ImageReader reader = iter.next();
+        System.out.println(2);
         format = reader.getFormatName();
 
         return format;

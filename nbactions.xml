@@ -11,6 +11,7 @@
             </goals>
             <properties>
                 <exec.args>-classpath %classpath ForensicsToolbox.ToolboxAPI</exec.args>
+                
                 <exec.executable>java</exec.executable>
             </properties>
         </action>
