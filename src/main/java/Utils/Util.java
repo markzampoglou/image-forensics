@@ -370,10 +370,7 @@ public class Util {
         if (!iter.hasNext()) {
             throw new RuntimeException("No readers found! I don't think this is an image file");
         }
-        System.out.println(1);
-        System.out.println(System.getProperty("java.library.path"));
         ImageReader reader = iter.next();
-        System.out.println(2);
         format = reader.getFormatName();
 
         return format;
@@ -402,6 +399,38 @@ public class Util {
             colMax = (double) Collections.max(b);
             if (colMax > max) {
                 max = colMax;
+            }
+        }
+        return max;
+    }
+
+    public static double MinDouble3DArray(double[][][] ArrayIn) {
+        double min = Double.MAX_VALUE;
+        double colMin;
+
+        for (double[][] TwoDInRow : ArrayIn) {
+            for (double[] ArrayInRow : TwoDInRow) {
+                List b = Arrays.asList(ArrayUtils.toObject(ArrayInRow));
+                colMin = (double) Collections.min(b);
+                if (colMin < min) {
+                    min = colMin;
+                }
+            }
+        }
+        return min;
+    }
+
+    public static double MaxDouble3DArray(double[][][] ArrayIn) {
+        double max = -Double.MAX_VALUE;
+        double colMax;
+
+        for (double[][] TwoDInRow : ArrayIn) {
+            for (double[] ArrayInRow : TwoDInRow) {
+                List b = Arrays.asList(ArrayUtils.toObject(ArrayInRow));
+                colMax = (double) Collections.max(b);
+                if (colMax > max) {
+                    max = colMax;
+                }
             }
         }
         return max;

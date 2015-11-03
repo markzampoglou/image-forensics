@@ -19,7 +19,7 @@ import javax.imageio.ImageIO;
  *
  * @author markzampoglou
  */
-public class JPEGGhost {
+public class JPEGGhostExtractor {
 
     public List<BufferedImage> GhostMaps = new ArrayList();
     public List<Integer> GhostQualities = new ArrayList();
@@ -37,7 +37,7 @@ public class JPEGGhost {
     public List<Double> AllGhostMax = new ArrayList();
     
     
-    public JPEGGhost(String FileName) throws IOException {
+    public JPEGGhostExtractor(String FileName) throws IOException {
         GetJPEGGhost(FileName);
     }
 

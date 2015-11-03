@@ -26,8 +26,9 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 //import org.apache.commons.io.FileUtils;
 import pkg01_DoubleQuantization.DQDetector;
+import pkg06_ELA.JPEGELAExtractor;
 import pkg07_waveletnoisemap.NoiseMapExtractor;
-import pkg08_JPEGGhost.JPEGGhost;
+import pkg08_JPEGGhost.JPEGGhostExtractor;
 
 /**
  *
@@ -76,7 +77,7 @@ public class ToolboxAPI {
          String[] Input2 = {ImageFile.getCanonicalPath()};
          String[] Input3 = {ImageFile.getCanonicalPath()};
          */
-        JPEGGhost ImageGhosts;
+        JPEGGhostExtractor ImageGhosts;
 
         if (ImageIO.read(new File(InputFileName)).getColorModel().hasAlpha()) {
             File ghostOutputfile = File.createTempFile("REVEAL_", ".png", LocalDir);
@@ -96,7 +97,7 @@ public class ToolboxAPI {
         }
 
         try {
-            ImageGhosts = new JPEGGhost(InputFileName);
+            ImageGhosts = new JPEGGhostExtractor(InputFileName);
             try {
                 for (BufferedImage GhostMap : ImageGhosts.GhostMaps) {
                     File ghostOutputfile = File.createTempFile("REVEAL_", ".png", LocalDir);
@@ -168,7 +169,7 @@ public class ToolboxAPI {
          */
         DQDetector dqDetector;
         NoiseMapExtractor noiseExtractor;
-        JPEGGhost ImageGhosts;
+        JPEGGhostExtractor ImageGhosts;
 
         if (ImageIO.read(new File(InputFileName)).getColorModel().hasAlpha()) {
             File dqOutputfile = File.createTempFile("REVEAL_", ".png", LocalDir);
@@ -256,7 +257,7 @@ public class ToolboxAPI {
          */
         DQDetector dqDetector;
         NoiseMapExtractor noiseExtractor;
-        JPEGGhost ImageGhosts;
+        JPEGGhostExtractor ImageGhosts;
 
         if (ImageIO.read(new File(InputFileName)).getColorModel().hasAlpha()) {
             File noiseOutputfile = File.createTempFile("REVEAL_", ".png", LocalDir);
@@ -285,6 +286,70 @@ public class ToolboxAPI {
         }
         return AnalysisResult;
     }
+
+    public static ELAAnalysis getImageJPEGELA(String ImageLocation, String OutputPath) throws MalformedURLException, IOException {
+
+        ELAAnalysis AnalysisResult = new ELAAnalysis();
+
+        URL ImageURL = new URL(ImageLocation);
+        File LocalDir = new File(OutputPath);
+
+        File ImageFile = File.createTempFile("REVEAL_", null, LocalDir);
+        //FileUtils.copyURLToFile(ImageURL, ImageFile);
+
+        InputStream inputStream = null;
+        URLConnection urlConnection = null;
+        int noOfBytes = 0;
+        byte[] byteChunk = new byte[4096];
+        ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+        urlConnection = ImageURL.openConnection();
+        urlConnection.addRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
+        // We need to set cookies as below.
+        //urlConnection.addRequestProperty("Cookie", _mSharePointSession.cookieNedToken);
+
+        urlConnection.connect();
+
+        inputStream = urlConnection.getInputStream();
+
+        while ((noOfBytes = inputStream.read(byteChunk)) > 0) {
+            byteOutputStream.write(byteChunk, 0, noOfBytes);
+        }
+        OutputStream outputStream = new FileOutputStream(ImageFile);
+        byteOutputStream.writeTo(outputStream);
+
+        outputStream.close();
+        ImageFile.deleteOnExit();
+
+        String InputFileName = ImageFile.getCanonicalPath();
+
+        JPEGELAExtractor ELAExtractor;
+
+        if (ImageIO.read(new File(InputFileName)).getColorModel().hasAlpha()) {
+            File ELAOutputfile = File.createTempFile("REVEAL_", ".png", LocalDir);
+            ImageIO.write(TransparentPNGNotAccepted(), "png", ELAOutputfile);
+            AnalysisResult.ELA_Output = ELAOutputfile.getCanonicalPath();
+            AnalysisResult.ELA_MaxValue = 0;
+            AnalysisResult.ELA_MinValue = 0;
+
+            return AnalysisResult;
+        }
+
+        try {
+            ELAExtractor = new JPEGELAExtractor(InputFileName);
+
+                File ELAOutputfile = File.createTempFile("REVEAL_", ".png", LocalDir);
+                ImageIO.write(ELAExtractor.ELAMap, "png", ELAOutputfile);
+                AnalysisResult.ELA_Output = ELAOutputfile.getCanonicalPath();
+                AnalysisResult.ELA_MaxValue = ELAExtractor.ELAMax;
+                AnalysisResult.ELA_MinValue = ELAExtractor.ELAMin;
+
+        } catch (Throwable e) {
+            Logger.getLogger(ToolboxAPI.class.getName()).log(Level.SEVERE, null, e);
+        }
+        return AnalysisResult;
+    }
+
+
 
     public static ForensicAnalysis analyzeImage(String ImageLocation, String OutputPath) throws MalformedURLException, IOException {
 
@@ -330,7 +395,7 @@ public class ToolboxAPI {
          */
         DQDetector dqDetector;
         NoiseMapExtractor noiseExtractor;
-        JPEGGhost ImageGhosts;
+        JPEGGhostExtractor ImageGhosts;
 
         if (ImageIO.read(new File(InputFileName)).getColorModel().hasAlpha()) {
             File dqOutputfile = File.createTempFile("REVEAL_", ".png", LocalDir);
@@ -406,7 +471,7 @@ public class ToolboxAPI {
         }
 
         try {
-            ImageGhosts = new JPEGGhost(InputFileName);
+            ImageGhosts = new JPEGGhostExtractor(InputFileName);
             try {
                 for (BufferedImage GhostMap : ImageGhosts.GhostMaps) {
                     File ghostOutputfile = File.createTempFile("REVEAL_", ".png", LocalDir);
@@ -453,7 +518,7 @@ public class ToolboxAPI {
             //args[0] = "file:/media/marzampoglou/New Volume/markzampoglou/ImageForensics/Deliverables/Code/MultimediaManipulationToolbox_Running/JPEGDemo2.jpg";            
             //args[0] = "http://www.gannett-cdn.com/-mm-/55a8014f604ae574fe5f883dde154b25c3a0599f/c=168-0-857-689&r=x408&c=405x405/local/-/media/2015/05/28/USATODAY/USATODAY/635684167819994087-WALLANCE.JPG";
             //args[0] = "http://www.codeproject.com/KB/buttons/GdipButton/GdipButton1.PNG"; //Not JPEG
-            args[0]="file:" + System.getProperty("user.dir")+ "/target/classes/1.Ferguson.jpg";
+            //args[0]="file:" + System.getProperty("user.dir")+ "/target/classes/1.Ferguson.jpg";
             //args[0] = "file:/media/marzampoglou/3TB/markzampoglou/ImageForensics/Datasets/Wild Web Dataset/WildWeb/KerryFonda1/1.jpg";
 
         } else {
@@ -462,7 +527,7 @@ public class ToolboxAPI {
             }
         }
 
-        System.out.println("Looking for: \"" + args[0] + "\"");
+        //System.out.println("Looking for: \"" + args[0] + "\"");
 
         //String FileURL = (new File(args[0]).getAbsoluteFile().toURI().toURL()).toExternalForm();
         String FileURL = args[0];
@@ -494,7 +559,10 @@ public class ToolboxAPI {
             NoiseMahdianAnalysis analMahdian = getImageMahdianNoise(FileURL, "./");
             System.out.println("Mahdian finished " + String.valueOf(System.nanoTime() - start));
             start = System.nanoTime();
+            ELAAnalysis analELA = getImageJPEGELA(FileURL, "./");
+            System.out.println("ELA finished " + String.valueOf(System.nanoTime() - start));
             System.out.println("DQ analysis: " + analDQ.DQ_Lin_Output + ":" + analDQ.DQ_Lin_MinValue + ":" + analDQ.DQ_Lin_MaxValue);
+            System.out.println("ELA analysis: " + analELA.ELA_Output+ ":" + analELA.ELA_MaxValue + ":" + analELA.ELA_MinValue);
             System.out.println("DWT noise analysis: " + analMahdian.Noise_Mahdian_Output + ":" + analMahdian.Noise_Mahdian_MinValue + ":" + analMahdian.Noise_Mahdian_MaxValue);
             System.out.println("Ghost qualities: " + analGhost.GhostMinQuality + ":" + analGhost.GhostMaxQuality);
             System.out.println("Ghost analysis: ");
