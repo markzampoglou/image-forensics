@@ -115,22 +115,22 @@ public class Util {
         return ImageOut;
     }
 
-    public static double[][][] CalculateImageDifference(int[][][] Image1, int[][][] Image2) {
+    public static float[][][] CalculateImageDifference(int[][][] Image1, int[][][] Image2) {
         int Dim1 = Image1.length;
         int Dim2 = Image1[0].length;
         int Dim3 = Image1[0][0].length;
-        double[][][] ImageDifference = new double[Dim1][Dim2][Dim3];
+        float[][][] ImageDifference = new float[Dim1][Dim2][Dim3];
         for (int ii = 0; ii < Dim1; ii++) {
             for (int jj = 0; jj < Dim2; jj++) {
                 for (int kk = 0; kk < Dim3; kk++) {
-                    ImageDifference[ii][jj][kk] = (double) ((Image1[ii][jj][kk] - Image2[ii][jj][kk]) * (Image1[ii][jj][kk] - Image2[ii][jj][kk]));
+                    ImageDifference[ii][jj][kk] = (float) ((Image1[ii][jj][kk] - Image2[ii][jj][kk]) * (Image1[ii][jj][kk] - Image2[ii][jj][kk]));
                 }
             }
         }
         return ImageDifference;
     }
 
-    public static double[][] MeanFilterSingleChan(double[][] ImIn, int MeanFilterSize) {
+    public static float[][] MeanFilterSingleChan(float[][] ImIn, int MeanFilterSize) {
         // Mean filter a 2D double array
         // MeanFilterSize should be odd
         // Careful: this is the mean of the ABS values!
@@ -140,9 +140,9 @@ public class Util {
         int ImHeight = ImIn[0].length;
         DescriptiveStatistics BlockValues;
 
-        double[][] FilteredImage = new double[ImWidth - 2 * Offset][ImHeight - 2 * Offset];
+        float[][] FilteredImage = new float[ImWidth - 2 * Offset][ImHeight - 2 * Offset];
 
-        double Sum;
+        float Sum;
         for (int ii = Offset; ii <= ImWidth - MeanFilterSize + Offset; ii = ii + 1) {
             Sum = 0;
             for (int B_ii = ii - Offset; B_ii < ii + Offset + 1; B_ii++) {
@@ -171,9 +171,9 @@ public class Util {
         return FilteredImage;
     }
 
-    public static double[][][] MeanFilterRGB(double[][][] ImIn, int MeanFilterSize) {
+    public static float[][][] MeanFilterRGB(float[][][] ImIn, int MeanFilterSize) {
         int Offset = (MeanFilterSize - 1) / 2;
-        double[][][] FilteredIm = new double[3][ImIn[0].length - 2 * Offset][ImIn[0][0].length - 2 * Offset];
+        float[][][] FilteredIm = new float[3][ImIn[0].length - 2 * Offset][ImIn[0][0].length - 2 * Offset];
 
         FilteredIm[0] = MeanFilterSingleChan(ImIn[0], MeanFilterSize);
         FilteredIm[1] = MeanFilterSingleChan(ImIn[1], MeanFilterSize);
@@ -182,10 +182,10 @@ public class Util {
         return FilteredIm;
     }
 
-    public static double[][] MeanChannelImage(double[][][] ImIn) {
+    public static float[][] MeanChannelImage(float[][][] ImIn) {
         int ImWidth = ImIn[0].length;
         int ImHeight = ImIn[0][0].length;
-        double[][] OutIm = new double[ImWidth][ImHeight];
+        float[][] OutIm = new float[ImWidth][ImHeight];
 
         for (int ii = 0; ii < ImWidth; ii++) {
             for (int jj = 0; jj < ImHeight; jj++) {
@@ -196,10 +196,10 @@ public class Util {
         return OutIm;
     }
 
-    public static double SingleChannelMean(double[][] ImIn) {
+    public static float SingleChannelMean(float[][] ImIn) {
         int ImWidth = ImIn.length;
         int ImHeight = ImIn[0].length;
-        double Mean = 0;
+        float Mean = 0;
         /*
          for (int kkkk = ImHeight-5; kkkk < ImHeight; kkkk++) {
          for (int llll = ImWidth-5; llll < ImWidth; llll++) {
@@ -219,7 +219,7 @@ public class Util {
         return Mean;
     }
 
-    public static List<Integer> GetArrayLocalMinima(double[] ValuesIn) {
+    public static List<Integer> GetArrayLocalMinima(float[] ValuesIn) {
         List<Integer> Minima = new ArrayList();
 
         for (int ii = 1; ii < ValuesIn.length - 1; ii++) {
@@ -234,7 +234,7 @@ public class Util {
         return Minima;
     }
 
-    public static double[][] NormalizeIm(double[][] ImIn) {
+    public static double[][] NormalizeIm(float[][] ImIn) {
         int ImWidth = ImIn.length;
         int ImHeight = ImIn[0].length;
         double ImOut[][] = new double[ImWidth][ImHeight];
@@ -244,13 +244,13 @@ public class Util {
 
         double colMin, colMax;
 
-        for (double[] ImInRow : ImIn) {
+        for (float[] ImInRow : ImIn) {
             List b = Arrays.asList(ArrayUtils.toObject(ImInRow));
-            colMin = (double) Collections.min(b);
+            colMin = (float) Collections.min(b);
             if (colMin < min) {
                 min = colMin;
             }
-            colMax = (double) Collections.max(b);
+            colMax = (float) Collections.max(b);
             if (colMax > max) {
                 max = colMax;
             }
@@ -376,13 +376,13 @@ public class Util {
         return format;
     }
 
-    public static double MinDouble2DArray(double[][] ArrayIn) {
-        double min = Double.MAX_VALUE;
-        double colMin;
+    public static float MinDouble2DArray(float[][] ArrayIn) {
+        float min = Float.MAX_VALUE;
+        float colMin;
 
-        for (double[] ArrayInRow : ArrayIn) {
+        for (float[] ArrayInRow : ArrayIn) {
             List b = Arrays.asList(ArrayUtils.toObject(ArrayInRow));
-            colMin = (double) Collections.min(b);
+            colMin = (float) Collections.min(b);
             if (colMin < min) {
                 min = colMin;
             }
@@ -390,13 +390,13 @@ public class Util {
         return min;
     }
 
-    public static double MaxDouble2DArray(double[][] ArrayIn) {
-        double max = -Double.MAX_VALUE;
-        double colMax;
+    public static float MaxDouble2DArray(float[][] ArrayIn) {
+        float max = -Float.MAX_VALUE;
+        float colMax;
 
-        for (double[] ArrayInRow : ArrayIn) {
+        for (float[] ArrayInRow : ArrayIn) {
             List b = Arrays.asList(ArrayUtils.toObject(ArrayInRow));
-            colMax = (double) Collections.max(b);
+            colMax = (float) Collections.max(b);
             if (colMax > max) {
                 max = colMax;
             }
@@ -404,14 +404,14 @@ public class Util {
         return max;
     }
 
-    public static double MinDouble3DArray(double[][][] ArrayIn) {
-        double min = Double.MAX_VALUE;
-        double colMin;
+    public static float MinDouble3DArray(float[][][] ArrayIn) {
+        float min = Float.MAX_VALUE;
+        float colMin;
 
-        for (double[][] TwoDInRow : ArrayIn) {
-            for (double[] ArrayInRow : TwoDInRow) {
+        for (float[][] TwoDInRow : ArrayIn) {
+            for (float[] ArrayInRow : TwoDInRow) {
                 List b = Arrays.asList(ArrayUtils.toObject(ArrayInRow));
-                colMin = (double) Collections.min(b);
+                colMin = (float) Collections.min(b);
                 if (colMin < min) {
                     min = colMin;
                 }
@@ -420,14 +420,14 @@ public class Util {
         return min;
     }
 
-    public static double MaxDouble3DArray(double[][][] ArrayIn) {
+    public static double MaxDouble3DArray(float[][][] ArrayIn) {
         double max = -Double.MAX_VALUE;
         double colMax;
 
-        for (double[][] TwoDInRow : ArrayIn) {
-            for (double[] ArrayInRow : TwoDInRow) {
+        for (float[][] TwoDInRow : ArrayIn) {
+            for (float[] ArrayInRow : TwoDInRow) {
                 List b = Arrays.asList(ArrayUtils.toObject(ArrayInRow));
-                colMax = (double) Collections.max(b);
+                colMax = (float) Collections.max(b);
                 if (colMax > max) {
                     max = colMax;
                 }
@@ -513,4 +513,24 @@ public class Util {
     
     return OutList;
     }
+
+    public static float[][] ShrinkMap(float[][] OrigMap, int NewWidth, int NewHeight){
+        // shrink an input map using nearest neighbour interpolation
+
+        float[][] OutputMap=new float[NewHeight][NewWidth];
+        float HeightModifier=(float)OrigMap.length/NewHeight;
+        float WidthModifier=(float)OrigMap[0].length/NewWidth;
+        //System.out.println(HeightModifier);
+        //System.out.println(WidthModifier);
+
+
+
+        for (int ii=0;ii<NewHeight;ii++) {
+            for (int jj=0;jj<NewHeight;jj++) {
+                OutputMap[ii][jj]=OrigMap[Math.round(ii*HeightModifier)][Math.round(jj*WidthModifier)];
+            }
+        }
+        return OutputMap;
+    }
+
 }

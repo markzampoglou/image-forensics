@@ -17,6 +17,7 @@ package DWT;
  */
 import java.io.File;
 import java.util.ArrayList;
+
 import org.ojalgo.access.Access2D.Builder;
 import org.ojalgo.matrix.BasicMatrix;
 import org.ojalgo.matrix.BasicMatrix.Factory;
@@ -62,6 +63,7 @@ public class DWT {
      */
     public static double[] forwardDwt(double[] signal, Wavelet wavelet,
             int order, int L) throws Exception {
+
         long begin, timer1 = 0, timer2 = 0, timer3 = 0, timer4 = 0, timer5 = 0, timer6 = 0;
         int n = signal.length;
         if (!isValidChoices(wavelet, order, L, n)) {
@@ -79,6 +81,18 @@ public class DWT {
         
         int row1 = 0, row2 = 0, col1 = 0, col2 = 0;
         double[][] QMF = makeQMFMatrix(subLength, H, G);
+
+
+
+
+        double[] QMFElements = new double[QMF.length*QMF[0].length];
+        for (int ii=0; ii<QMF.length; ii++){
+            for (int jj=0; jj<QMF[0].length; jj++){
+                QMFElements[ii*QMF[0].length+jj]=QMF[ii][jj];
+            }
+        }
+
+
         final Factory<PrimitiveMatrix> QMFFactory = PrimitiveMatrix.FACTORY;
         final Builder<PrimitiveMatrix> QMFBuilder = QMFFactory.getBuilder(QMF.length, QMF[0].length);
         for (int jj = 0; jj < QMF.length; jj++) {
@@ -87,6 +101,8 @@ public class DWT {
             }
         }
         final BasicMatrix QMFBM = QMFBuilder.build();
+
+
 
         for (int i = 0; i < iterations; i++) {
             begin = System.currentTimeMillis();
@@ -100,23 +116,31 @@ public class DWT {
             begin = System.currentTimeMillis();
 
             subResult = subCopy(dWT, subResult, subLength);
+
+            //EJMLSubResult.setData(subResult);
+
             final Factory<PrimitiveMatrix> subResultFactory = PrimitiveMatrix.FACTORY;
             final Builder<PrimitiveMatrix> subResultBuilder = subResultFactory.getBuilder(1, subResult.length);
             for (int jj = 0; jj < subResult.length; jj++) {
                 subResultBuilder.set(0, jj, subResult[jj]);
             }
-            final BasicMatrix subResultBM = subResultBuilder.build();
 
+
+
+            final BasicMatrix subResultBM = subResultBuilder.build();
             timer4 += System.currentTimeMillis() - begin;
             begin = System.currentTimeMillis();
+
             final BasicMatrix tempBM = QMFBM.multiplyLeft(subResultBM);
+            timer5 += System.currentTimeMillis() - begin;
+            begin = System.currentTimeMillis();
+
             double[] temp = new double[QMF.length];//MatrixOps.multiply(QMF, subResult);
             for (int jj = 0; jj < tempBM.count(); jj++) {
                 temp[jj] = (double) tempBM.get(jj);
             }
 
-            timer5 += System.currentTimeMillis() - begin;
-            begin = System.currentTimeMillis();
+
             dWT = subCopy(temp, dWT, subLength);
             timer6 += System.currentTimeMillis() - begin;
             row1 = QMF.length;

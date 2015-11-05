@@ -83,12 +83,12 @@ public class ToolboxAPI {
             File ghostOutputfile = File.createTempFile("REVEAL_", ".png", LocalDir);
             ImageIO.write(TransparentPNGNotAccepted(), "png", ghostOutputfile);
             AnalysisResult.GhostOutput.add(ghostOutputfile.getCanonicalPath());
-            AnalysisResult.GhostDifferences.add(0.0);
+            AnalysisResult.GhostDifferences.add((float) 0.0);
             AnalysisResult.GhostMinQuality = 0;
             AnalysisResult.GhostMaxQuality = 0;
             AnalysisResult.GhostQualities.add(0);
-            AnalysisResult.Ghost_MinValues.add(0.0);
-            AnalysisResult.Ghost_MaxValues.add(0.0);
+            AnalysisResult.Ghost_MinValues.add((float) 0.0);
+            AnalysisResult.Ghost_MaxValues.add((float) 0.0);
                 // Gif writing disabled for now - server too slow                
             //File ghostOutputGIFfile = File.createTempFile("REVEAL_", ".gif", LocalDir);
             //ImageIO.write(TransparentPNGNotAccepted(), "gif", ghostOutputGIFfile);
@@ -255,9 +255,7 @@ public class ToolboxAPI {
          String[] Input2 = {ImageFile.getCanonicalPath()};
          String[] Input3 = {ImageFile.getCanonicalPath()};
          */
-        DQDetector dqDetector;
         NoiseMapExtractor noiseExtractor;
-        JPEGGhostExtractor ImageGhosts;
 
         if (ImageIO.read(new File(InputFileName)).getColorModel().hasAlpha()) {
             File noiseOutputfile = File.createTempFile("REVEAL_", ".png", LocalDir);
@@ -412,12 +410,12 @@ public class ToolboxAPI {
             File ghostOutputfile = File.createTempFile("REVEAL_", ".png", LocalDir);
             ImageIO.write(TransparentPNGNotAccepted(), "png", ghostOutputfile);
             AnalysisResult.GhostOutput.add(ghostOutputfile.getCanonicalPath());
-            AnalysisResult.GhostDifferences.add(0.0);
+            AnalysisResult.GhostDifferences.add((float) 0.0);
             AnalysisResult.GhostMinQuality = 0;
             AnalysisResult.GhostMaxQuality = 0;
             AnalysisResult.GhostQualities.add(0);
-            AnalysisResult.Ghost_MinValues.add(0.0);
-            AnalysisResult.Ghost_MaxValues.add(0.0);
+            AnalysisResult.Ghost_MinValues.add((float) 0.0);
+            AnalysisResult.Ghost_MaxValues.add((float) 0.0);
 
                 //File ghostOutputGIFfile = File.createTempFile("REVEAL_", ".gif", LocalDir);
             //ImageIO.write(TransparentPNGNotAccepted(), "gif", ghostOutputGIFfile);
@@ -509,7 +507,10 @@ public class ToolboxAPI {
             args[0] = "http://batona.net/uploads/posts/2014-01/1390536866_005.jpg"; //Mahdian+Ghost
             args[0] = "http://36.media.tumblr.com/ce4acc665131ab979447ebae51ad97cc/tumblr_nhx89lgiUQ1sfx3flo1_1280.jpg"; //Mahdian
             args[0] = "http://cdn.trinixy.ru/pics2/20070615/79.jpg"; //Mahdian + Ghost            
-            args[0] = "http://worth1000.s3.amazonaws.com/submissions/712000/712415_7ffa_1024x2000.jpg";
+            //args[0] = "http://worth1000.s3.amazonaws.com/submissions/712000/712415_7ffa_1024x2000.jpg";
+
+            args[0] = "file:/media/marzampoglou/3TB/markzampoglou/ImageForensics/Datasets/Ruben/Reveal_Image_Manipulation_Dataset-2015-08-21/Reveal Image Manipulation Dataset/01/DSCF3065_X-E2_manip+.jpg";
+
 
             // does not work online:
             //args[0] = "http://www.gannett-cdn.com/-mm-/55a8014f604ae574fe5f883dde154b25c3a0599f/c=168-0-857-689&r=x408&c=405x405/local/-/media/2015/05/28/USATODAY/USATODAY/635684167819994087-WALLANCE.JPG";            
@@ -569,6 +570,8 @@ public class ToolboxAPI {
             for (int ii = 0; ii < analGhost.GhostOutput.size(); ii++) {
                 System.out.println(analGhost.GhostOutput.get(ii) + ":" + analGhost.GhostQualities.get(ii) + ":" + analGhost.Ghost_MinValues.get(ii) + ":" + analGhost.Ghost_MaxValues.get(ii) + ":");
             }
+
+
             //System.out.println("Ghost GIF: " + analGhost.GhostGIFOutput);
         } catch (Throwable ex) {
             Logger.getLogger(ToolboxAPI.class.getName()).log(Level.SEVERE, null, ex);

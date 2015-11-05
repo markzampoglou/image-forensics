@@ -10,6 +10,7 @@ package pkg07_waveletnoisemap;
 import Utils.Util;
 import DWT.DWT;
 import DWT.Wavelet;
+
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -27,6 +28,8 @@ import org.apache.commons.lang3.ArrayUtils;
  * @author markzampoglou
  */
 public class NoiseMapExtractor {
+
+    int numThreads=6;
 
     BufferedImage InputImage = null;
 
@@ -78,9 +81,14 @@ public class NoiseMapExtractor {
                 ImgYAsArray[ii][jj] = 0.2989 * R + 0.5870 * G + 0.1140 * B;
             }
         }
-        Begin = System.currentTimeMillis();
+
         double[] WaveletColumn;
+
+
+        Begin = System.currentTimeMillis();
+
         for (int ii = 0; ii < ImWidth; ii++) {
+            //System.out.println(ii);
             try {
                 ImgColumn = new double[ImHeight];
                 System.arraycopy(ImgYAsArray[ii], 0, ImgColumn, 0, ImHeight);
@@ -91,7 +99,6 @@ public class NoiseMapExtractor {
                 Logger.getLogger(NoiseMapExtractor.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-
         double[] WaveletRow;
         for (int jj = 0; jj < ImHeight / 2; jj++) {
             try {

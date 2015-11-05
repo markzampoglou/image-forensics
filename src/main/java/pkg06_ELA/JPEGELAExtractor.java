@@ -19,7 +19,7 @@ import java.io.IOException;
 public class JPEGELAExtractor {
 
     public BufferedImage ELAMap = null;
-    public Double ELAMin = null;
+    public Float ELAMin = null;
     public Double ELAMax = null;
 
     public JPEGELAExtractor(String FileName) throws IOException {
@@ -37,7 +37,7 @@ public class JPEGELAExtractor {
 
         BufferedImage RecompressedImage = Util.RecompressImage(OrigImage, Quality);
         int[][][] RecompressedByteImage = Util.GetRGBArray(RecompressedImage);
-        double[][][] ImageDifference = Util.CalculateImageDifference(OrigByteImage, RecompressedByteImage);
+        float[][][] ImageDifference = Util.CalculateImageDifference(OrigByteImage, RecompressedByteImage);
         ELAMin=Util.MinDouble3DArray(ImageDifference);
         ELAMax=Util.MaxDouble3DArray(ImageDifference);
 

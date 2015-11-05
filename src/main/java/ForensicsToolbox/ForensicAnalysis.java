@@ -17,7 +17,7 @@ public class ForensicAnalysis {
     public String DQ_Lin_Output;
     public String Noise_Mahdian_Output;
     public List<String> GhostOutput = new ArrayList();
-    //public String GhostGIFOutput;
+    public String GhostGIFOutput;
     public List<Integer> GhostQualities = new ArrayList();
 
     public double DQ_Lin_MaxValue;
@@ -25,9 +25,9 @@ public class ForensicAnalysis {
     public double Noise_Mahdian_MaxValue;
     public double Noise_Mahdian_MinValue;
 
-    public List<Double> GhostDifferences = new ArrayList();
-    public List<Double> Ghost_MinValues = new ArrayList();
-    public List<Double> Ghost_MaxValues = new ArrayList();
+    public List<Float> GhostDifferences = new ArrayList();
+    public List<Float> Ghost_MinValues = new ArrayList();
+    public List<Float> Ghost_MaxValues = new ArrayList();
     public int GhostMinQuality;
     public int GhostMaxQuality;
 }

@@ -15,12 +15,12 @@ import java.util.List;
  */
 public class GhostAnalysis {
     public List<String> GhostOutput = new ArrayList();
-    //public String GhostGIFOutput;
+    public String GhostGIFOutput;
     public List<Integer> GhostQualities = new ArrayList();
 
-    public List<Double> GhostDifferences = new ArrayList();
-    public List<Double> Ghost_MinValues = new ArrayList();
-    public List<Double> Ghost_MaxValues = new ArrayList();
+    public List<Float> GhostDifferences = new ArrayList();
+    public List<Float> Ghost_MinValues = new ArrayList();
+    public List<Float> Ghost_MaxValues = new ArrayList();
     public int GhostMinQuality;
     public int GhostMaxQuality;
 }
