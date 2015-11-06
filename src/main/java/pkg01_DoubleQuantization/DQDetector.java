@@ -11,6 +11,8 @@ import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,8 +25,12 @@ import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
 
+import javax.imageio.ImageIO;
+
 import static Utils.Util.VisualizeWithJet;
 import static Utils.Util.rem;
+
+import Utils.DCTCoeffExtractor;
 
 /**
  *
@@ -41,17 +47,29 @@ public final class DQDetector {
     public double minProbValue = Double.MAX_VALUE;
     public double maxProbValue = -Double.MAX_VALUE;
 
-    public interface CLibrary extends Library {
+    /*public interface CLibrary extends Library {
 
         CLibrary JPEGlib = (CLibrary) Native.loadLibrary((Platform.isWindows() ? "ExportDCT" : "ExportDCT"), CLibrary.class);
 
         int testInOut(int a);
 
         IntByReference GetDCT(String FileName);
-    }
+    }*/
 
     public DQDetector(String FileName) {
-        DCTs = GetDCTCoeffsFromFile(FileName);
+        //DCTs = GetDCTCoeffsFromFile(FileName);
+        BufferedImage OrigImage;
+        try {OrigImage = ImageIO.read(new File(FileName));
+            int[][] DCTs2=DCTCoeffExtractor.ExtractYDCT(OrigImage);
+            DCTs=DCTs2;
+        }
+        catch
+                (IOException e) {
+            e.printStackTrace();
+        }
+
+
+
         DetectDQDiscontinuities();
     }
 
@@ -273,6 +291,8 @@ public final class DQDetector {
         DisplaySurface = OutputIm;
     }
 
+
+    /*
     public final int[][] GetDCTCoeffsFromFile(String FileName) {
         IntByReference intFromC;
         intFromC = CLibrary.JPEGlib.GetDCT(FileName);
@@ -302,11 +322,14 @@ public final class DQDetector {
 
         return DCTCoeffs;
     }
+*/
 
     /*--------------------------------------------------------------------------*/
     // Call this static method to see if jpeglib and the related 
     //infrastructure has been properly set up. The expected output from this 
     //method appears at the end
+
+    /*
     public static void JPGDemo() {
 
         IntByReference intFromC;
@@ -359,7 +382,10 @@ public final class DQDetector {
             System.out.println();
         }
     }
+    */
 }
+
+
 
 /* if JPEGDemo is present in the folder, output should be:
 

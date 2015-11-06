@@ -503,13 +503,13 @@ public class ToolboxAPI {
             args = new String[1];
             args[0] = "http://i.imgur.com/BGIRJUh.jpg"; //DQ + Ghost
             args[0] = "http://www.lincolnvscadillac.com/forum/attachment.php?attachmentid=37425&stc=1&d=1220640009"; //DQ + Ghost
-            args[0] = "http://de.trinixy.ru/pics4/20100318/podborka_14.jpg"; //Ghost
-            args[0] = "http://batona.net/uploads/posts/2014-01/1390536866_005.jpg"; //Mahdian+Ghost
-            args[0] = "http://36.media.tumblr.com/ce4acc665131ab979447ebae51ad97cc/tumblr_nhx89lgiUQ1sfx3flo1_1280.jpg"; //Mahdian
-            args[0] = "http://cdn.trinixy.ru/pics2/20070615/79.jpg"; //Mahdian + Ghost            
+            //args[0] = "http://de.trinixy.ru/pics4/20100318/podborka_14.jpg"; //Ghost
+            //args[0] = "http://batona.net/uploads/posts/2014-01/1390536866_005.jpg"; //Mahdian+Ghost
+            //args[0] = "http://36.media.tumblr.com/ce4acc665131ab979447ebae51ad97cc/tumblr_nhx89lgiUQ1sfx3flo1_1280.jpg"; //Mahdian
+            //args[0] = "http://cdn.trinixy.ru/pics2/20070615/79.jpg"; //Mahdian + Ghost
             //args[0] = "http://worth1000.s3.amazonaws.com/submissions/712000/712415_7ffa_1024x2000.jpg";
 
-            args[0] = "file:/media/marzampoglou/3TB/markzampoglou/ImageForensics/Datasets/Ruben/Reveal_Image_Manipulation_Dataset-2015-08-21/Reveal Image Manipulation Dataset/01/DSCF3065_X-E2_manip+.jpg";
+            //args[0] = "file:/media/marzampoglou/3TB/markzampoglou/ImageForensics/Datasets/Ruben/Reveal_Image_Manipulation_Dataset-2015-08-21/Reveal Image Manipulation Dataset/01/DSCF3065_X-E2_manip+.jpg";
 
 
             // does not work online:
@@ -550,6 +550,9 @@ public class ToolboxAPI {
          }        
          */
         try {
+            DQAnalysis analDQ = getImageDQ(FileURL, "./");
+
+            /*
             start = System.nanoTime();
             DQAnalysis analDQ = getImageDQ(FileURL, "./");
             System.out.println("DQ finished " + String.valueOf(System.nanoTime() - start));
@@ -570,7 +573,7 @@ public class ToolboxAPI {
             for (int ii = 0; ii < analGhost.GhostOutput.size(); ii++) {
                 System.out.println(analGhost.GhostOutput.get(ii) + ":" + analGhost.GhostQualities.get(ii) + ":" + analGhost.Ghost_MinValues.get(ii) + ":" + analGhost.Ghost_MaxValues.get(ii) + ":");
             }
-
+            */
 
             //System.out.println("Ghost GIF: " + analGhost.GhostGIFOutput);
         } catch (Throwable ex) {
