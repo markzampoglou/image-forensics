@@ -25,6 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 //import org.apache.commons.io.FileUtils;
+import metadataExtraction.metadataExtractor;
 import pkg01_DoubleQuantization.DQDetector;
 import pkg06_ELA.JPEGELAExtractor;
 import pkg07_waveletnoisemap.NoiseMapExtractor;
@@ -124,6 +125,7 @@ public class ToolboxAPI {
 
         return AnalysisResult;
     }
+
 
     public static DQAnalysis getImageDQ(String ImageLocation, String OutputPath) throws MalformedURLException, IOException {
 
@@ -496,31 +498,79 @@ public class ToolboxAPI {
         return AnalysisResult;
     }
 
+    public static String getImageMetadata(String ImageLocation, String OutputPath) throws MalformedURLException, IOException {
+
+        String MetadataOutput="Not done";
+
+        URL ImageURL = new URL(ImageLocation);
+        File LocalDir = new File(OutputPath);
+
+        File ImageFile = File.createTempFile("REVEAL_", null, LocalDir);
+        //FileUtils.copyURLToFile(ImageURL, ImageFile);
+
+        InputStream inputStream = null;
+        URLConnection urlConnection = null;
+        int noOfBytes = 0;
+        byte[] byteChunk = new byte[4096];
+        ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+        urlConnection = ImageURL.openConnection();
+        urlConnection.addRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
+        // We need to set cookies as below.
+        //urlConnection.addRequestProperty("Cookie", _mSharePointSession.cookieNedToken);
+
+        urlConnection.connect();
+
+        inputStream = urlConnection.getInputStream();
+
+        while ((noOfBytes = inputStream.read(byteChunk)) > 0) {
+            byteOutputStream.write(byteChunk, 0, noOfBytes);
+        }
+        OutputStream outputStream = new FileOutputStream(ImageFile);
+        byteOutputStream.writeTo(outputStream);
+
+        outputStream.close();
+        ImageFile.deleteOnExit();
+
+        String InputFileName = ImageFile.getCanonicalPath();
+
+
+        try {
+            metadataExtractor MetadataExtractor = new metadataExtractor(InputFileName);
+
+            MetadataOutput=MetadataExtractor.MetadataReport;
+        } catch (Throwable e) {
+            Logger.getLogger(ToolboxAPI.class.getName()).log(Level.SEVERE, null, e);
+        }
+        return MetadataOutput;
+    }
+
     public static void main(String[] args) throws MalformedURLException {
 
         long start = System.nanoTime();
         if (args.length == 0) {
             args = new String[1];
             args[0] = "http://i.imgur.com/BGIRJUh.jpg"; //DQ + Ghost
-            args[0] = "http://www.lincolnvscadillac.com/forum/attachment.php?attachmentid=37425&stc=1&d=1220640009"; //DQ + Ghost
+            //args[0] = "http://www.lincolnvscadillac.com/forum/attachment.php?attachmentid=37425&stc=1&d=1220640009"; //DQ + Ghost
             //args[0] = "http://de.trinixy.ru/pics4/20100318/podborka_14.jpg"; //Ghost
             //args[0] = "http://batona.net/uploads/posts/2014-01/1390536866_005.jpg"; //Mahdian+Ghost
             //args[0] = "http://36.media.tumblr.com/ce4acc665131ab979447ebae51ad97cc/tumblr_nhx89lgiUQ1sfx3flo1_1280.jpg"; //Mahdian
             //args[0] = "http://cdn.trinixy.ru/pics2/20070615/79.jpg"; //Mahdian + Ghost
             //args[0] = "http://worth1000.s3.amazonaws.com/submissions/712000/712415_7ffa_1024x2000.jpg";
 
-            //args[0] = "file:/media/marzampoglou/3TB/markzampoglou/ImageForensics/Datasets/Ruben/Reveal_Image_Manipulation_Dataset-2015-08-21/Reveal Image Manipulation Dataset/01/DSCF3065_X-E2_manip+.jpg";
-
+            args[0] = "file:/media/marzampoglou/3TB/markzampoglou/ImageForensics/Datasets/Ruben/Reveal_Image_Manipulation_Dataset-2015-08-21/Reveal Image Manipulation Dataset/03_Fuji_a/DSCF3065_X-E2_manip+.jpg";
+            //args[0] = "https://dl.dropboxusercontent.com/u/67895186/IMG_20150812_105958_Nex4_manip%2B.jpg";
 
             // does not work online:
             //args[0] = "http://www.gannett-cdn.com/-mm-/55a8014f604ae574fe5f883dde154b25c3a0599f/c=168-0-857-689&r=x408&c=405x405/local/-/media/2015/05/28/USATODAY/USATODAY/635684167819994087-WALLANCE.JPG";            
             //args[0] = "http://vignette4.wikia.nocookie.net/fantendo/images/6/6e/Small-mario.png/revision/latest?cb=20120718024112"; //Transparency
             //args[0] = "http://www.codeproject.com/KB/buttons/GdipButton/GdipButton1.PNG"; //Not JPEG
-            //args[0] = "file:/media/marzampoglou/New Volume/markzampoglou/ImageForensics/Deliverables/Code/MultimediaManipulationToolbox_Running/JPEGDemo2.jpg";            
             //args[0] = "http://www.gannett-cdn.com/-mm-/55a8014f604ae574fe5f883dde154b25c3a0599f/c=168-0-857-689&r=x408&c=405x405/local/-/media/2015/05/28/USATODAY/USATODAY/635684167819994087-WALLANCE.JPG";
             //args[0] = "http://www.codeproject.com/KB/buttons/GdipButton/GdipButton1.PNG"; //Not JPEG
             //args[0]="file:" + System.getProperty("user.dir")+ "/target/classes/1.Ferguson.jpg";
             //args[0] = "file:/media/marzampoglou/3TB/markzampoglou/ImageForensics/Datasets/Wild Web Dataset/WildWeb/KerryFonda1/1.jpg";
+
+            //args[0] = "file:/media/marzampoglou/3TB/markzampoglou/ImageForensics/Datasets/Anastasia/Anastasia Images/Sp/crowd_fake.jpg";
+
 
         } else {
             if (!(args[0].contains("file:") | args[0].contains("p://"))) {
@@ -550,7 +600,8 @@ public class ToolboxAPI {
          }        
          */
         try {
-            DQAnalysis analDQ = getImageDQ(FileURL, "./");
+            //DQAnalysis analDQ = getImageDQ(FileURL, "./");
+            String metaD=getImageMetadata(FileURL,"./");
 
             /*
             start = System.nanoTime();
@@ -574,6 +625,7 @@ public class ToolboxAPI {
                 System.out.println(analGhost.GhostOutput.get(ii) + ":" + analGhost.GhostQualities.get(ii) + ":" + analGhost.Ghost_MinValues.get(ii) + ":" + analGhost.Ghost_MaxValues.get(ii) + ":");
             }
             */
+
 
             //System.out.println("Ghost GIF: " + analGhost.GhostGIFOutput);
         } catch (Throwable ex) {

@@ -106,7 +106,6 @@ public class DCTCoeffExtractor {
         }
 
         System.out.println();
-
         for (int ii=0;ii<vec.length;ii++){ //
             for (int jj=0;jj<vec[0].length;jj++){ //
                 //System.out.print(vec[ii][jj] + " ");
