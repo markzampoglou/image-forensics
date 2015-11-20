@@ -18,7 +18,7 @@ import java.io.IOException;
  */
 public class JPEGELAExtractor {
 
-    public BufferedImage ELAMap = null;
+    public BufferedImage DisplaySurface = null;
     public Float ELAMin = null;
     public Double ELAMax = null;
 
@@ -54,7 +54,10 @@ public class JPEGELAExtractor {
                 }
             }
         }
-        ELAMap=Util.CreateImFromArray(IntDifference);
+
+
+
+        DisplaySurface =Util.CreateImFromArray(IntDifference);
 
         return OrigImage;
     }

@@ -42,7 +42,7 @@ public class JPEGGhostExtractor {
         GetJPEGGhost(FileName);
     }
 
-    private int MaxImageSmallDimension =512;
+    private int MaxImageSmallDimension =768;
     private int numThreads=4;
 
     private void GetJPEGGhost(String FileName) throws IOException {
@@ -68,10 +68,6 @@ public class JPEGGhostExtractor {
         int ImageWidth=OrigImage.getWidth();
 
 
-
-
-
-
         GhostCalculator calculator = new GhostCalculator(numThreads, MaxImageSmallDimension, OrigImage, OrigByteImage);
         int submittedCounter = 0;
         int completedCounter = 0;
@@ -94,7 +90,7 @@ public class JPEGGhostExtractor {
 
             while (submittedCounter < totalGhosts && calculator.canAcceptMoreTasks()) {
                 calculator.submitGhostTask(currentQuality);
-                System.out.println("Added :" + String.valueOf(currentQuality));
+                //System.out.println("Added :" + String.valueOf(currentQuality));
                 submittedCounter++;
                 currentQuality++;
             }
@@ -137,7 +133,7 @@ public class JPEGGhostExtractor {
                 break;
             }
         }
-        System.out.println(System.currentTimeMillis()-start);
+        //System.out.println(System.currentTimeMillis()-start);
 
         /********************************************************************************************
         /*

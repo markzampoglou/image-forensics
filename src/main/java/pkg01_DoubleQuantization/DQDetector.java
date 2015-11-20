@@ -47,17 +47,19 @@ public final class DQDetector {
     public double minProbValue = Double.MAX_VALUE;
     public double maxProbValue = -Double.MAX_VALUE;
 
-    /*public interface CLibrary extends Library {
+    public interface CLibrary extends Library {
 
         CLibrary JPEGlib = (CLibrary) Native.loadLibrary((Platform.isWindows() ? "ExportDCT" : "ExportDCT"), CLibrary.class);
-
         int testInOut(int a);
-
         IntByReference GetDCT(String FileName);
-    }*/
+    }
 
     public DQDetector(String FileName) {
-        //DCTs = GetDCTCoeffsFromFile(FileName);
+
+        try {
+            DCTs = GetDCTCoeffsFromFile(FileName);
+        } catch (Error err) {
+            System.out.println("Could not load native JPEGlib-based DCT extractor, getting DCT coefficients from pixel values.");
         BufferedImage OrigImage;
         try {OrigImage = ImageIO.read(new File(FileName));
             int[][] DCTs2=DCTCoeffExtractor.ExtractYDCT(OrigImage);
@@ -66,6 +68,7 @@ public final class DQDetector {
         catch
                 (IOException e) {
             e.printStackTrace();
+        }
         }
 
 
@@ -292,9 +295,10 @@ public final class DQDetector {
     }
 
 
-    /*
+
     public final int[][] GetDCTCoeffsFromFile(String FileName) {
         IntByReference intFromC;
+        int[][] DCTCoeffs=null;
         intFromC = CLibrary.JPEGlib.GetDCT(FileName);
         Pointer p = intFromC.getPointer();
         int[] ImageSize = new int[2];
@@ -305,7 +309,7 @@ public final class DQDetector {
         int[] IntFromC = new int[NBlocksX * NBlocksY * 64];
         p.read(8, IntFromC, 0, NBlocksX * NBlocksY * 64);
 
-        int[][] DCTCoeffs = new int[(NBlocksX) * 8][(NBlocksY) * 8]; //matlab structure, rows first
+        DCTCoeffs = new int[(NBlocksX) * 8][(NBlocksY) * 8]; //matlab structure, rows first
 
         int SerialInd;
         for (int BXInd = 0; BXInd < NBlocksX; BXInd++) {
@@ -318,11 +322,11 @@ public final class DQDetector {
                 }
             }
         }
-       
+
 
         return DCTCoeffs;
     }
-*/
+
 
     /*--------------------------------------------------------------------------*/
     // Call this static method to see if jpeglib and the related 

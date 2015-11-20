@@ -130,6 +130,35 @@ public class Util {
         return ImageDifference;
     }
 
+    public static float[][][] CalculateResizedImageDifference(BufferedImage Image1, BufferedImage Image2, int NewWidth, int NewHeight){
+        float[][][] OutputMap=new float[3][NewWidth][NewHeight];
+        float WidthModifier=(float)Image1.getWidth()/NewWidth;
+        float HeightModifier=(float)Image1.getHeight()/NewHeight;
+
+        Color tmpColor1, tmpColor2;
+
+        for (int ii = 0; ii < NewHeight; ii++) {
+            for (int jj = 0; jj < NewWidth; jj++) {
+                try {
+                    tmpColor1 = new Color(Image1.getRGB(Math.round(jj * WidthModifier),Math.round(ii * HeightModifier)));
+                    tmpColor2 = new Color(Image2.getRGB(Math.round(jj * WidthModifier),Math.round(ii * HeightModifier)));
+                    OutputMap[0][jj][ii] = (float) (tmpColor1.getRed() - tmpColor2.getRed()) * (tmpColor1.getRed() - tmpColor2.getRed());
+                    OutputMap[1][jj][ii] = (float) (tmpColor1.getGreen() - tmpColor2.getGreen()) * (tmpColor1.getGreen() - tmpColor2.getGreen());
+                    OutputMap[2][jj][ii] = (float) (tmpColor1.getBlue() - tmpColor2.getBlue()) * (tmpColor1.getBlue() - tmpColor2.getBlue());
+                } catch(Exception e) {
+                    System.out.println(NewHeight + " " + NewWidth + " " + Image1.getHeight() + " " + Image1.getWidth() + " " + ii + " " + jj + " " + Math.round(ii * HeightModifier) + " " + Math.round(jj * WidthModifier) + " " + HeightModifier + " " + WidthModifier);
+                    e.printStackTrace();
+                    return OutputMap;
+                }
+            }
+        }
+        return OutputMap;
+
+        //System.out.println(HeightModifier);
+        //System.out.println(WidthModifier);
+
+    }
+
     public static float[][] MeanFilterSingleChan(float[][] ImIn, int MeanFilterSize) {
         // Mean filter a 2D double array
         // MeanFilterSize should be odd
@@ -517,17 +546,19 @@ public class Util {
     public static float[][] ShrinkMap(float[][] OrigMap, int NewWidth, int NewHeight){
         // shrink an input map using nearest neighbour interpolation
 
-        float[][] OutputMap=new float[NewHeight][NewWidth];
-        float HeightModifier=(float)OrigMap.length/NewHeight;
-        float WidthModifier=(float)OrigMap[0].length/NewWidth;
+        float[][] OutputMap=new float[NewWidth][NewHeight];
+        float WidthModifier=(float)OrigMap.length/NewWidth;
+        float HeightModifier=(float)OrigMap[0].length/NewHeight;
         //System.out.println(HeightModifier);
         //System.out.println(WidthModifier);
 
-
-
-        for (int ii=0;ii<NewHeight;ii++) {
+        for (int ii=0;ii<NewWidth;ii++) {
             for (int jj=0;jj<NewHeight;jj++) {
-                OutputMap[ii][jj]=OrigMap[Math.round(ii*HeightModifier)][Math.round(jj*WidthModifier)];
+                try {
+                    OutputMap[ii][jj] = OrigMap[Math.round(ii * WidthModifier)][Math.round(jj * HeightModifier)];
+                }catch (Exception e) {
+                    System.out.println(OutputMap.length + " " + OutputMap[0].length + " " + OrigMap.length + " " + OrigMap[0].length + " " + ii + " " + jj + " " + Math.round(ii * HeightModifier) + " " + Math.round(jj * WidthModifier) + " " + HeightModifier + " " + WidthModifier);
+                }
             }
         }
         return OutputMap;

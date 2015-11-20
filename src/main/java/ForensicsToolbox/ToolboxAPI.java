@@ -25,6 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 //import org.apache.commons.io.FileUtils;
+import com.google.gson.JsonObject;
 import metadataExtraction.metadataExtractor;
 import pkg01_DoubleQuantization.DQDetector;
 import pkg06_ELA.JPEGELAExtractor;
@@ -338,7 +339,7 @@ public class ToolboxAPI {
             ELAExtractor = new JPEGELAExtractor(InputFileName);
 
                 File ELAOutputfile = File.createTempFile("REVEAL_", ".png", LocalDir);
-                ImageIO.write(ELAExtractor.ELAMap, "png", ELAOutputfile);
+                ImageIO.write(ELAExtractor.DisplaySurface, "png", ELAOutputfile);
                 AnalysisResult.ELA_Output = ELAOutputfile.getCanonicalPath();
                 AnalysisResult.ELA_MaxValue = ELAExtractor.ELAMax;
                 AnalysisResult.ELA_MinValue = ELAExtractor.ELAMin;
@@ -498,9 +499,9 @@ public class ToolboxAPI {
         return AnalysisResult;
     }
 
-    public static String getImageMetadata(String ImageLocation, String OutputPath) throws MalformedURLException, IOException {
+    public static JsonObject getImageMetadata(String ImageLocation, String OutputPath) throws MalformedURLException, IOException {
 
-        String MetadataOutput="Not done";
+        JsonObject MetadataOutput=null;
 
         URL ImageURL = new URL(ImageLocation);
         File LocalDir = new File(OutputPath);
@@ -519,9 +520,7 @@ public class ToolboxAPI {
         //urlConnection.addRequestProperty("Cookie", _mSharePointSession.cookieNedToken);
 
         urlConnection.connect();
-
         inputStream = urlConnection.getInputStream();
-
         while ((noOfBytes = inputStream.read(byteChunk)) > 0) {
             byteOutputStream.write(byteChunk, 0, noOfBytes);
         }
@@ -536,7 +535,6 @@ public class ToolboxAPI {
 
         try {
             metadataExtractor MetadataExtractor = new metadataExtractor(InputFileName);
-
             MetadataOutput=MetadataExtractor.MetadataReport;
         } catch (Throwable e) {
             Logger.getLogger(ToolboxAPI.class.getName()).log(Level.SEVERE, null, e);
@@ -601,7 +599,7 @@ public class ToolboxAPI {
          */
         try {
             //DQAnalysis analDQ = getImageDQ(FileURL, "./");
-            String metaD=getImageMetadata(FileURL,"./");
+            JsonObject metaD=getImageMetadata(FileURL,"./");
 
             /*
             start = System.nanoTime();
