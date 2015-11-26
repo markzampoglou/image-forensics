@@ -569,7 +569,6 @@ public class ToolboxAPI {
 
             //args[0] = "file:/media/marzampoglou/3TB/markzampoglou/ImageForensics/Datasets/Anastasia/Anastasia Images/Sp/crowd_fake.jpg";
 
-
         } else {
             if (!(args[0].contains("file:") | args[0].contains("p://"))) {
                 args[0] = "file:" + System.getProperty("user.dir") + "/" + args[0];

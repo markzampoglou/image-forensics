@@ -19,8 +19,8 @@ import java.io.IOException;
 public class JPEGELAExtractor {
 
     public BufferedImage DisplaySurface = null;
-    public Float ELAMin = null;
-    public Double ELAMax = null;
+    public double ELAMin;
+    public double ELAMax;
 
     public JPEGELAExtractor(String FileName) throws IOException {
         GetJPEGELA(FileName);

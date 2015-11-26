@@ -43,6 +43,7 @@ public class GhostCalculator {
          *            the download folder
          */
         public GhostCalculator(int numThreads,int MaxImageSmallDimension, BufferedImage OrigImage, int[][][] OrigByteImage) {
+            System.out.println("Ghost Threads " + numThreads);
             ghostExecutor = Executors.newFixedThreadPool(numThreads);
             pool = new ExecutorCompletionService<GhostCalculationResult>(ghostExecutor);
             numPendingTasks = 0;

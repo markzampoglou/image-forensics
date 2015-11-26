@@ -4,6 +4,9 @@ import com.google.gson.JsonObject;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Embedded;
 import org.mongodb.morphia.annotations.Id;
+import javax.jdo.*;
+
+import javax.xml.crypto.Data;
 
 /**
  * Created by marzampoglou on 11/19/15.
@@ -11,12 +14,16 @@ import org.mongodb.morphia.annotations.Id;
 @Entity
 public class ForensicReport {
     public @Id String id;
-    public String SourceImage;
-    public String DisplayImage;
-    public String SourceURL;
-    public String MetadataReport;
+    public String status="";
+    public String SourceImage="";
+    public String DisplayImage="";
+    public String SourceURL="";
+    public String MetadataStringReport ="{completed: \"false\" }";
+    public Object MetadataObjectReport=null;
     public @Embedded DQReport DQ_Report=new DQReport();
-    @Embedded NoiseDWReport NoiseDW_Report=new NoiseDWReport();
-    @Embedded GhostReport Ghost_Report=new GhostReport();
-    @Embedded ELAReport ELA_Report=new ELAReport();
+    public @Embedded NoiseDWReport NoiseDW_Report=new NoiseDWReport();
+    public @Embedded GhostReport Ghost_Report=new GhostReport();
+    public @Embedded ELAReport ELA_Report=new ELAReport();
+    public @Embedded BLKReport BLK_Report=new BLKReport();
+    public @Embedded MedianNoiseReport MedianNoise_Report=new MedianNoiseReport();
 }

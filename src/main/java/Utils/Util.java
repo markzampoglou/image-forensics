@@ -200,6 +200,129 @@ public class Util {
         return FilteredImage;
     }
 
+    public static int[][] SumFilterSingleChanVert(int[][] ImIn, int FilterSize) {
+        // Mean filter a 2D double array
+        // FilterSize should be odd
+        // Careful: this is the mean of the ABS values!
+        int Offset = (FilterSize - 1) / 2;
+        int ImWidth = ImIn.length;
+        int ImHeight = ImIn[0].length;
+
+        int[][] FilteredImage = new int[ImWidth][ImHeight - 2 * Offset];
+
+        int Sum;
+        for (int ii = 0; ii < ImWidth ; ii++) {
+            Sum = 0;
+            for (int B_jj = 0; B_jj < 2 * Offset + 1; B_jj++) {
+                    Sum = Sum + ImIn[ii][B_jj];
+            }
+            FilteredImage[ii][0] = Sum;
+
+            for (int jj = Offset + 1; jj <= ImHeight - FilterSize + Offset; jj = jj + 1) {
+                Sum = Sum - ImIn[ii][jj - Offset - 1];
+                Sum = Sum + ImIn[ii][jj + Offset];
+                FilteredImage[ii][jj - Offset] = Sum;
+            }
+        }
+        return FilteredImage;
+    }
+
+    public static int[][] SumFilterSingleChanHorz(int[][] ImIn, int FilterSize) {
+        // Mean filter a 2D double array
+        // FilterSize should be odd
+        // Careful: this is the mean of the ABS values!
+        int Offset = (FilterSize - 1) / 2;
+        int ImWidth = ImIn.length;
+        int ImHeight = ImIn[0].length;
+
+        int[][] FilteredImage = new int[ImWidth-2*Offset][ImHeight];
+
+        int Sum;
+        for (int jj = 0; jj < ImHeight ; jj++) {
+            Sum = 0;
+            for (int B_ii = 0; B_ii < 2 * Offset + 1; B_ii++) {
+                Sum = Sum + ImIn[B_ii][jj];
+            }
+            FilteredImage[0][jj] = Sum;
+
+            for (int ii = Offset + 1; ii <= ImWidth - FilterSize + Offset; ii = ii + 1) {
+                Sum = Sum - ImIn[ii - Offset - 1][jj];
+                Sum = Sum + ImIn[ii + Offset][jj];
+                FilteredImage[ii - Offset][jj] = Sum;
+            }
+        }
+        return FilteredImage;
+    }
+
+    public static int[][] MedianFilterSingleChanVert(int[][] ImIn, int FilterSize) {
+        // Mean filter a 2D double array
+        // FilterSize should be odd
+        // Careful: this is the mean of the ABS values!
+        int Offset = (FilterSize - 1) / 2;
+        int ImWidth = ImIn.length;
+        int ImHeight = ImIn[0].length;
+
+        int[][] FilteredImage = new int[ImWidth][ImHeight - 2 * Offset];
+
+        ArrayList<Integer> Neighborhood;
+        ArrayList<Integer> SortedNeighborhood;
+
+
+        for (int ii = 0; ii < ImWidth; ii++) {
+            Neighborhood = new ArrayList<>();
+            for (int N_jj=0; N_jj<2*Offset+1;N_jj++) {
+                Neighborhood.add(ImIn[ii][N_jj]);
+            }
+            SortedNeighborhood=new ArrayList<>(Neighborhood);
+            Collections.sort(SortedNeighborhood);
+            FilteredImage[ii][0] = SortedNeighborhood.get(Offset + 1);
+
+            for (int jj = Offset+1; jj <= ImHeight - FilterSize+Offset; jj++) {
+                Neighborhood.remove(0);
+                Neighborhood.add(ImIn[ii][jj+Offset]);
+                SortedNeighborhood=new ArrayList<>(Neighborhood);
+                Collections.sort(SortedNeighborhood);
+                FilteredImage[ii][jj-Offset] = SortedNeighborhood.get(Offset+1);
+            }
+        }
+        return FilteredImage;
+    }
+
+    public static int[][] MedianFilterSingleChanHorz(int[][] ImIn, int FilterSize) {
+        // Mean filter a 2D double array
+        // FilterSize should be odd
+        // Careful: this is the mean of the ABS values!
+        int Offset = (FilterSize - 1) / 2;
+        int ImWidth = ImIn.length;
+        int ImHeight = ImIn[0].length;
+
+        int[][] FilteredImage = new int[ImWidth - 2 * Offset][ImHeight];
+
+        ArrayList<Integer> Neighborhood;
+        ArrayList<Integer> SortedNeighborhood;
+
+
+        for (int jj = 0; jj < ImHeight; jj++) {
+            Neighborhood = new ArrayList<>();
+            for (int N_ii=0; N_ii<2*Offset+1;N_ii++) {
+                Neighborhood.add(ImIn[N_ii][jj]);
+            }
+            SortedNeighborhood=new ArrayList<>(Neighborhood);
+            Collections.sort(SortedNeighborhood);
+            FilteredImage[0][jj] = SortedNeighborhood.get(Offset + 1);
+
+            for (int ii = Offset+1; ii <= ImWidth - FilterSize+Offset; ii++) {
+                Neighborhood.remove(0);
+                Neighborhood.add(ImIn[ii+Offset][jj]);
+                SortedNeighborhood=new ArrayList<>(Neighborhood);
+                Collections.sort(SortedNeighborhood);
+                FilteredImage[ii-Offset][jj] = SortedNeighborhood.get(Offset+1);
+            }
+        }
+        return FilteredImage;
+    }
+
+
     public static float[][][] MeanFilterRGB(float[][][] ImIn, int MeanFilterSize) {
         int Offset = (MeanFilterSize - 1) / 2;
         float[][][] FilteredIm = new float[3][ImIn[0].length - 2 * Offset][ImIn[0][0].length - 2 * Offset];
@@ -564,4 +687,61 @@ public class Util {
         return OutputMap;
     }
 
+    public static int[][] MirrorPadImage(int[][] ImOrig, int PadWidth, int PadHeight){
+
+        int[][] PaddedY = new int[ImOrig.length+2*PadWidth][ImOrig[0].length];
+        for (int ii=PadWidth;ii<ImOrig.length+PadWidth;ii++){
+            for (int jj=0;jj<PaddedY[0].length;jj++){
+                PaddedY[ii][jj]=ImOrig[ii-PadWidth][jj];
+            }
+        }
+        //mirror
+        for (int ii=0;ii<PadWidth;ii++){
+            for (int jj=0;jj<PaddedY[0].length;jj++){
+                PaddedY[ii][jj]=PaddedY[2*PadWidth-ii][jj];
+                PaddedY[PaddedY.length-ii-1][jj]=PaddedY[PaddedY.length-2*PadWidth+ii-1][jj];
+            }
+        }
+
+        int[][] Padded= new int[ImOrig.length+2*PadWidth][ImOrig[0].length+2*PadHeight];
+
+        for (int ii=0;ii<Padded.length;ii++){
+            for (int jj=PadHeight;jj<PaddedY[0].length+PadHeight;jj++){
+                Padded[ii][jj]=PaddedY[ii][jj-PadHeight];
+            }
+        }
+        //mirror
+        for (int ii=0;ii<PaddedY.length;ii++){
+            for (int jj=0;jj<PadHeight;jj++){
+                Padded[ii][jj]=Padded[ii][2*PadHeight-jj];
+                Padded[ii][Padded[0].length-jj-1]=Padded[ii][Padded[0].length-2*PadHeight+jj-1];
+            }
+        }
+
+        return Padded;
+    }
+
+    public static int[][] SubtractImage(int[][] Im1, int[][] Im2){
+
+        int[][] ImOut = new int[Im1.length][Im1[0].length];
+
+        for (int ii=0;ii<Im1.length;ii++){
+            for (int jj=0;jj<Im1[0].length;jj++){
+                ImOut[ii][jj]=Im1[ii][jj]-Im2[ii][jj];
+            }
+        }
+        return ImOut;
+    }
+
+    public static int[][] AddImage(int[][] Im1, int[][] Im2){
+
+        int[][] ImOut = new int[Im1.length][Im1[0].length];
+
+        for (int ii=0;ii<Im1.length;ii++){
+            for (int jj=0;jj<Im1[0].length;jj++){
+                ImOut[ii][jj]=Im1[ii][jj]+Im2[ii][jj];
+            }
+        }
+        return ImOut;
+    }
 }

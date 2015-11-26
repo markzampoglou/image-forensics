@@ -22,6 +22,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: javax.jdo:jdo-api:3.0.1" level="project" />
+    <orderEntry type="library" name="Maven: javax.transaction:jta:1.1" level="project" />
     <orderEntry type="library" name="Maven: org.mongodb.morphia:morphia:1.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.mongodb:mongo-java-driver:3.0.2" level="project" />
     <orderEntry type="library" name="Maven: com.thoughtworks.proxytoys:proxytoys:1.0" level="project" />

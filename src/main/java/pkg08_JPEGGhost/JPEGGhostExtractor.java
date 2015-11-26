@@ -38,15 +38,22 @@ public class JPEGGhostExtractor {
     public List<Float> AllGhostMax = new ArrayList();
 
 
+    private int MaxImageSmallDimension =768;
+    private int numThreads=4;
+
+    public JPEGGhostExtractor(String FileName, int MaxImageSmallDimension,int numThreads) throws IOException {
+        this.MaxImageSmallDimension=MaxImageSmallDimension;
+        this.numThreads=numThreads;
+        GetJPEGGhost(FileName);
+    }
+
     public JPEGGhostExtractor(String FileName) throws IOException {
         GetJPEGGhost(FileName);
     }
 
-    private int MaxImageSmallDimension =768;
-    private int numThreads=4;
+
 
     private void GetJPEGGhost(String FileName) throws IOException {
-
         BufferedImage OrigImage;
         OrigImage = ImageIO.read(new File(FileName));
         int[][][] OrigByteImage = Util.GetRGBArray(OrigImage);
@@ -132,7 +139,9 @@ public class JPEGGhostExtractor {
                 //System.out.println("done");
                 break;
             }
+
         }
+
         //System.out.println(System.currentTimeMillis()-start);
 
         /********************************************************************************************

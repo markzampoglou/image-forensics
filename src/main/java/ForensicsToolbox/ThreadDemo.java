@@ -35,7 +35,6 @@ public class ThreadDemo {
         private static class FactorialCalculator implements Callable {
 
             private final int number;
-
             public FactorialCalculator(int number) {
                 this.number = number;
             }

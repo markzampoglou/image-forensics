@@ -2,6 +2,7 @@ package ForensicsToolbox;
 
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.io.File;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.MessageDigest;
@@ -11,6 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mongodb.MongoClient;
@@ -18,9 +20,11 @@ import metadataExtraction.metadataExtractor;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 import pkg01_DoubleQuantization.DQDetector;
+import pkg03_MedianDenoiseResidue.MedianNoiseExtractor;
 import pkg06_ELA.JPEGELAExtractor;
 import pkg07_waveletnoisemap.NoiseMapExtractor;
 import pkg08_JPEGGhost.JPEGGhostExtractor;
+import pkg14_BlockArtifact.BLKArtifactExtractor;
 
 import javax.imageio.ImageIO;
 
@@ -28,20 +32,20 @@ import javax.imageio.ImageIO;
  * Created by marzampoglou on 11/19/15.
  */
 public class ReportManagement {
-    static int NumberOfThreads=5; //DQ, Noise, Ghost, ELA, Metadata
+    static int NumberOfThreads=7; //DQ, Noise, Ghost, ELA, Metadata, BLK, MedianNoise
     static long ComputationTimeoutLimit=30000;
-    private static final ExecutorService threadpool = Executors.newFixedThreadPool(NumberOfThreads);
+    static int MaxGhostImageSmallDimension=768;
+    static int numGhostThreads=5;
+    private static ExecutorService threadpool;
 
-    public static void CreateReport(String URLIn, String FolderOut) {
-
+    public static String DownloadURL(String URLIn, String FolderOut) {
         MongoClient mongoclient = new MongoClient("127.0.0.1", 27017);
         Morphia morphia = new Morphia();
         morphia.map(ForensicReport.class).map(DQReport.class);
         Datastore ds = new Morphia().createDatastore(mongoclient, "ForensicDatabase");
         ds.ensureCaps();
 
-
-        String URLHash=null;
+        String URLHash = null;
         try {
             URLHash = buildURLHash(URLIn);
         } catch (Exception e) {
@@ -49,51 +53,90 @@ public class ReportManagement {
         }
         System.out.println(URLHash);
 
-        String BaseFolder=FolderOut+URLHash+"/";
+        String BaseFolder = FolderOut + URLHash + "/";
 
         ForensicReport Report = ds.get(ForensicReport.class, URLHash);
         if (Report != null) {
             System.out.println("Exists");
-            JsonParser parser=new JsonParser();
-            JsonObject ExtractedMetadataReport=parser.parse(Report.MetadataReport).getAsJsonObject();
+            JsonParser parser = new JsonParser();
+            JsonObject ExtractedMetadataReport = parser.parse(Report.MetadataStringReport).getAsJsonObject();
             System.out.println(ExtractedMetadataReport.toString());
         } else {
             Report = new ForensicReport();
             Report.id = URLHash;
-            ds.save(Report);
+            //ds.save(Report);
 
             try {
-                DownloadFile(URLIn,BaseFolder);
-                Report.SourceImage=BaseFolder+"Raw";
-                Report.DisplayImage=BaseFolder+"Display.jpg";
-                Report.SourceURL= URLIn;
+                File WriteFolder=new File(BaseFolder);
+                if (!WriteFolder.exists())
+                    WriteFolder.mkdirs();
+                DownloadFile(URLIn, BaseFolder);
+                Report.SourceImage = BaseFolder + "Raw";
+                Report.DisplayImage = BaseFolder + "Display.jpg";
+                Report.SourceURL = URLIn;
+                Report.status = "Downloaded";
                 ds.save(Report);
             } catch (Exception e) {
                 //e.printStackTrace();
                 System.out.println("ERROR: The requested URL does not respond or does not exist. Exiting.");
-                ds.delete(ForensicReport.class, URLHash);
-                return;
+                //ds.delete(ForensicReport.class, URLHash);
+                return "URL_ERROR";
             }
+        }
+        return URLHash;
+    }
 
+    public static String CreateReport(String URLHash, String FolderOut, int MaxGhostImageSmallDimension, int numGhostThreads, long ComputationTimeoutLimit) {
+        return ReportCalculation(URLHash, FolderOut, MaxGhostImageSmallDimension, numGhostThreads, ComputationTimeoutLimit);
+    }
+
+    public static String CreateReport(String URLHash, String FolderOut) {
+        return ReportCalculation(URLHash, FolderOut, MaxGhostImageSmallDimension, numGhostThreads, ComputationTimeoutLimit);
+    }
+
+    public static String ReportCalculation(String URLHash, String FolderOut, int MaxGhostImageSmallDimension, int numGhostThreads, long ComputationTimeoutLimit){
+        String  OutMessage="COMPLETEDSUCCESSFULLY";
+        threadpool = Executors.newFixedThreadPool(NumberOfThreads);
+        MongoClient mongoclient = new MongoClient("127.0.0.1", 27017);
+        Morphia morphia = new Morphia();
+        morphia.map(ForensicReport.class).map(DQReport.class);
+        Datastore ds = new Morphia().createDatastore(mongoclient, "ForensicDatabase");
+        ds.ensureCaps();
+        String BaseFolder = FolderOut + URLHash + "/";
+        ForensicReport Report = ds.get(ForensicReport.class, URLHash);
+        if (Report == null) {
+            return "HASHNOTFOUND";
+        }
+        if (Report.status.equalsIgnoreCase("Processing")) {
+            return "ALREADYPROCESSING";
+        }
+        if (Report.status.equalsIgnoreCase("Done")) {
+            return "PROCESSINGALREADYCOMPLETE";
+        }
+            Report.status="Processing";
             DQReport DQ=new DQReport();
             ELAReport ELA=new ELAReport();
             GhostReport Ghost=new GhostReport();
             NoiseDWReport NoiseDW=new NoiseDWReport();
+            BLKReport BLK=new BLKReport();
+            MedianNoiseReport MedianNoise=new MedianNoiseReport();
 
-            File dqOutputfile = new File(BaseFolder,"DQOutput.png");
+            File DQOutputfile = new File(BaseFolder,"DQOutput.png");
             File DWNoiseOutputfile = new File(BaseFolder,"DWNoiseOutput.png");
             File ghostOutputfile;
             File ELAOutputfile = new File(BaseFolder,"ELAOutput.png");
+            File BLKOutputfile = new File(BaseFolder,"BLKOutput.png");
+            File MedianNoiseOutputFile = new File(BaseFolder, "MedianNoiseOutput.png");
 
             try {
             if (ImageIO.read(new File(Report.SourceImage)).getColorModel().hasAlpha()) {
                 //If image has an alpha channel, then assume transparent PNG -No point in processing it
                 BufferedImage TransparencyNotAccepted=ArtificialImages.TransparentPNGNotAccepted();
-                ImageIO.write(TransparencyNotAccepted, "png", dqOutputfile);
-                DQ.Map=dqOutputfile.getCanonicalPath();
+                ImageIO.write(TransparencyNotAccepted, "png", DQOutputfile);
+                DQ.Map=DQOutputfile.getCanonicalPath();
                 DQ.completed=true;
                 Report.DQ_Report=DQ;
-                ImageIO.write(TransparencyNotAccepted, "png", DWNoiseOutputfile);
+                ImageIO.write(TransparencyNotAccepted, "png", DQOutputfile);
                 NoiseDW.Map = DWNoiseOutputfile.getCanonicalPath();
                 NoiseDW.completed=true;
                 Report.NoiseDW_Report=NoiseDW;
@@ -110,24 +153,40 @@ public class ReportManagement {
                 ELA.Map = ELAOutputfile.getCanonicalPath();
                 ELA.completed=true;
                 Report.ELA_Report=ELA;
+                ImageIO.write(TransparencyNotAccepted, "png", DQOutputfile);
+                BLK.Map=BLKOutputfile.getCanonicalPath();
+                BLK.completed=true;
+                Report.BLK_Report=BLK;
+                ImageIO.write(TransparencyNotAccepted, "png", BLKOutputfile);
+                MedianNoise.Map=MedianNoiseOutputFile.getCanonicalPath();
+                MedianNoise.completed=true;
+                Report.MedianNoise_Report=MedianNoise;
                 ds.save(Report);
             } else {
-                Boolean DQSaved=false, NoiseDWSaved=false, GhostSaved=false, ELASaved=false;
-                DQThread DQtask = new DQThread(Report.SourceImage,dqOutputfile);
+                Boolean DQSaved=false, NoiseDWSaved=false, GhostSaved=false, ELASaved=false, BLKSaved=false, MedianNoiseSaved=false;
+                DQThread DQtask = new DQThread(Report.SourceImage,DQOutputfile);
                 Future DQfuture = threadpool.submit(DQtask);
                 NoiseDWThread NoiseDWtask = new NoiseDWThread(Report.SourceImage,DWNoiseOutputfile);
                 Future NoiseDWfuture = threadpool.submit(NoiseDWtask);
-                GhostThread Ghosttask = new GhostThread(Report.SourceImage,BaseFolder);
+                GhostThread Ghosttask = new GhostThread(Report.SourceImage,BaseFolder, MaxGhostImageSmallDimension, numGhostThreads);
                 Future Ghostfuture = threadpool.submit(Ghosttask);
                 ELAThread ELAtask = new ELAThread(Report.SourceImage,ELAOutputfile);
                 Future ELAfuture = threadpool.submit(ELAtask);
+                BLKThread BLKtask = new BLKThread(Report.SourceImage,BLKOutputfile);
+                Future BLKfuture = threadpool.submit(BLKtask);
+                MedianNoiseThread MedianNoisetask = new MedianNoiseThread(Report.SourceImage,MedianNoiseOutputFile);
+                Future MedianNoisefuture = threadpool.submit(MedianNoisetask);
+
+
                 Long startTime=System.currentTimeMillis();
                 metadataExtractor metaExtractor;
                 metaExtractor=new metadataExtractor(Report.SourceImage);
-                Report.MetadataReport=metaExtractor.MetadataReport.toString();
+                JsonObject MetadataReport=metaExtractor.MetadataReport;
+                MetadataReport.addProperty("completed", "true");
+                Report.MetadataStringReport = MetadataReport.toString();
                 ds.save(Report);
 
-                while (!DQfuture.isDone() | !NoiseDWfuture.isDone() | !Ghostfuture.isDone() | !ELAfuture.isDone()) {
+                while (!DQfuture.isDone() | !NoiseDWfuture.isDone() | !Ghostfuture.isDone() | !ELAfuture.isDone() | !BLKfuture.isDone() | !MedianNoisefuture.isDone()) {
                     Thread.sleep(100); //sleep for 1 millisecond before checking again
                     if (DQfuture.isDone() & !DQSaved){
                         Report.DQ_Report=(DQReport) DQfuture.get();
@@ -153,8 +212,21 @@ public class ReportManagement {
                         ds.save(Report);
                         System.out.println("ELA Done");
                     }
+                    if (BLKfuture.isDone() & !BLKSaved){
+                        Report.BLK_Report=(BLKReport) BLKfuture.get();
+                        BLKSaved=true;
+                        ds.save(Report);
+                        System.out.println("BLK Done");
+                    }
+                    if (MedianNoisefuture.isDone() & !MedianNoiseSaved){
+                        Report.MedianNoise_Report=(MedianNoiseReport) MedianNoisefuture.get();
+                        MedianNoiseSaved=true;
+                        ds.save(Report);
+                        System.out.println("Median Noise Done");
+                    }
                     if ((System.currentTimeMillis()-startTime) > ComputationTimeoutLimit){
                         System.out.println("Computation timed out");
+                        OutMessage="TIMEDOUT";
                         break;
                     }
                 }
@@ -165,7 +237,26 @@ public class ReportManagement {
                 threadpool.shutdown();
                 e.printStackTrace();
             }
+        Report.status="Done";
+        ds.save(Report);
+        return OutMessage;
         }
+
+
+    public static ForensicReport GetReport(String URLHash){
+        MongoClient mongoclient = new MongoClient("127.0.0.1", 27017);
+        Morphia morphia = new Morphia();
+        morphia.map(ForensicReport.class).map(DQReport.class);
+        Datastore ds = new Morphia().createDatastore(mongoclient, "ForensicDatabase");
+        ds.ensureCaps();
+        ForensicReport Report = ds.get(ForensicReport.class, URLHash);
+        if (Report!=null) {
+            JsonParser parser = new JsonParser();
+            JsonObject tmpJson = parser.parse(Report.MetadataStringReport).getAsJsonObject();
+            GsonBuilder builder = new GsonBuilder();
+            Report.MetadataObjectReport = builder.create().fromJson(tmpJson, Object.class);
+        }
+            return Report;
     }
 
     private static void DownloadFile(String URLIn, String FolderOut) throws IOException {
@@ -268,25 +359,29 @@ public class ReportManagement {
     private static class GhostThread implements Callable {
         String SourceFile="";
         String BaseFolder="";
-        public GhostThread(String SourceFile,String BaseFolder){
+        int MaxGhostImageSmallDimension;
+        int numGhostThreads;
+        public GhostThread(String SourceFile,String BaseFolder, int MaxGhostImageSmallDimension, int numGhostThreads){
             this.SourceFile=SourceFile;
             this.BaseFolder=BaseFolder;
+            this.MaxGhostImageSmallDimension= MaxGhostImageSmallDimension;
+            this.numGhostThreads=numGhostThreads;
         }
         @Override
         public GhostReport call() {
             GhostReport output=null;
             try {
-                output=GhostCalculation();
+                output=GhostCalculation(MaxGhostImageSmallDimension, numGhostThreads);
             } catch (IOException e) {
                 e.printStackTrace();
             }
             return output;
         }
-        public GhostReport GhostCalculation() throws IOException {
+        public GhostReport GhostCalculation(int MaxImageSmallDimension,int numThreads) throws IOException {
             File ghostOutputfile;
             GhostReport Ghost=new GhostReport();
             JPEGGhostExtractor ghostExtractor;
-            ghostExtractor = new JPEGGhostExtractor(SourceFile);
+            ghostExtractor = new JPEGGhostExtractor(SourceFile, MaxImageSmallDimension, numThreads);
             BufferedImage GhostMap;
             for (int GhostMapInd=0;GhostMapInd<ghostExtractor.GhostMaps.size();GhostMapInd++) {
                 ghostOutputfile=new File(BaseFolder, "GhostOutput" + String.format("%02d", GhostMapInd) + ".png");
@@ -332,14 +427,87 @@ public class ReportManagement {
             ELA.MinValue = ELAExtractor.ELAMin;
             ELA.completed=true;
             return ELA;
+        }
+    }
 
+    private static class BLKThread implements Callable {
+        String SourceFile="";
+        File Outputfile=null;
+        public BLKThread(String SourceFile,File Outputfile){
+            this.SourceFile=SourceFile;
+            this.Outputfile=Outputfile;
+        }
+        @Override
+        public BLKReport call() {
+            BLKReport output=null;
+            try {
+                output=BLKCalculation();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return output;
+        }
+        public BLKReport BLKCalculation() throws IOException {
+            BLKReport BLK=new BLKReport();
+            BLKArtifactExtractor BLKExtractor;
+            BLKExtractor = new BLKArtifactExtractor(SourceFile);
+            ImageIO.write(BLKExtractor.DisplaySurface, "png", Outputfile);
+            BLK.Map = Outputfile.getCanonicalPath();
+            BLK.MaxValue = BLKExtractor.BLKMax;
+            BLK.MinValue = BLKExtractor.BLKMin;
+            BLK.completed=true;
+            return BLK;
+        }
+    }
+
+    private static class MedianNoiseThread implements Callable {
+        String SourceFile="";
+        File Outputfile=null;
+        public MedianNoiseThread(String SourceFile,File Outputfile){
+            this.SourceFile=SourceFile;
+            this.Outputfile=Outputfile;
+        }
+        @Override
+        public MedianNoiseReport call() {
+            MedianNoiseReport output=null;
+            try {
+                output=MedianNoiseCalculation();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return output;
+        }
+        public MedianNoiseReport MedianNoiseCalculation() throws IOException {
+            MedianNoiseReport MedianNoise=new MedianNoiseReport();
+            MedianNoiseExtractor MedianExtractor;
+            MedianExtractor = new MedianNoiseExtractor(SourceFile);
+            ImageIO.write(MedianExtractor.DisplaySurface, "png", Outputfile);
+            MedianNoise.Map = Outputfile.getCanonicalPath();
+            MedianNoise.completed=true;
+            return MedianNoise;
         }
     }
 
     public static void main (String[] args) {
-        String OutputFolder = "/home/marzampoglou/Pictures/ForensicsDatabase/";
-        String URL="http://i.imgur.com/BGIRJUh.jpg";
-        CreateReport(URL,OutputFolder );
+        String OutputFolder = "/home/marzampoglou/Pictures/Reveal/ManipulationOutput/";
+        String URL="";
+        String Hash1=DownloadURL("http://i.imgur.com/BGIRJUh.jpg", OutputFolder);
+        CreateReport(Hash1, OutputFolder);
+        //String Hash2=DownloadURL("http://www.lincolnvscadillac.com/forum/attachment.php?attachmentid=37425&stc=1&d=1220640009", OutputFolder);
+        //CreateReport(Hash2, OutputFolder);
+/*        String Hash3=DownloadURL("http://de.trinixy.ru/pics4/20100318/podborka_14.jpg", OutputFolder);
+        CreateReport(Hash3, OutputFolder);
+        System.out.println(Hash3);
+        String Hash4=DownloadURL("http://batona.net/uploads/posts/2014-01/1390536866_005.jpg", OutputFolder);
+        CreateReport(Hash4, OutputFolder);
+        System.out.println(Hash4);
+*/
+        //ForensicReport Report = GetReport("79b16f4bced02b565416b7aeaea32db13a3590b32835bfcf3c5d6bc765948a3e");
+        //System.out.println(Report.MetadataObjectReport.toString());
+        try {
+            NoiseMapExtractor ex = new NoiseMapExtractor("/home/marzampoglou/Pictures/Reveal/ManipulationOutput/79b16f4bced02b565416b7aeaea32db13a3590b32835bfcf3c5d6bc765948a3e/Raw");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-
 }
