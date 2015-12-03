@@ -491,11 +491,9 @@ public class ToolboxAPI {
             } catch (IOException ex) {
                 Logger.getLogger(pkg07_waveletnoisemap.Main.class.getName()).log(Level.SEVERE, null, ex);
             }
-
         } catch (Throwable e) {
             Logger.getLogger(ToolboxAPI.class.getName()).log(Level.SEVERE, null, e);
         }
-
         return AnalysisResult;
     }
 

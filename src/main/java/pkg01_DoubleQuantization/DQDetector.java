@@ -54,12 +54,27 @@ public final class DQDetector {
         IntByReference GetDCT(String FileName);
     }
 
-    public DQDetector(String FileName) {
-
+    public DQDetector(String FileName) throws IOException {
+        String imageFormat = Utils.Util.GetImageFormat(new File(FileName));
         try {
-            DCTs = GetDCTCoeffsFromFile(FileName);
+            if (imageFormat.equalsIgnoreCase("JPEG") | imageFormat.equalsIgnoreCase("JPG")) {
+                System.out.println("Trying coeff");
+                DCTs = GetDCTCoeffsFromFile(FileName);
+            }
+            else {
+                System.out.println("Not a JPEG image, getting DCT coefficients from pixel values (in case it is a resave from an older JPEG).");
+                BufferedImage OrigImage;
+                try {OrigImage = ImageIO.read(new File(FileName));
+                    int[][] DCTs2=DCTCoeffExtractor.ExtractYDCT(OrigImage);
+                    DCTs=DCTs2;
+                }catch
+                 (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
         } catch (Error err) {
-            System.out.println("Could not load native JPEGlib-based DCT extractor, getting DCT coefficients from pixel values.");
+        System.out.println("Could not load native JPEGlib-based DCT extractor, getting DCT coefficients from pixel values.");
         BufferedImage OrigImage;
         try {OrigImage = ImageIO.read(new File(FileName));
             int[][] DCTs2=DCTCoeffExtractor.ExtractYDCT(OrigImage);

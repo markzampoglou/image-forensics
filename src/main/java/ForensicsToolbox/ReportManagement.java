@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import com.drew.imaging.ImageProcessingException;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -56,7 +57,7 @@ public class ReportManagement {
         String BaseFolder = FolderOut + URLHash + "/";
 
         ForensicReport Report = ds.get(ForensicReport.class, URLHash);
-        if (Report != null) {
+        if (Report == null) {
             System.out.println("Exists");
             JsonParser parser = new JsonParser();
             JsonObject ExtractedMetadataReport = parser.parse(Report.MetadataStringReport).getAsJsonObject();
@@ -490,8 +491,8 @@ public class ReportManagement {
 
     public static void main (String[] args) {
         String OutputFolder = "/home/marzampoglou/Pictures/Reveal/ManipulationOutput/";
-        String URL="";
-        String Hash1=DownloadURL("http://i.imgur.com/BGIRJUh.jpg", OutputFolder);
+        //String URL="";
+        String Hash1=DownloadURL("http://ak-hdl.buzzfed.com/static/2015-11/14/21/enhanced/webdr10/enhanced-11852-1447553489-1.png", OutputFolder);
         CreateReport(Hash1, OutputFolder);
         //String Hash2=DownloadURL("http://www.lincolnvscadillac.com/forum/attachment.php?attachmentid=37425&stc=1&d=1220640009", OutputFolder);
         //CreateReport(Hash2, OutputFolder);
@@ -504,10 +505,16 @@ public class ReportManagement {
 */
         //ForensicReport Report = GetReport("79b16f4bced02b565416b7aeaea32db13a3590b32835bfcf3c5d6bc765948a3e");
         //System.out.println(Report.MetadataObjectReport.toString());
+        /*
         try {
-            NoiseMapExtractor ex = new NoiseMapExtractor("/home/marzampoglou/Pictures/Reveal/ManipulationOutput/79b16f4bced02b565416b7aeaea32db13a3590b32835bfcf3c5d6bc765948a3e/Raw");
+
+            //NoiseMapExtractor ex = new NoiseMapExtractor("/home/marzampoglou/Pictures/Reveal/ManipulationOutput/79b16f4bced02b565416b7aeaea32db13a3590b32835bfcf3c5d6bc765948a3e/Raw");
+            metadataExtractor meta =new metadataExtractor("/home/marzampoglou/Pictures/Reveal/ManipulationOutput/79b16f4bced02b565416b7aeaea32db13a3590b32835bfcf3c5d6bc765948a3e/Raw");
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (ImageProcessingException e) {
+            e.printStackTrace();
         }
+    */
     }
 }

@@ -8,11 +8,9 @@ import com.drew.metadata.Tag;
 import java.io.File;
 import java.io.IOException;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
-
-
-
 
 /**
  * Created by marzampoglou on 11/18/15.
@@ -25,12 +23,11 @@ public class metadataExtractor {
     }
 
     private JsonObject GetMetadata(String FileName) throws IOException, ImageProcessingException {
-
         com.drew.metadata.Metadata metadata = ImageMetadataReader.readMetadata(new File(FileName));
-        JsonObject JSONObj=new JsonObject();
+        JsonObject JSONObj;
+/*
         JsonObject JSONChild;
-
-
+        JSONObj=new JsonObject();
         for (Directory directory : metadata.getDirectories()) {
             //System.out.println(directory.getName());
             JSONChild = new JsonObject();
@@ -40,12 +37,40 @@ public class metadataExtractor {
             }
             JSONObj.add(directory.getName(),JSONChild);
         }
+        //System.out.println(JSONObj.toString());
+*/
+        JSONObj=new JsonObject();
+        JsonObject JSONDirChild;
+        JsonArray JsonDirArray=new JsonArray();
+        JsonArray JsonTagArray;
+        JsonObject JSONTagChild;
 
+        JSONObj.addProperty("name","metadataArray");
+        for (Directory directory : metadata.getDirectories()) {
+            JSONDirChild = new JsonObject();
+            JSONDirChild.addProperty("name", directory.getName());
+            JsonTagArray=new JsonArray();
+            for (Tag tag : directory.getTags()) {
+                JSONTagChild=new JsonObject();
+                JSONTagChild.addProperty("name",tag.getTagName());
+                JSONTagChild.addProperty("value", tag.getDescription());
+                JsonTagArray.add(JSONTagChild);
+            }
+            JSONDirChild.add("values", JsonTagArray);
+            JsonDirArray.add(JSONDirChild);
+        }
+        JSONObj.add("values",JsonDirArray);
+
+        //System.out.println(JSONObj2.toString());
         //System.out.println("----------------------------------------------------------");
-
         //System.out.println(JSONObj.toString());
 
-
         return JSONObj;
+    }
+
+    private JsonObject ReformatNameValue(JsonObject InputElement){
+        JsonObject OutputElement=new JsonObject();
+
+        return null;
     }
 }
