@@ -57,7 +57,7 @@ public class ReportManagement {
         String BaseFolder = FolderOut + URLHash + "/";
 
         ForensicReport Report = ds.get(ForensicReport.class, URLHash);
-        if (Report == null) {
+        if (Report != null) {
             System.out.println("Exists");
             JsonParser parser = new JsonParser();
             JsonObject ExtractedMetadataReport = parser.parse(Report.MetadataStringReport).getAsJsonObject();
