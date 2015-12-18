@@ -1,13 +1,11 @@
 package CopyMove;
 
-import com.sun.javafx.iio.ImageStorage;
-
 import javax.imageio.ImageIO;
-import javax.lang.model.element.VariableElement;
-import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,12 +24,12 @@ import java.util.List;
  */
 
 public class CloneDetect {
-    //minimum allowed distance between patches is (image diagonal)/minDist
-    int minDist=10;
-    //number of loops for optimization
-    int numLoops=1;
+    //minimum allowed distance between matching patches is (image diagonal)/minDist
+    int minDist=15;
+    //number of loops per pyramid level for optimization
+    int LoopMultiplier = 1;
     //number of Pyramid levels
-    int pyramidLevels=4;
+    int pyramidLevels=3;
 
     //initial image
     ImageMap initial;
@@ -89,7 +87,7 @@ public class CloneDetect {
                 nnf_TargetToSource.randomizeDist(minDist);
                 NNF_NoMask new_nnf = new NNF_NoMask(target, source, blockSize);
                 new_nnf.initialize(nnf_TargetToSource);
-                new_nnf.minimizeDistance(numLoops*(level+1), minDist);
+                new_nnf.minimizeDistance(LoopMultiplier *(level+ 1),minDist);
                 nnf_TargetToSource=new_nnf;
             } else {
                 // then, we use the rebuilt (upscaled) target
@@ -97,55 +95,110 @@ public class CloneDetect {
                 //nnf_TargetToSource.randomize();
                 NNF_NoMask new_nnf = new NNF_NoMask(target, source, blockSize);
                 new_nnf.initialize(nnf_TargetToSource);
-                new_nnf.minimizeDistance(numLoops*(level+1), minDist);
+                new_nnf.minimizeDistance(LoopMultiplier *(level+ 1),minDist);
                 nnf_TargetToSource = new_nnf;
             }
         }
 
-        double[][] varMap=source.LocalVariance(blockSize);
+        String output = "";
 
+        try {
+            File file = new File("/home/marzampoglou/Desktop/X.txt");
 
-        for (int ii=0;ii<nnf_TargetToSource.getField().length;ii++){
-            for (int jj=0;jj<nnf_TargetToSource.getField()[0].length;jj++){
-                System.out.print(nnf_TargetToSource.getField()[ii][jj][0]+" ");
+            if (!file.exists()) {
+                file.createNewFile();
             }
-            System.out.println();
-        }
-        System.out.println();
-        System.out.println();
-        for (int ii=0;ii<nnf_TargetToSource.getField().length;ii++){
-            for (int jj=0;jj<nnf_TargetToSource.getField()[0].length;jj++){
-                System.out.print(nnf_TargetToSource.getField()[ii][jj][1]+" ");
+            FileWriter fw = new FileWriter(file.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fw);
+            for (int ii = 0; ii < nnf_TargetToSource.getField().length; ii++) {
+                for (int jj = 0; jj < nnf_TargetToSource.getField()[0].length; jj++) {
+                    output=output+nnf_TargetToSource.getField()[ii][jj][0] + " ";
+                }
+                output=output+"\n";
             }
-            System.out.println();
-        }
-        System.out.println();
-        System.out.println();
-        for (int ii=0;ii<nnf_TargetToSource.getField().length;ii++){
-            for (int jj=0;jj<nnf_TargetToSource.getField()[0].length;jj++){
-                System.out.print(nnf_TargetToSource.getField()[ii][jj][2]+" ");
+            bw.write(output);
+            bw.close();
+
+
+            output="";
+            file = new File("/home/marzampoglou/Desktop/Y.txt");
+            fw = new FileWriter(file.getAbsoluteFile());
+            bw = new BufferedWriter(fw);
+            if (!file.exists()) {
+                file.createNewFile();
             }
-            System.out.println();
+
+            for (int ii = 0; ii < nnf_TargetToSource.getField().length; ii++) {
+                for (int jj = 0; jj < nnf_TargetToSource.getField()[0].length; jj++) {
+                    output=output+nnf_TargetToSource.getField()[ii][jj][1] + " ";
+                }
+                output=output+"\n";
+            }
+            bw.write(output);
+            bw.close();
+
+
+            output="";
+            file = new File("/home/marzampoglou/Desktop/Err.txt");
+            fw = new FileWriter(file.getAbsoluteFile());
+            bw = new BufferedWriter(fw);
+            for (int ii = 0; ii < nnf_TargetToSource.getField().length; ii++) {
+                for (int jj = 0; jj < nnf_TargetToSource.getField()[0].length; jj++) {
+                    output=output+nnf_TargetToSource.getField()[ii][jj][2] + " ";
+                }
+                output=output+"\n";
+            }
+            bw.write(output);
+            bw.close();
+
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        /*
+        */
+
+        BufferedImage out= DrawGrey(nnf_TargetToSource.linearFilterField());
+        nnf_TargetToSource.removeLowVar(7,2.5);
+
+        //display(output);
+        try {
+            ImageIO.write(out, "PNG", new File("/home/marzampoglou/Pictures/Reveal/ManipulationOutput/linearfilt.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-
-
-        return DrawGrey(nnf_TargetToSource.getField());
+        return DrawGrey2(nnf_TargetToSource.getField());
     }
 
-    private BufferedImage DrawGrey(int[][][] MapIn){
-        System.out.println("------------------------");
-        BufferedImage ImOut = new BufferedImage(MapIn.length,MapIn[0].length, BufferedImage.TYPE_BYTE_GRAY) ;
+    private BufferedImage DrawGrey(int[][] MapIn){
+        BufferedImage ImOut = new BufferedImage(MapIn.length,MapIn[0].length, BufferedImage.TYPE_INT_ARGB) ;
+        for (int ii=0;ii<MapIn.length;ii++){
+            for (int jj=0;jj<MapIn[0].length;jj++){
+                //int tmpVal= (int) Math.round(Math.sqrt(Math.pow(ii-MapIn[ii][jj][0],2)+Math.pow(jj-MapIn[ii][jj][1],2)));
+                int tmpVal= MapIn[ii][jj]; //[2]
+                if (tmpVal>255) tmpVal=255;
+                int value = 0xFF000000 | tmpVal << 16 | tmpVal << 8 | tmpVal;
+                ImOut.setRGB(ii,jj,value);
+                //System.out.print(tmpVal + " ");
+            }
+            //System.out.println();
+        }
+        return ImOut;
+    }
+
+    private BufferedImage DrawGrey2(int[][][] MapIn){
+        BufferedImage ImOut = new BufferedImage(MapIn.length,MapIn[0].length, BufferedImage.TYPE_INT_ARGB) ;
         for (int ii=0;ii<MapIn.length;ii++){
             for (int jj=0;jj<MapIn[0].length;jj++){
                 //int tmpVal= (int) Math.round(Math.sqrt(Math.pow(ii-MapIn[ii][jj][0],2)+Math.pow(jj-MapIn[ii][jj][1],2)));
                 int tmpVal= MapIn[ii][jj][2];
                 if (tmpVal>255) tmpVal=255;
-                int value = tmpVal << 16 | tmpVal << 8 | tmpVal;
+                int value = 0xFF000000 | tmpVal << 16 | tmpVal << 8 | tmpVal;
                 ImOut.setRGB(ii,jj,value);
-                System.out.print(tmpVal + " ");
+                //System.out.print(tmpVal + " ");
             }
-            System.out.println();
+            //System.out.println();
         }
         return ImOut;
     }

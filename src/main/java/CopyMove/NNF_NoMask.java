@@ -150,7 +150,7 @@ public class NNF_NoMask {
 			// reverse scanline order
 			for(int y=max_y;y>=min_y;y--)
 				for(int x=max_x;x>=min_x;x--)
-					if (field[x][y][2]>0) minimizeLinkDistance(x, y, -1,MinPixelDistance);
+					if (field[x][y][2]>0) minimizeLinkDistance(x, y, -1, MinPixelDistance);
 		}
 	}
 
@@ -257,5 +257,78 @@ public class NNF_NoMask {
 	public int[][][] getField() {
 		return field;
 	}
-	
+
+	public void removeLowVar(int varBlockSize, double varThreshold){
+		double[][] varMap=input.LocalVariance(varBlockSize);
+		for (int ii=0; ii<field.length;ii++){
+			for (int jj=0; jj<field[0].length;jj++){
+				if (varMap[ii][jj]<varThreshold) {
+					field[ii][jj][2] = input.DSCALE;
+				}
+			}
+		}
+	}
+
+    public int[][] linearFilterField(){
+        int[][] FieldX = new int[input.W][input.H];
+        int[][] FieldY = new int[input.W][input.H];
+        for (int ii=0; ii<FieldX.length;ii++){
+            for (int jj=0; jj<FieldX[0].length;jj++){
+                FieldX[ii][jj] = field[ii][jj][0];
+            }
+        }
+        for (int ii=0; ii<FieldX.length;ii++){
+            for (int jj=0; jj<FieldX[0].length;jj++){
+                FieldY[ii][jj] = field[ii][jj][1];
+            }
+        }
+
+        int[][] FieldX_horz = new int[input.W][input.H];
+        int[][] FieldX_vert = new int[input.W][input.H];
+        int[][] FieldY_horz = new int[input.W][input.H];
+        int[][] FieldY_vert = new int[input.W][input.H];
+
+        for (int ii=0; ii<FieldX.length-1;ii++){
+            for (int jj=0; jj<FieldX[0].length;jj++){
+                FieldX_horz[ii][jj] = Math.abs(FieldX[ii+1][jj] - FieldX[ii][jj]);
+            }
+        }
+        for (int jj=0; jj<FieldX[0].length;jj++){
+            FieldX_horz[FieldX.length-1][jj] = FieldX_horz[FieldX.length-2][jj];
+        }
+        for (int ii=0; ii<FieldX.length;ii++){
+            for (int jj=0; jj<FieldX[0].length-1;jj++){
+                FieldX_vert[ii][jj] = Math.abs(FieldX[ii][jj+1] - FieldX[ii][jj]);
+            }
+        }
+        for (int ii=0; ii<FieldX[0].length;ii++){
+            FieldX_vert[ii][FieldX[0].length-1] = FieldX_horz[ii][FieldX[0].length-2];
+        }
+
+        for (int ii=0; ii<FieldY.length-1;ii++){
+            for (int jj=0; jj<FieldY[0].length;jj++){
+                FieldY_horz[ii][jj] = Math.abs(FieldY[ii+1][jj] - FieldY[ii][jj]);
+            }
+        }
+        for (int jj=0; jj<FieldY[0].length;jj++){
+            FieldX_horz[FieldY.length-1][jj] = FieldY_horz[FieldY.length-2][jj];
+        }
+        for (int ii=0; ii<FieldY.length;ii++){
+            for (int jj=0; jj<FieldY[0].length-1;jj++){
+                FieldY_vert[ii][jj] = Math.abs(FieldY[ii][jj+1] - FieldY[ii][jj]);
+            }
+        }
+        for (int ii=0; ii<FieldY[0].length;ii++){
+            FieldY_vert[ii][FieldY[0].length-1] = FieldY_horz[ii][FieldY[0].length-2];
+        }
+
+        int[][] sumAmplitude=new int[input.W][input.H];
+        for (int ii=0; ii<sumAmplitude.length;ii++){
+            for (int jj=0; jj<sumAmplitude[0].length;jj++){
+                sumAmplitude[ii][jj] = sumAmplitude[ii][jj]+ FieldX_horz[ii][jj] + FieldY_horz[ii][jj] + FieldX_vert[ii][jj] + FieldY_vert[ii][jj];
+            }
+        }
+
+        return sumAmplitude;
+    }
 }

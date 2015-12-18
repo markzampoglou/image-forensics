@@ -434,7 +434,6 @@ public class Util {
                 OutIm.setRGB(ii, jj, RGB.getRGB());
             }
         }
-
         return OutIm;
     }
 
@@ -449,7 +448,6 @@ public class Util {
         if (x * out < 0) {
             out = out * -1;
         }
-
         return out;
     }
 
@@ -491,8 +489,27 @@ public class Util {
                 outImage.setRGB(ii, jj, RGB.getRGB());
             }
         }
-
         return outImage;
+    }
+
+    public static double[][] BlockNoiseVar(double[][] InputIm, int BlockSize) {
+        int BlockedWidth = (int) Math.floor(InputIm.length / BlockSize) * BlockSize;
+        int BlockedHeight = (int) Math.floor(InputIm[0].length / BlockSize) * BlockSize;
+        double[][] BlockedIm = new double[BlockedWidth / BlockSize][BlockedHeight / BlockSize];
+
+        DescriptiveStatistics BlockValues;
+        for (int ii = 0; ii < BlockedWidth; ii = ii + BlockSize) {
+            for (int jj = 0; jj < BlockedHeight; jj = jj + BlockSize) {
+                BlockValues = new DescriptiveStatistics();
+                for (int B_ii = ii; B_ii < ii + BlockSize; B_ii++) {
+                    for (int B_jj = jj; B_jj < jj + BlockSize; B_jj++) {
+                        BlockValues.addValue(Math.abs(InputIm[B_ii][B_jj]));
+                    }
+                }
+                BlockedIm[ii / BlockSize][jj / BlockSize] = Math.sqrt(BlockValues.getPercentile(50) / 0.6745);
+            }
+        }
+        return BlockedIm;
     }
 
     public static double[][] BlockVar(double[][] InputIm, int BlockSize) {
@@ -509,8 +526,10 @@ public class Util {
                         BlockValues.addValue(Math.abs(InputIm[B_ii][B_jj]));
                     }
                 }
-                BlockedIm[ii / BlockSize][jj / BlockSize] = Math.sqrt(BlockValues.getPercentile(50) / 0.6745);
+                BlockedIm[ii / BlockSize][jj / BlockSize] = BlockValues.getPopulationVariance();
+                //System.out.print(BlockedIm[ii / BlockSize][jj / BlockSize] + " ");
             }
+            //System.out.println();
         }
         return BlockedIm;
     }
@@ -545,7 +564,6 @@ public class Util {
     public static float MaxDouble2DArray(float[][] ArrayIn) {
         float max = -Float.MAX_VALUE;
         float colMax;
-
         for (float[] ArrayInRow : ArrayIn) {
             List b = Arrays.asList(ArrayUtils.toObject(ArrayInRow));
             colMax = (float) Collections.max(b);
@@ -605,7 +623,6 @@ public class Util {
         g2d.setFont(font);
         FontMetrics fm = g2d.getFontMetrics();
         //int width = fm.stringWidth(Text);
-
         int height = fm.getHeight();
 
         g2d.dispose();
@@ -736,7 +753,6 @@ public class Util {
     public static int[][] AddImage(int[][] Im1, int[][] Im2){
 
         int[][] ImOut = new int[Im1.length][Im1[0].length];
-
         for (int ii=0;ii<Im1.length;ii++){
             for (int jj=0;jj<Im1[0].length;jj++){
                 ImOut[ii][jj]=Im1[ii][jj]+Im2[ii][jj];
@@ -744,4 +760,6 @@ public class Util {
         }
         return ImOut;
     }
+
+
 }

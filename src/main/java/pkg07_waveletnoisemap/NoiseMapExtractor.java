@@ -116,7 +116,7 @@ public class NoiseMapExtractor {
         }
 
         int BlockSize = 8;
-        double[][] BlockMap = Util.BlockVar(DoubleFilteredImgYAsArray, BlockSize);
+        double[][] BlockMap = Util.BlockNoiseVar(DoubleFilteredImgYAsArray, BlockSize);
 
         int MedianFilterSize = 7;
         double[][] OutBlockMap = Util.MedianFilter(BlockMap, MedianFilterSize);

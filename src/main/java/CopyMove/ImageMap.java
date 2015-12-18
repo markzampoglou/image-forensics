@@ -91,7 +91,40 @@ public class ImageMap {
 		}
 		return (int)(DSCALE*distance/wsum);
 	}
-	
+
+    public static int distance2(ImageMap source,int xs,int ys, ImageMap target,int xt,int yt, int S) {
+        long distance=0, wsum=0;
+        double ssdmax = 1.9;
+        // for each pixel in the source patch
+        for(int dy=-S;dy<=S;dy++) {
+            for(int dx=-S;dx<=S;dx++) {
+                wsum+=ssdmax;
+                int xks=xs+dx, yks=ys+dy;
+                if (xks<0 || xks>=source.W) {distance+=ssdmax; continue;}
+                if (yks<0 || yks>=source.H) {distance+=ssdmax; continue;}
+                // corresponding pixel in the target patch
+                int xkt=xt+dx, ykt=yt+dy;
+                if (xkt<0 || xkt>=target.W) {distance+=ssdmax; continue;}
+                if (ykt<0 || ykt>=target.H) {distance+=ssdmax; continue;}
+                // SSD distance between pixels (each value is in [0,255^2])
+                long ssd=0;
+                double s_RGB=source.getSample(xks, yks, 0)+source.getSample(xks, yks, 1)+source.getSample(xks, yks, 2);
+                double s_r=source.getSample(xks, yks, 0)/s_RGB;
+                double s_g=source.getSample(xks, yks, 1)/s_RGB;
+                double s_b=source.getSample(xks, yks, 2)/s_RGB;
+                double t_RGB=source.getSample(xks, yks, 0)+source.getSample(xks, yks, 1)+source.getSample(xks, yks, 2);
+                double t_r=source.getSample(xks, yks, 0)/t_RGB;
+                double t_g=source.getSample(xks, yks, 1)/t_RGB;
+                double t_b=source.getSample(xks, yks, 2)/t_RGB;
+                double diff2 = (s_r - t_r)*(s_r - t_r) + (s_g - t_g)*(s_g - t_g) + (s_b - t_b)*(s_b - t_b); // Value
+                ssd += diff2;
+                // add pixel distance to global patch distance
+                distance += ssd;
+            }
+        }
+        return (int)(DSCALE*distance/wsum);
+    }
+
 	// Helper for BufferedImage resize
 	public static BufferedImage resize(BufferedImage input, int newwidth, int newheight) {
 		BufferedImage out = new BufferedImage(newwidth, newheight, BufferedImage.TYPE_INT_RGB);
@@ -171,13 +204,15 @@ public class ImageMap {
         }
 
         double[][] BlockVar=Util.BlockVar(GrayscaleIm, blockSize);
+		//System.out.println();
+		//System.out.println(W+ " " + H + " " + BlockNoiseVar.length + " " + BlockNoiseVar[0].length);
 
-        for (int ii=0; ii<W;ii++){
-            for (int jj=0; jj<W;jj++){
+        for (int ii=0; ii<(int)Math.floor(((float)W)/blockSize)*blockSize;ii++){
+            for (int jj=0; jj<(int)Math.floor(((float)H)/blockSize)*blockSize;jj++){
                 OutputVariance[ii][jj] = BlockVar[(int)Math.floor(((float)ii)/blockSize)][(int)Math.floor(((float)jj)/blockSize)];
             }
         }
-
         return OutputVariance;
     }
+
 }

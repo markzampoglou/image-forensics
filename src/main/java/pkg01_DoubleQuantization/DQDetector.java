@@ -58,7 +58,6 @@ public final class DQDetector {
         String imageFormat = Utils.Util.GetImageFormat(new File(FileName));
         try {
             if (imageFormat.equalsIgnoreCase("JPEG") | imageFormat.equalsIgnoreCase("JPG")) {
-                System.out.println("Trying coeff");
                 DCTs = GetDCTCoeffsFromFile(FileName);
             }
             else {

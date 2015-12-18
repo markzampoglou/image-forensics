@@ -20,6 +20,7 @@ public class ForensicReport {
     public String SourceURL="";
     public String MetadataStringReport ="{completed: \"false\" }";
     public Object MetadataObjectReport=null;
+    public @Embedded ThumbnailReport Thumbnail_Report = new ThumbnailReport();
     public @Embedded DQReport DQ_Report=new DQReport();
     public @Embedded NoiseDWReport NoiseDW_Report=new NoiseDWReport();
     public @Embedded GhostReport Ghost_Report=new GhostReport();

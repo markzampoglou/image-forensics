@@ -37,7 +37,6 @@ public class Demo {
 			
 			jlabel = label0;
 		}
-		
 		((ImageIcon)jlabel.getIcon()).setImage(bimg);
 		jlabel.repaint();
 	}
@@ -77,19 +76,21 @@ public class Demo {
 		BufferedImage output = new Inpaint().inpaint(input, mask, 2);
 		display(output);
 		*/
-		BufferedImage imIn= null;
+		BufferedImage imIn = null;
 		try {
             //imIn = ImageIO.read(new File("iran_missile_test_2008.jpg"));
             //imIn = ImageIO.read(new File("crowd_fake2.jpg"));
-			imIn = ImageIO.read(new File("Au_ani_10104_dup.jpg"));
+			imIn = ImageIO.read(new File("1st2.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		BufferedImage output=new CloneDetect().FindClones(imIn, 7);
-		display(output);
-
-
-
+		BufferedImage output=new CloneDetect().FindClones(imIn, 3);
+		//display(output);
+		try {
+			ImageIO.write(output,"PNG",new File("/home/marzampoglou/Pictures/Reveal/ManipulationOutput/diffMap.png"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		System.out.println("\nDONE.");
 	}
 }

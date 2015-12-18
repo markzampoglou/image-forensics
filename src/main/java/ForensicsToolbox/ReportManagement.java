@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import com.drew.imaging.ImageProcessingException;
+import ThumbnailExtraction.thumbnailExtractor;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -34,7 +34,7 @@ import javax.imageio.ImageIO;
  */
 public class ReportManagement {
     static int NumberOfThreads=7; //DQ, Noise, Ghost, ELA, Metadata, BLK, MedianNoise
-    static long ComputationTimeoutLimit=30000;
+    static long ComputationTimeoutLimit=60000;
     static int MaxGhostImageSmallDimension=768;
     static int numGhostThreads=5;
     private static ExecutorService threadpool;
@@ -61,7 +61,7 @@ public class ReportManagement {
             System.out.println("Exists");
             JsonParser parser = new JsonParser();
             JsonObject ExtractedMetadataReport = parser.parse(Report.MetadataStringReport).getAsJsonObject();
-            System.out.println(ExtractedMetadataReport.toString());
+            //System.out.println(ExtractedMetadataReport.toString());
         } else {
             Report = new ForensicReport();
             Report.id = URLHash;
@@ -84,6 +84,7 @@ public class ReportManagement {
                 return "URL_ERROR";
             }
         }
+        mongoclient.close();
         return URLHash;
     }
 
@@ -178,13 +179,25 @@ public class ReportManagement {
                 MedianNoiseThread MedianNoisetask = new MedianNoiseThread(Report.SourceImage,MedianNoiseOutputFile);
                 Future MedianNoisefuture = threadpool.submit(MedianNoisetask);
 
-
                 Long startTime=System.currentTimeMillis();
                 metadataExtractor metaExtractor;
                 metaExtractor=new metadataExtractor(Report.SourceImage);
                 JsonObject MetadataReport=metaExtractor.MetadataReport;
                 MetadataReport.addProperty("completed", "true");
                 Report.MetadataStringReport = MetadataReport.toString();
+                ds.save(Report);
+
+                ThumbnailReport Thumbnail=new ThumbnailReport();
+                thumbnailExtractor thumbExtractor;
+                thumbExtractor = new thumbnailExtractor(Report.SourceImage);
+                Thumbnail.NumberOfThumbnails=thumbExtractor.NumberOfThumbnails;
+                File ThumbFile;
+                for (int ThumbInd=0; ThumbInd<thumbExtractor.NumberOfThumbnails;ThumbInd++){
+                    ThumbFile = new File(BaseFolder,"Thumbnail" + String.valueOf(ThumbInd) + ".png");
+                    ImageIO.write(thumbExtractor.Thumbnails.get(ThumbInd), "png", ThumbFile);
+                    Thumbnail.ThumbnailList.add(ThumbFile.getCanonicalPath());
+                }
+                Report.Thumbnail_Report=Thumbnail;
                 ds.save(Report);
 
                 while (!DQfuture.isDone() | !NoiseDWfuture.isDone() | !Ghostfuture.isDone() | !ELAfuture.isDone() | !BLKfuture.isDone() | !MedianNoisefuture.isDone()) {
@@ -240,6 +253,7 @@ public class ReportManagement {
             }
         Report.status="Done";
         ds.save(Report);
+        mongoclient.close();
         return OutMessage;
         }
 
@@ -257,7 +271,8 @@ public class ReportManagement {
             GsonBuilder builder = new GsonBuilder();
             Report.MetadataObjectReport = builder.create().fromJson(tmpJson, Object.class);
         }
-            return Report;
+        mongoclient.close();
+        return Report;
     }
 
     private static void DownloadFile(String URLIn, String FolderOut) throws IOException {
@@ -290,10 +305,10 @@ public class ReportManagement {
 
         //Build a hash based on the URL -would be better to build it based on the file content itself, but that might cause
         // synchronization issues while waiting for the file to download
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        MessageDigest md = MessageDigest.getInstance("MD5");
         md.update(URLIn.getBytes("UTF-8")); // Change this to "UTF-16" if needed
         byte[] digest = md.digest();
-        String URLHash = String.format("%064x", new java.math.BigInteger(1, digest));
+        String URLHash = String.format("%032x", new java.math.BigInteger(1, digest));
         return URLHash;
     }
 
@@ -492,8 +507,23 @@ public class ReportManagement {
     public static void main (String[] args) {
         String OutputFolder = "/home/marzampoglou/Pictures/Reveal/ManipulationOutput/";
         //String URL="";
-        String Hash1=DownloadURL("http://ak-hdl.buzzfed.com/static/2015-11/14/21/enhanced/webdr10/enhanced-11852-1447553489-1.png", OutputFolder);
+        String Hash1;//=DownloadURL("https://dl.dropboxusercontent.com/u/67895186/DSCF3065_X-E2_manip%2B.jpg", OutputFolder);
+        Hash1=DownloadURL("file:/home/marzampoglou/Desktop/img_1771.jpg",OutputFolder);
         CreateReport(Hash1, OutputFolder);
+
+/*        try {
+            thumbnailExtractor ex=new thumbnailExtractor("/home/marzampoglou/Desktop/img_1771.jpg");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            BufferedImage buf = JPEGMetaData.getThumbnail(new File("/home/marzampoglou/Desktop/img_1771.jpg"));
+            ImageIO.write(buf,"JPEG",new File("/home/marzampoglou/Desktop/thumb.jpg"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+*/
+
         //String Hash2=DownloadURL("http://www.lincolnvscadillac.com/forum/attachment.php?attachmentid=37425&stc=1&d=1220640009", OutputFolder);
         //CreateReport(Hash2, OutputFolder);
 /*        String Hash3=DownloadURL("http://de.trinixy.ru/pics4/20100318/podborka_14.jpg", OutputFolder);
