@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>gr.iti.mklab</groupId>
     <artifactId>image-forensics</artifactId>
-    <version>0.5-SNAPSHOT</version>
+    <version>0.56-SNAPSHOT</version>
     <packaging>jar</packaging>
    
     <name>image-forensics</name>
@@ -17,7 +17,6 @@
         <version>7</version>
     </parent>        
 
-    
     <scm>
         <connection>scm:git:git@github.com:markzampoglou/image-forensics.git</connection>
         <developerConnection>scm:git:git@github.com:markzampoglou/image-forensics.git</developerConnection>
@@ -94,9 +93,20 @@
         </dependency>
         <dependency>
             <groupId>org.boofcv</groupId>
-            <artifactId>boofcv</artifactId>
-            <version>0.15</version>
+            <artifactId>io</artifactId>
+            <version>0.16</version>
         </dependency>
+        <dependency>
+            <groupId>org.boofcv</groupId>
+            <artifactId>ip</artifactId>
+            <version>0.16</version>
+        </dependency>
+        <dependency>
+            <groupId>org.boofcv</groupId>
+            <artifactId>visualize</artifactId>
+            <version>0.16</version>
+        </dependency>
+
     </dependencies>
 
     <repositories>
