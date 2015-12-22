@@ -18,7 +18,7 @@ public class ForensicReport {
     public String SourceImage="";
     public String DisplayImage="";
     public String SourceURL="";
-    public String MetadataStringReport ="{completed: \"false\" }";
+    public String MetadataStringReport ="{completed: false}";
     public Object MetadataObjectReport=null;
     public @Embedded ThumbnailReport Thumbnail_Report = new ThumbnailReport();
     public @Embedded DQReport DQ_Report=new DQReport();

@@ -59,8 +59,8 @@ public class ReportManagement {
         ForensicReport Report = ds.get(ForensicReport.class, URLHash);
         if (Report != null) {
             System.out.println("Exists");
-            JsonParser parser = new JsonParser();
-            JsonObject ExtractedMetadataReport = parser.parse(Report.MetadataStringReport).getAsJsonObject();
+            //JsonParser parser = new JsonParser();
+            //JsonObject ExtractedMetadataReport = parser.parse(Report.MetadataStringReport).getAsJsonObject();
             //System.out.println(ExtractedMetadataReport.toString());
         } else {
             Report = new ForensicReport();
@@ -183,7 +183,7 @@ public class ReportManagement {
                 metadataExtractor metaExtractor;
                 metaExtractor=new metadataExtractor(Report.SourceImage);
                 JsonObject MetadataReport=metaExtractor.MetadataReport;
-                MetadataReport.addProperty("completed", "true");
+                MetadataReport.addProperty("completed", true);
                 Report.MetadataStringReport = MetadataReport.toString();
                 ds.save(Report);
 
