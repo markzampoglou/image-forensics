@@ -56,6 +56,12 @@ public class metadataExtractor {
                 JSONTagChild.addProperty("value", tag.getDescription());
                 JsonTagArray.add(JSONTagChild);
             }
+            if (directory.getTagCount()==0){
+                JSONTagChild=new JsonObject();
+                JSONTagChild.addProperty("name","REVEAL warning");
+                JSONTagChild.addProperty("value", "This category exists but is empty. It is possible that its content was erased.");
+                JsonTagArray.add(JSONTagChild);
+            }
             JSONDirChild.add("values", JsonTagArray);
             JsonDirArray.add(JSONDirChild);
         }

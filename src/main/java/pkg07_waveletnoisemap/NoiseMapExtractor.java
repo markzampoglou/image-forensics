@@ -119,6 +119,25 @@ public class NoiseMapExtractor {
         double[][] BlockMap = Util.BlockNoiseVar(DoubleFilteredImgYAsArray, BlockSize);
 
         int MedianFilterSize = 7;
+        if (MedianFilterSize>BlockMap.length) {
+            MedianFilterSize = BlockMap.length-1;
+        }
+        if (MedianFilterSize>BlockMap[0].length) {
+            MedianFilterSize = BlockMap[0].length-1;
+        }
+        if (MedianFilterSize<5) {
+            minNoiseValue = 0;
+            maxNoiseValue = 0;
+            NoiseMap = new double[1][1];
+            NoiseMap[0][0]=0;
+            byte[][] ByteOutput = new byte[1][1];
+            ByteOutput[0][0]=0;
+            BufferedImage OutputImage = Util.createJetVisualization(ByteOutput);
+            DisplaySurface = OutputImage;
+            return;
+        }
+
+
         double[][] OutBlockMap = Util.MedianFilter(BlockMap, MedianFilterSize);
 
         double min = Double.MAX_VALUE;
@@ -143,6 +162,7 @@ public class NoiseMapExtractor {
         NoiseMap = OutBlockMap;
 
         double spread = max - min;
+
         byte[][] ByteOutput = new byte[OutBlockMap.length][OutBlockMap[0].length];
 
         for (int ii = 0; ii < OutBlockMap.length; ii++) {

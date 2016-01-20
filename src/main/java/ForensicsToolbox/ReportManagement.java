@@ -17,6 +17,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mongodb.MongoClient;
+import gps.gpsExtractor;
 import metadataExtraction.metadataExtractor;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
@@ -122,6 +123,7 @@ public class ReportManagement {
             NoiseDWReport NoiseDW=new NoiseDWReport();
             BLKReport BLK=new BLKReport();
             MedianNoiseReport MedianNoise=new MedianNoiseReport();
+            GPSReport GPS = new GPSReport();
 
             File DQOutputfile = new File(BaseFolder,"DQOutput.png");
             File DWNoiseOutputfile = new File(BaseFolder,"DWNoiseOutput.png");
@@ -185,6 +187,14 @@ public class ReportManagement {
                 JsonObject MetadataReport=metaExtractor.MetadataReport;
                 MetadataReport.addProperty("completed", true);
                 Report.MetadataStringReport = MetadataReport.toString();
+                ds.save(Report);
+
+                gpsExtractor GPSEx=new gpsExtractor(MetadataReport);
+                GPS.completed=true;
+                GPS.exists=GPSEx.exists;
+                GPS.latitude=GPSEx.latitude;
+                GPS.longitude=GPSEx.longitude;
+                Report.GPS_Report=GPS;
                 ds.save(Report);
 
                 ThumbnailReport Thumbnail=new ThumbnailReport();
@@ -253,6 +263,7 @@ public class ReportManagement {
             }
         Report.status="Done";
         ds.save(Report);
+        System.out.println("Will now close mongodb connection");
         mongoclient.close();
         return OutMessage;
         }
@@ -508,7 +519,7 @@ public class ReportManagement {
         String OutputFolder = "/home/marzampoglou/Pictures/Reveal/ManipulationOutput/";
         //String URL="";
         String Hash1;//=DownloadURL("https://dl.dropboxusercontent.com/u/67895186/DSCF3065_X-E2_manip%2B.jpg", OutputFolder);
-        Hash1=DownloadURL("file:/home/marzampoglou/Desktop/img_1771.jpg",OutputFolder);
+        Hash1=DownloadURL("https://dl.dropboxusercontent.com/u/67895186/3769244665_df865a38ef_o.jpg",OutputFolder);
         CreateReport(Hash1, OutputFolder);
 
 /*        try {

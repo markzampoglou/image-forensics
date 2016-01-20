@@ -27,4 +27,5 @@ public class ForensicReport {
     public @Embedded ELAReport ELA_Report=new ELAReport();
     public @Embedded BLKReport BLK_Report=new BLKReport();
     public @Embedded MedianNoiseReport MedianNoise_Report=new MedianNoiseReport();
+    public @Embedded GPSReport GPS_Report=new GPSReport();
 }
