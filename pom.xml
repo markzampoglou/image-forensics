@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>gr.iti.mklab</groupId>
     <artifactId>image-forensics</artifactId>
-    <version>0.7-SNAPSHOT</version>
+    <version>0.7</version>
     <packaging>jar</packaging>
    
     <name>image-forensics</name>
@@ -21,7 +21,7 @@
         <connection>scm:git:git@github.com:markzampoglou/image-forensics.git</connection>
         <developerConnection>scm:git:git@github.com:markzampoglou/image-forensics.git</developerConnection>
         <url>git@github.com:markzampoglou/image-forensics.git</url>
-        <tag>HEAD</tag>
+        <tag>image-forensics-0.7</tag>
     </scm>
               
     <developers>
