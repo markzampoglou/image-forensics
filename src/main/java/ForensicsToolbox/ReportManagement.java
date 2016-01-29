@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+
 import ThumbnailExtraction.thumbnailExtractor;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -40,8 +41,9 @@ public class ReportManagement {
     static int numGhostThreads=5;
     private static ExecutorService threadpool;
 
-    public static String DownloadURL(String URLIn, String FolderOut) {
-        MongoClient mongoclient = new MongoClient("127.0.0.1", 27017);
+    public static String DownloadURL(String URLIn, String FolderOut, String MongoHostIP) {
+
+        MongoClient mongoclient = new MongoClient(MongoHostIP, 27017);
         Morphia morphia = new Morphia();
         morphia.map(ForensicReport.class).map(DQReport.class);
         Datastore ds = new Morphia().createDatastore(mongoclient, "ForensicDatabase");
@@ -67,7 +69,6 @@ public class ReportManagement {
             Report = new ForensicReport();
             Report.id = URLHash;
             //ds.save(Report);
-
             try {
                 File WriteFolder=new File(BaseFolder);
                 if (!WriteFolder.exists())
@@ -89,19 +90,18 @@ public class ReportManagement {
         return URLHash;
     }
 
-    public static String CreateReport(String URLHash, String FolderOut, int MaxGhostImageSmallDimension, int numGhostThreads, long ComputationTimeoutLimit) {
-        return ReportCalculation(URLHash, FolderOut, MaxGhostImageSmallDimension, numGhostThreads, ComputationTimeoutLimit);
+    public static String CreateReport(String URLHash, String MongoHostIP, String FolderOut, int MaxGhostImageSmallDimension, int numGhostThreads, long ComputationTimeoutLimit) {
+        return ReportCalculation(URLHash, MongoHostIP, FolderOut, MaxGhostImageSmallDimension, numGhostThreads, ComputationTimeoutLimit);
     }
 
-    public static String CreateReport(String URLHash, String FolderOut) {
-        return ReportCalculation(URLHash, FolderOut, MaxGhostImageSmallDimension, numGhostThreads, ComputationTimeoutLimit);
+    public static String CreateReport(String URLHash, String MongoHostIP, String FolderOut) {
+        return ReportCalculation(URLHash, MongoHostIP, FolderOut, MaxGhostImageSmallDimension, numGhostThreads, ComputationTimeoutLimit);
     }
 
-    public static String ReportCalculation(String URLHash, String FolderOut, int MaxGhostImageSmallDimension, int numGhostThreads, long ComputationTimeoutLimit){
+    public static String ReportCalculation(String URLHash, String MongoHostIP, String FolderOut, int MaxGhostImageSmallDimension, int numGhostThreads, long ComputationTimeoutLimit){
         String  OutMessage="COMPLETEDSUCCESSFULLY";
         threadpool = Executors.newFixedThreadPool(NumberOfThreads);
-        MongoClient mongoclient = new MongoClient("127.0.0.1", 27017);
-        Morphia morphia = new Morphia();
+        MongoClient mongoclient = new MongoClient(MongoHostIP, 27017);        Morphia morphia = new Morphia();
         morphia.map(ForensicReport.class).map(DQReport.class);
         Datastore ds = new Morphia().createDatastore(mongoclient, "ForensicDatabase");
         ds.ensureCaps();
@@ -269,8 +269,8 @@ public class ReportManagement {
         }
 
 
-    public static ForensicReport GetReport(String URLHash){
-        MongoClient mongoclient = new MongoClient("127.0.0.1", 27017);
+    public static ForensicReport GetReport(String URLHash, String MongoHostIP){
+        MongoClient mongoclient = new MongoClient(MongoHostIP, 27017);
         Morphia morphia = new Morphia();
         morphia.map(ForensicReport.class).map(DQReport.class);
         Datastore ds = new Morphia().createDatastore(mongoclient, "ForensicDatabase");
@@ -519,8 +519,8 @@ public class ReportManagement {
         String OutputFolder = "/home/marzampoglou/Pictures/Reveal/ManipulationOutput/";
         //String URL="";
         String Hash1;//=DownloadURL("https://dl.dropboxusercontent.com/u/67895186/DSCF3065_X-E2_manip%2B.jpg", OutputFolder);
-        Hash1=DownloadURL("https://dl.dropboxusercontent.com/u/67895186/3769244665_df865a38ef_o.jpg",OutputFolder);
-        CreateReport(Hash1, OutputFolder);
+        Hash1=DownloadURL("http://160.40.51.26/projects/Reveal/imgs/example1_big.jpg",OutputFolder, "127.0.0.1");
+        CreateReport(Hash1, "127.0.0.1", OutputFolder);
 
 /*        try {
             thumbnailExtractor ex=new thumbnailExtractor("/home/marzampoglou/Desktop/img_1771.jpg");
