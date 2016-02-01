@@ -20,7 +20,7 @@ import javax.imageio.ImageIO;
  *
  * @author markzampoglou
  */
-public class JPEGGhostExtractor {
+public class GhostExtractor {
 
     public List<BufferedImage> GhostMaps = new ArrayList();
     public List<Integer> GhostQualities = new ArrayList();
@@ -41,13 +41,13 @@ public class JPEGGhostExtractor {
     private int MaxImageSmallDimension =768;
     private int numThreads=4;
 
-    public JPEGGhostExtractor(String FileName, int MaxImageSmallDimension,int numThreads) throws IOException {
+    public GhostExtractor(String FileName, int MaxImageSmallDimension, int numThreads) throws IOException {
         this.MaxImageSmallDimension=MaxImageSmallDimension;
         this.numThreads=numThreads;
         GetJPEGGhost(FileName);
     }
 
-    public JPEGGhostExtractor(String FileName) throws IOException {
+    public GhostExtractor(String FileName) throws IOException {
         GetJPEGGhost(FileName);
     }
 
@@ -75,7 +75,7 @@ public class JPEGGhostExtractor {
         int ImageWidth=OrigImage.getWidth();
 
 
-        GhostCalculator calculator = new GhostCalculator(numThreads, MaxImageSmallDimension, OrigImage, OrigByteImage);
+        GhostThreadManager calculator = new GhostThreadManager(numThreads, MaxImageSmallDimension, OrigImage, OrigByteImage);
         int submittedCounter = 0;
         int completedCounter = 0;
         int failedCounter = 0;

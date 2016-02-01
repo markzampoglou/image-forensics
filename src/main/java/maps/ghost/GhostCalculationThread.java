@@ -10,14 +10,14 @@ import java.awt.image.BufferedImage;
 import java.util.concurrent.Callable;
 
 
-public class GhostCalculation implements Callable<GhostCalculationResult>{
+public class GhostCalculationThread implements Callable<GhostCalculationResult>{
 
     private int Quality;
     private BufferedImage ImIn;
     private int[][][] OrigByteImage;
     private int MaxImageSmallDimension;
 
-    public GhostCalculation(int Quality, BufferedImage ImIn, int[][][] OrigByteImage, int MaxImageSmallDimension) {
+    public GhostCalculationThread(int Quality, BufferedImage ImIn, int[][][] OrigByteImage, int MaxImageSmallDimension) {
         this.Quality = Quality;
         this.ImIn = ImIn;
         this.OrigByteImage = OrigByteImage;

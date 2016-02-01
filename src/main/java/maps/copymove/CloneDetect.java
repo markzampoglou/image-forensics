@@ -35,7 +35,7 @@ public class CloneDetect {
     ImageMap initial;
 
     // Nearest-Neighbor Field
-    NNF_NoMask nnf_TargetToSource;
+    NNFNoMask nnf_TargetToSource;
 
     // patch radius
     int radius;
@@ -45,7 +45,7 @@ public class CloneDetect {
 
 
     public BufferedImage FindClones(BufferedImage input, int blockSize){
-        ArrayList<NNF_NoMask> NNFList = new ArrayList<>();
+        ArrayList<NNFNoMask> NNFList = new ArrayList<>();
 
         // initial image
         this.initial = new ImageMap(input);
@@ -83,9 +83,9 @@ public class CloneDetect {
             System.out.println("initialize NNF...");
             if (level == maxlevel - 1) {
                 // at first,  use random data as initial guess
-                nnf_TargetToSource = new NNF_NoMask(target, source, blockSize);
+                nnf_TargetToSource = new NNFNoMask(target, source, blockSize);
                 nnf_TargetToSource.randomizeDist(minDist);
-                NNF_NoMask new_nnf = new NNF_NoMask(target, source, blockSize);
+                NNFNoMask new_nnf = new NNFNoMask(target, source, blockSize);
                 new_nnf.initialize(nnf_TargetToSource);
                 new_nnf.minimizeDistance(LoopMultiplier *(level+ 1),minDist);
                 nnf_TargetToSource=new_nnf;
@@ -93,7 +93,7 @@ public class CloneDetect {
                 // then, we use the rebuilt (upscaled) target
                 // and reuse the previous NNF as initial guess
                 //nnf_TargetToSource.randomize();
-                NNF_NoMask new_nnf = new NNF_NoMask(target, source, blockSize);
+                NNFNoMask new_nnf = new NNFNoMask(target, source, blockSize);
                 new_nnf.initialize(nnf_TargetToSource);
                 new_nnf.minimizeDistance(LoopMultiplier *(level+ 1),minDist);
                 nnf_TargetToSource = new_nnf;

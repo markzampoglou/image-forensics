@@ -14,11 +14,11 @@ import java.util.List;
 /**
  * Created by marzampoglou on 12/3/15.
  */
-public class thumbnailExtractor {
+public class ThumbnailExtractor {
     public List<BufferedImage> Thumbnails =new ArrayList<>();
     public int NumberOfThumbnails=0;
 
-    public thumbnailExtractor(String FileName) {
+    public ThumbnailExtractor(String FileName) {
         try {
             getThumbnails(FileName);
         } catch (Exception e) {

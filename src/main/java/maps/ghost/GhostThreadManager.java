@@ -6,7 +6,7 @@ import java.util.concurrent.*;
 /**
  * Created by marzampoglou on 11/4/15.
  */
-public class GhostCalculator {
+public class GhostThreadManager {
 
     /**
      * This class implements multi-threaded image Ghost extraction.
@@ -42,7 +42,7 @@ public class GhostCalculator {
          * @param downloadFolder
          *            the download folder
          */
-        public GhostCalculator(int numThreads,int MaxImageSmallDimension, BufferedImage OrigImage, int[][][] OrigByteImage) {
+        public GhostThreadManager(int numThreads, int MaxImageSmallDimension, BufferedImage OrigImage, int[][][] OrigByteImage) {
             System.out.println("Ghost Threads " + numThreads);
             ghostExecutor = Executors.newFixedThreadPool(numThreads);
             pool = new ExecutorCompletionService<GhostCalculationResult>(ghostExecutor);
@@ -54,7 +54,7 @@ public class GhostCalculator {
         }
 
         public void submitGhostTask(int Quality) {
-            Callable<GhostCalculationResult> call = new GhostCalculation(Quality, OrigImage, OrigByteImage, MaxImageSmallDimension);
+            Callable<GhostCalculationResult> call = new GhostCalculationThread(Quality, OrigImage, OrigByteImage, MaxImageSmallDimension);
             pool.submit(call);
             numPendingTasks++;
         }

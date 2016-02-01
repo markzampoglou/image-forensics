@@ -1,4 +1,4 @@
-package api;
+package util;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -7,7 +7,7 @@ import java.awt.image.BufferedImage;
  * Created by marzampoglou on 11/19/15.
  */
 public class ArtificialImages {
-    static BufferedImage TransparentPNGNotAccepted() {
+    public static BufferedImage TransparentPNGNotAccepted() {
         String text = "PNG files with ";
 
         /*

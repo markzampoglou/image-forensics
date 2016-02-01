@@ -6,12 +6,12 @@ import com.google.gson.JsonObject;
 /**
  * Created by marzampoglou on 1/19/16.
  */
-public class gpsExtractor {
+public class GPSExtractor {
     public boolean exists=false;
     public double latitude=Double.MAX_VALUE;
     public double longitude=Double.MAX_VALUE;
 
-    public gpsExtractor(JsonObject metadata) {
+    public GPSExtractor(JsonObject metadata) {
         GetGPSData(metadata);
     }
 

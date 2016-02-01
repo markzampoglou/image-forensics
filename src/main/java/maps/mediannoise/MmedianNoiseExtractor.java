@@ -24,12 +24,12 @@ import java.io.IOException;
 /*
  * @author markzampoglou
  */
-public class MedianNoiseExtractor {
+public class MmedianNoiseExtractor {
 
     BufferedImage InputImage = null;
     public BufferedImage DisplaySurface = null;
 
-    public MedianNoiseExtractor(String FileName) throws IOException {
+    public MmedianNoiseExtractor(String FileName) throws IOException {
         InputImage = ImageIO.read(new File(FileName));
         GetNoiseMap();
     }

@@ -8,7 +8,7 @@ import java.util.Random;
  * @author Xavier Philippeau
  *
  */
-public class NNF_NoMask {
+public class NNFNoMask {
 
 	// image
 	ImageMap input, output;
@@ -23,7 +23,7 @@ public class NNF_NoMask {
 	Random random = new Random(0);
 
 	// constructor
-	public NNF_NoMask(ImageMap input, ImageMap output, int patchsize) {
+	public NNFNoMask(ImageMap input, ImageMap output, int patchsize) {
 		this.input = input;
 		this.output= output;
 		this.S = patchsize;	
@@ -71,7 +71,7 @@ public class NNF_NoMask {
 	}
 
 	// initialize field from an existing (possibily smaller) NNF
-	public void initialize(NNF_NoMask nnf) {
+	public void initialize(NNFNoMask nnf) {
 		// field
 		this.field = new int[input.W][input.H][3];
 		
@@ -251,7 +251,7 @@ public class NNF_NoMask {
 
 	// compute distance between two patch 
 	public int distance(int x,int y, int xp,int yp) {
-		return ImageMap.distance(input,x,y, output,xp,yp, S);
+		return ImageMap.distance(input, x, y, output, xp, yp, S);
 	}
 	
 	public int[][][] getField() {

@@ -16,13 +16,13 @@ import java.io.IOException;
  *
  * @author markzampoglou
  */
-public class JPEGELAExtractor {
+public class ELAExtractor {
 
     public BufferedImage DisplaySurface = null;
     public double ELAMin;
     public double ELAMax;
 
-    public JPEGELAExtractor(String FileName) throws IOException {
+    public ELAExtractor(String FileName) throws IOException {
         GetJPEGELA(FileName);
     }
 

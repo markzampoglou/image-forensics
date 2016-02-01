@@ -14,10 +14,10 @@ import com.google.gson.JsonObject;
 /**
  * Created by marzampoglou on 11/18/15.
  */
-public class metadataExtractor {
+public class MetadataExtractor {
     public JsonObject MetadataReport = null;
 
-    public metadataExtractor(String FileName) throws IOException, ImageProcessingException {
+    public MetadataExtractor(String FileName) throws IOException, ImageProcessingException {
         this.MetadataReport=GetMetadata(FileName);
     }
 

@@ -13,21 +13,23 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 
-import meta.thumbnail.thumbnailExtractor;
+import api.reports.*;
+import maps.dwnoise.NoiseMapExtractor;
+import meta.metadata.MetadataExtractor;
+import meta.thumbnail.ThumbnailExtractor;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mongodb.MongoClient;
-import meta.gps.gpsExtractor;
-import meta.metadata.metadataExtractor;
+import meta.gps.GPSExtractor;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
-import maps.dq.DQDetector;
-import maps.mediannoise.MedianNoiseExtractor;
-import maps.ela.JPEGELAExtractor;
-import maps.dwnoise.NoiseMapExtractor;
-import maps.ghost.JPEGGhostExtractor;
-import maps.blocking.BLKArtifactExtractor;
+import maps.dq.DQExtractor;
+import maps.mediannoise.MmedianNoiseExtractor;
+import maps.ela.ELAExtractor;
+import maps.ghost.GhostExtractor;
+import maps.blocking.BlockingExtractor;
+import util.ArtificialImages;
 
 import javax.imageio.ImageIO;
 
@@ -121,7 +123,7 @@ public class ReportManagement {
             ELAReport ELA=new ELAReport();
             GhostReport Ghost=new GhostReport();
             DWNoiseReport NoiseDW=new DWNoiseReport();
-            BLKReport BLK=new BLKReport();
+            BlockingReport BLK=new BlockingReport();
             MedianNoiseReport MedianNoise=new MedianNoiseReport();
             GPSReport GPS = new GPSReport();
 
@@ -135,7 +137,7 @@ public class ReportManagement {
             try {
             if (ImageIO.read(new File(Report.SourceImage)).getColorModel().hasAlpha()) {
                 //If image has an alpha channel, then assume transparent PNG -No point in processing it
-                BufferedImage TransparencyNotAccepted=ArtificialImages.TransparentPNGNotAccepted();
+                BufferedImage TransparencyNotAccepted= ArtificialImages.TransparentPNGNotAccepted();
                 ImageIO.write(TransparencyNotAccepted, "png", DQOutputfile);
                 DQ.Map=DQOutputfile.getCanonicalPath();
                 DQ.completed=true;
@@ -182,14 +184,14 @@ public class ReportManagement {
                 Future MedianNoisefuture = threadpool.submit(MedianNoisetask);
 
                 Long startTime=System.currentTimeMillis();
-                metadataExtractor metaExtractor;
-                metaExtractor=new metadataExtractor(Report.SourceImage);
+                MetadataExtractor metaExtractor;
+                metaExtractor=new MetadataExtractor(Report.SourceImage);
                 JsonObject MetadataReport=metaExtractor.MetadataReport;
                 MetadataReport.addProperty("completed", true);
                 Report.MetadataStringReport = MetadataReport.toString();
                 ds.save(Report);
 
-                gpsExtractor GPSEx=new gpsExtractor(MetadataReport);
+                GPSExtractor GPSEx=new GPSExtractor(MetadataReport);
                 GPS.completed=true;
                 GPS.exists=GPSEx.exists;
                 GPS.latitude=GPSEx.latitude;
@@ -198,8 +200,8 @@ public class ReportManagement {
                 ds.save(Report);
 
                 ThumbnailReport Thumbnail=new ThumbnailReport();
-                thumbnailExtractor thumbExtractor;
-                thumbExtractor = new thumbnailExtractor(Report.SourceImage);
+                ThumbnailExtractor thumbExtractor;
+                thumbExtractor = new ThumbnailExtractor(Report.SourceImage);
                 Thumbnail.NumberOfThumbnails=thumbExtractor.NumberOfThumbnails;
                 File ThumbFile;
                 for (int ThumbInd=0; ThumbInd<thumbExtractor.NumberOfThumbnails;ThumbInd++){
@@ -237,7 +239,7 @@ public class ReportManagement {
                         System.out.println("ELA Done");
                     }
                     if (BLKfuture.isDone() & !BLKSaved){
-                        Report.BLK_Report=(BLKReport) BLKfuture.get();
+                        Report.BLK_Report=(BlockingReport) BLKfuture.get();
                         BLKSaved=true;
                         ds.save(Report);
                         System.out.println("BLK Done");
@@ -342,8 +344,8 @@ public class ReportManagement {
         }
         public DQReport DQCalculation() throws IOException {
             DQReport DQ=new DQReport();
-            DQDetector dqDetector;
-            dqDetector = new DQDetector(SourceFile);
+            DQExtractor dqDetector;
+            dqDetector = new DQExtractor(SourceFile);
             ImageIO.write(dqDetector.DisplaySurface, "png", Outputfile);
             DQ.Map = Outputfile.getCanonicalPath();
             DQ.MaxValue = dqDetector.maxProbValue;
@@ -407,8 +409,8 @@ public class ReportManagement {
         public GhostReport GhostCalculation(int MaxImageSmallDimension,int numThreads) throws IOException {
             File ghostOutputfile;
             GhostReport Ghost=new GhostReport();
-            JPEGGhostExtractor ghostExtractor;
-            ghostExtractor = new JPEGGhostExtractor(SourceFile, MaxImageSmallDimension, numThreads);
+            GhostExtractor ghostExtractor;
+            ghostExtractor = new GhostExtractor(SourceFile, MaxImageSmallDimension, numThreads);
             BufferedImage GhostMap;
             for (int GhostMapInd=0;GhostMapInd<ghostExtractor.GhostMaps.size();GhostMapInd++) {
                 ghostOutputfile=new File(BaseFolder, "GhostOutput" + String.format("%02d", GhostMapInd) + ".png");
@@ -446,8 +448,8 @@ public class ReportManagement {
         }
         public ELAReport ELACalculation() throws IOException {
             ELAReport ELA=new ELAReport();
-            JPEGELAExtractor ELAExtractor;
-            ELAExtractor = new JPEGELAExtractor(SourceFile);
+            ELAExtractor ELAExtractor;
+            ELAExtractor = new ELAExtractor(SourceFile);
             ImageIO.write(ELAExtractor.DisplaySurface, "png", Outputfile);
             ELA.Map = Outputfile.getCanonicalPath();
             ELA.MaxValue = ELAExtractor.ELAMax;
@@ -465,8 +467,8 @@ public class ReportManagement {
             this.Outputfile=Outputfile;
         }
         @Override
-        public BLKReport call() {
-            BLKReport output=null;
+        public BlockingReport call() {
+            BlockingReport output=null;
             try {
                 output=BLKCalculation();
             } catch (IOException e) {
@@ -474,10 +476,10 @@ public class ReportManagement {
             }
             return output;
         }
-        public BLKReport BLKCalculation() throws IOException {
-            BLKReport BLK=new BLKReport();
-            BLKArtifactExtractor BLKExtractor;
-            BLKExtractor = new BLKArtifactExtractor(SourceFile);
+        public BlockingReport BLKCalculation() throws IOException {
+            BlockingReport BLK=new BlockingReport();
+            BlockingExtractor BLKExtractor;
+            BLKExtractor = new BlockingExtractor(SourceFile);
             ImageIO.write(BLKExtractor.DisplaySurface, "png", Outputfile);
             BLK.Map = Outputfile.getCanonicalPath();
             BLK.MaxValue = BLKExtractor.BLKMax;
@@ -506,8 +508,8 @@ public class ReportManagement {
         }
         public MedianNoiseReport MedianNoiseCalculation() throws IOException {
             MedianNoiseReport MedianNoise=new MedianNoiseReport();
-            MedianNoiseExtractor MedianExtractor;
-            MedianExtractor = new MedianNoiseExtractor(SourceFile);
+            MmedianNoiseExtractor MedianExtractor;
+            MedianExtractor = new MmedianNoiseExtractor(SourceFile);
             ImageIO.write(MedianExtractor.DisplaySurface, "png", Outputfile);
             MedianNoise.Map = Outputfile.getCanonicalPath();
             MedianNoise.completed=true;
@@ -523,7 +525,7 @@ public class ReportManagement {
         CreateReport(Hash1, "127.0.0.1", OutputFolder);
 
 /*        try {
-            thumbnailExtractor ex=new thumbnailExtractor("/home/marzampoglou/Desktop/img_1771.jpg");
+            ThumbnailExtractor ex=new ThumbnailExtractor("/home/marzampoglou/Desktop/img_1771.jpg");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -550,7 +552,7 @@ public class ReportManagement {
         try {
 
             //NoiseMapExtractor ex = new NoiseMapExtractor("/home/marzampoglou/Pictures/Reveal/ManipulationOutput/79b16f4bced02b565416b7aeaea32db13a3590b32835bfcf3c5d6bc765948a3e/Raw");
-            metadataExtractor meta =new metadataExtractor("/home/marzampoglou/Pictures/Reveal/ManipulationOutput/79b16f4bced02b565416b7aeaea32db13a3590b32835bfcf3c5d6bc765948a3e/Raw");
+            MetadataExtractor meta =new MetadataExtractor("/home/marzampoglou/Pictures/Reveal/ManipulationOutput/79b16f4bced02b565416b7aeaea32db13a3590b32835bfcf3c5d6bc765948a3e/Raw");
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ImageProcessingException e) {

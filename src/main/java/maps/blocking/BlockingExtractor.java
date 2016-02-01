@@ -14,7 +14,7 @@ import java.util.Collections;
 /**
  * Created by marzampoglou on 11/24/15.
  */
-public class BLKArtifactExtractor {
+public class BlockingExtractor {
 
     public BufferedImage DisplaySurface = null;
     public double BLKMin;
@@ -27,7 +27,7 @@ public class BLKArtifactExtractor {
     // aggregate enough.
     int AC=33;
 
-    public BLKArtifactExtractor(String FileName) throws IOException {
+    public BlockingExtractor(String FileName) throws IOException {
         GetBLKArtifact(FileName);
     }
 

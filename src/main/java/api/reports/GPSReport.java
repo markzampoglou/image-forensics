@@ -1,4 +1,4 @@
-package api;
+package api.reports;
 
 import org.mongodb.morphia.annotations.Embedded;
 

@@ -36,7 +36,7 @@ import util.DCTCoeffExtractor;
  *
  * @author markzampoglou
  */
-public final class DQDetector {
+public final class DQExtractor {
 
     int[][] DCTs; // The array of DCT Coefficients of the image
     int MaxCoeffs = 15; //How many DCT coefficients to take into account
@@ -54,7 +54,7 @@ public final class DQDetector {
         IntByReference GetDCT(String FileName);
     }
 
-    public DQDetector(String FileName) throws IOException {
+    public DQExtractor(String FileName) throws IOException {
         String imageFormat = util.Util.GetImageFormat(new File(FileName));
         try {
             if (imageFormat.equalsIgnoreCase("JPEG") | imageFormat.equalsIgnoreCase("JPG")) {

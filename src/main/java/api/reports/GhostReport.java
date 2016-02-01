@@ -1,4 +1,4 @@
-package api;
+package api.reports;
 
 import java.util.ArrayList;
 import java.util.List;

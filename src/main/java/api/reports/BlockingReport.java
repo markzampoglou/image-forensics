@@ -1,12 +1,12 @@
-package api;
+package api.reports;
 
 import org.mongodb.morphia.annotations.Embedded;
 
 /**
- * Created by marzampoglou on 11/19/15.
+ * Created by marzampoglou on 11/25/15.
  */
 @Embedded
-public class ELAReport {
+public class BlockingReport {
     public Boolean completed=false;
     public String Map;
     public double MaxValue;
