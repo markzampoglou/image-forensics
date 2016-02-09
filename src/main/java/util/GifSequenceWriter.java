@@ -197,15 +197,15 @@ public class GifSequenceWriter {
     }
   }
 
-    public static void writeFromList(List<BufferedImage> images, File OutFileName, int TimeBetweenFS) throws Exception {
+    public static void writeFromList(List<BufferedImage> images, File outFileName, int timeBetweenFS) throws Exception {
 
       ImageOutputStream output;
-      output = new FileImageOutputStream(OutFileName);
+      output = new FileImageOutputStream(outFileName);
       
       // create a gif sequence with the type of the first image, 1 second
       // between frames, which loops continuously
       GifSequenceWriter writer = 
-        new GifSequenceWriter(output, images.get(0).getType(), TimeBetweenFS, false);
+        new GifSequenceWriter(output, images.get(0).getType(), timeBetweenFS, false);
       
       // write out the first image to our sequence...
       writer.writeToSequence(images.get(0));

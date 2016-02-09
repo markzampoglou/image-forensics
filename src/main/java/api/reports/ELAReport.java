@@ -8,7 +8,7 @@ import org.mongodb.morphia.annotations.Embedded;
 @Embedded
 public class ELAReport {
     public Boolean completed=false;
-    public String Map;
-    public double MaxValue;
-    public double MinValue;
+    public String map;
+    public double maxValue;
+    public double minvalue;
 }

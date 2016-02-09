@@ -28,9 +28,9 @@ public class GhostThreadManager {
         private final int maxNumPendingTasks;
 
 
-        private int MaxImageSmallDimension;
-        private BufferedImage OrigImage;
-        private int[][][] OrigByteImage;
+        private int maxImageSmallDimension;
+        private BufferedImage origImage;
+        private int[][][] origByteImage;
 
 
 
@@ -42,19 +42,19 @@ public class GhostThreadManager {
          * @param downloadFolder
          *            the download folder
          */
-        public GhostThreadManager(int numThreads, int MaxImageSmallDimension, BufferedImage OrigImage, int[][][] OrigByteImage) {
+        public GhostThreadManager(int numThreads, int maxImageSmallDimension, BufferedImage origImage, int[][][] origByteImage) {
             System.out.println("Ghost Threads " + numThreads);
             ghostExecutor = Executors.newFixedThreadPool(numThreads);
             pool = new ExecutorCompletionService<GhostCalculationResult>(ghostExecutor);
             numPendingTasks = 0;
             maxNumPendingTasks = numThreads;
-            this.MaxImageSmallDimension=MaxImageSmallDimension;
-            this.OrigImage=OrigImage;
-            this.OrigByteImage=OrigByteImage;
+            this.maxImageSmallDimension =maxImageSmallDimension;
+            this.origImage =origImage;
+            this.origByteImage =origByteImage;
         }
 
-        public void submitGhostTask(int Quality) {
-            Callable<GhostCalculationResult> call = new GhostCalculationThread(Quality, OrigImage, OrigByteImage, MaxImageSmallDimension);
+        public void submitGhostTask(int quality) {
+            Callable<GhostCalculationResult> call = new GhostCalculationThread(quality, origImage, origByteImage, maxImageSmallDimension);
             pool.submit(call);
             numPendingTasks++;
         }

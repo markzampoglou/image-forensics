@@ -44,8 +44,8 @@ public class CloneDetect {
     List<ImageMap> pyramid;
 
 
-    public BufferedImage FindClones(BufferedImage input, int blockSize){
-        ArrayList<NNFNoMask> NNFList = new ArrayList<>();
+    public BufferedImage findClones(BufferedImage input, int blockSize){
+        ArrayList<NNFNoMask> nnfList = new ArrayList<>();
 
         // initial image
         this.initial = new ImageMap(input);
@@ -61,27 +61,27 @@ public class CloneDetect {
         // build pyramid of downscaled images
         this.pyramid = new ArrayList<ImageMap>();
         this.pyramid.add(source);
-        //while(source.W>blockSize && source.H>blockSize) {
+        //while(source.w>blockSize && source.h>blockSize) {
         for (int ii=0;ii<pyramidLevels-1;ii++) {
             source = source.downsample();
             this.pyramid.add(source);
             System.out.println("New level");
         }
-        int maxlevel=this.pyramid.size();
+        int maxLevel =this.pyramid.size();
 
         // The initial target is the same as the smallest source.
         // We consider that this target contains no masked pixels
         ImageMap target = source.copy();
 
         // for each level of the pyramid
-        for(int level=maxlevel-1;level>=0;level--) {
+        for(int level= maxLevel -1;level>=0;level--) {
             System.out.println("\n*** Processing -  Zoom 1:" + (1 << level) + " ***");
             // create Nearest-Neighbor Fields (direct and reverse)
             source = this.pyramid.get(level);
             target = source;
 
             System.out.println("initialize NNF...");
-            if (level == maxlevel - 1) {
+            if (level == maxLevel - 1) {
                 // at first,  use random data as initial guess
                 nnf_TargetToSource = new NNFNoMask(target, source, blockSize);
                 nnf_TargetToSource.randomizeDist(minDist);
@@ -158,7 +158,7 @@ public class CloneDetect {
         /*
         */
 
-        BufferedImage out= DrawGrey(nnf_TargetToSource.linearFilterField());
+        BufferedImage out= drawGrey(nnf_TargetToSource.linearFilterField());
         nnf_TargetToSource.removeLowVar(7,2.5);
 
         //display(output);
@@ -168,39 +168,39 @@ public class CloneDetect {
             e.printStackTrace();
         }
 
-        return DrawGrey2(nnf_TargetToSource.getField());
+        return drawGrey2(nnf_TargetToSource.getField());
     }
 
-    private BufferedImage DrawGrey(int[][] MapIn){
-        BufferedImage ImOut = new BufferedImage(MapIn.length,MapIn[0].length, BufferedImage.TYPE_INT_ARGB) ;
-        for (int ii=0;ii<MapIn.length;ii++){
-            for (int jj=0;jj<MapIn[0].length;jj++){
-                //int tmpVal= (int) Math.round(Math.sqrt(Math.pow(ii-MapIn[ii][jj][0],2)+Math.pow(jj-MapIn[ii][jj][1],2)));
-                int tmpVal= MapIn[ii][jj]; //[2]
+    private BufferedImage drawGrey(int[][] mapIn){
+        BufferedImage imOut = new BufferedImage(mapIn.length,mapIn[0].length, BufferedImage.TYPE_INT_ARGB) ;
+        for (int ii=0;ii<mapIn.length;ii++){
+            for (int jj=0;jj<mapIn[0].length;jj++){
+                //int tmpVal= (int) Math.round(Math.sqrt(Math.pow(ii-mapIn[ii][jj][0],2)+Math.pow(jj-mapIn[ii][jj][1],2)));
+                int tmpVal= mapIn[ii][jj]; //[2]
                 if (tmpVal>255) tmpVal=255;
                 int value = 0xFF000000 | tmpVal << 16 | tmpVal << 8 | tmpVal;
-                ImOut.setRGB(ii,jj,value);
+                imOut.setRGB(ii, jj, value);
                 //System.out.print(tmpVal + " ");
             }
             //System.out.println();
         }
-        return ImOut;
+        return imOut;
     }
 
-    private BufferedImage DrawGrey2(int[][][] MapIn){
-        BufferedImage ImOut = new BufferedImage(MapIn.length,MapIn[0].length, BufferedImage.TYPE_INT_ARGB) ;
-        for (int ii=0;ii<MapIn.length;ii++){
-            for (int jj=0;jj<MapIn[0].length;jj++){
-                //int tmpVal= (int) Math.round(Math.sqrt(Math.pow(ii-MapIn[ii][jj][0],2)+Math.pow(jj-MapIn[ii][jj][1],2)));
-                int tmpVal= MapIn[ii][jj][2];
+    private BufferedImage drawGrey2(int[][][] mapIn){
+        BufferedImage imOut = new BufferedImage(mapIn.length,mapIn[0].length, BufferedImage.TYPE_INT_ARGB) ;
+        for (int ii=0;ii<mapIn.length;ii++){
+            for (int jj=0;jj<mapIn[0].length;jj++){
+                //int tmpVal= (int) Math.round(Math.sqrt(Math.pow(ii-mapIn[ii][jj][0],2)+Math.pow(jj-mapIn[ii][jj][1],2)));
+                int tmpVal= mapIn[ii][jj][2];
                 if (tmpVal>255) tmpVal=255;
                 int value = 0xFF000000 | tmpVal << 16 | tmpVal << 8 | tmpVal;
-                ImOut.setRGB(ii,jj,value);
+                imOut.setRGB(ii, jj, value);
                 //System.out.print(tmpVal + " ");
             }
             //System.out.println();
         }
-        return ImOut;
+        return imOut;
     }
 
 

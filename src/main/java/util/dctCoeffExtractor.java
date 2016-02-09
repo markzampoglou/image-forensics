@@ -11,31 +11,31 @@ import org.ojalgo.matrix.store.PhysicalStore;
 /**
  * Created by marzampoglou on 11/6/15.
  */
-public class DCTCoeffExtractor {
-    public static int[][] ExtractYDCT(BufferedImage ImIn){
+public class dctCoeffExtractor {
+    public static int[][] extractYDCT(BufferedImage imIn){
 
-        int[][][] ByteImIn=Util.GetRGBArray(ImIn);
-        double[][] Y=new double[Math.floorDiv(ByteImIn[0].length,8)*8][Math.floorDiv(ByteImIn[0][0].length,8)*8];
+        int[][][] byteImIn=Util.getRGBArray(imIn);
+        double[][] Y=new double[Math.floorDiv(byteImIn[0].length,8)*8][Math.floorDiv(byteImIn[0][0].length,8)*8];
         for (int ii=0;ii<Y.length;ii++){
             for (int jj=0;jj<Y[0].length;jj++){
-                Y[ii][jj]=Math.round(0.299*ByteImIn[0][ii][jj]+0.587*ByteImIn[1][ii][jj]+0.114*ByteImIn[2][ii][jj]-128);
+                Y[ii][jj]=Math.round(0.299*byteImIn[0][ii][jj]+0.587*byteImIn[1][ii][jj]+0.114*byteImIn[2][ii][jj]-128);
             }
         }
         double[][] vec=im2vec(Y,8);
-        double[][] mult = MatrixMultiply(bctmtx, vec);
+        double[][] mult = matrixMultiply(bctmtx, vec);
         return vec2im(mult, 8, Y.length, Y[0].length);
     }
 
-    public static double[][] im2vec(double[][] ImIn, int bsize){
-        double v[][]=new double[bsize*bsize][(ImIn.length*ImIn[0].length)/(bsize*bsize)];
-        int numBlkX=ImIn.length/bsize;
-        int numBlkY=ImIn[0].length/bsize;
+    public static double[][] im2vec(double[][] imIn, int bsize){
+        double v[][]=new double[bsize*bsize][(imIn.length*imIn[0].length)/(bsize*bsize)];
+        int numBlkX=imIn.length/bsize;
+        int numBlkY=imIn[0].length/bsize;
 
-        for (int Blk_ii=0;Blk_ii<numBlkY;Blk_ii++){
-            for (int Blk_jj=0;Blk_jj<numBlkX;Blk_jj++){
+        for (int blk_ii=0;blk_ii<numBlkY;blk_ii++){
+            for (int blk_jj=0;blk_jj<numBlkX;blk_jj++){
                 for (int ii=0;ii<bsize;ii++) {
                     for (int jj=0;jj<bsize;jj++) {
-                        v[ii*bsize+jj][Blk_ii*numBlkX+Blk_jj]=ImIn[Blk_jj*bsize+jj][Blk_ii*bsize+ii];
+                        v[ii*bsize+jj][blk_ii*numBlkX+blk_jj]=imIn[blk_jj*bsize+jj][blk_ii*bsize+ii];
                     }
                 }
             }
@@ -48,10 +48,10 @@ public class DCTCoeffExtractor {
         int numBlkX=c/8;
         int numBlkY=r/8;
         for (int Blk_ii=0;Blk_ii<numBlkX;Blk_ii++){
-            for (int Blk_jj=0;Blk_jj<numBlkY;Blk_jj++){
+            for (int blk_jj =0; blk_jj <numBlkY; blk_jj++){
                 for (int ii=0;ii<bsize;ii++) {
                     for (int jj=0;jj<bsize;jj++) {
-                        im[Blk_ii*bsize+ii][Blk_jj*bsize+jj]=(int) Math.round(vecIn[ii*bsize+jj][Blk_ii*numBlkY+Blk_jj]);
+                        im[Blk_ii*bsize+ii][blk_jj *bsize+jj]=(int) Math.round(vecIn[ii*bsize+jj][Blk_ii*numBlkY+ blk_jj]);
                     }
                 }
             }
@@ -60,7 +60,7 @@ public class DCTCoeffExtractor {
     }
 
 
-    public static double[][] MatrixMultiply(double[][] dctm, double[][] v) {
+    public static double[][] matrixMultiply(double[][] dctm, double[][] v) {
         final Factory<PrimitiveMatrix> dctmFactory = PrimitiveMatrix.FACTORY;
         final Builder<PrimitiveMatrix> dctmBuilder = dctmFactory.getBuilder(dctm.length, dctm[0].length);
 
@@ -81,17 +81,17 @@ public class DCTCoeffExtractor {
         final BasicMatrix vBM = vBuilder.build();
 
 
-        final BasicMatrix OutBM = vBM.multiplyLeft(dctmBM);
-        PhysicalStore<Double> OutStore=OutBM.toPrimitiveStore();
+        final BasicMatrix outBM = vBM.multiplyLeft(dctmBM);
+        PhysicalStore<Double> outStore=outBM.toPrimitiveStore();
 
-        double[][] Out = new double[(int)OutBM.countRows()][(int)OutBM.countColumns()];
-        for (int ii = 0; ii < Out .length; ii++) {
-            for (int jj = 0; jj < Out [0].length; jj++) {
-                Out[ii][jj]=OutStore.get(ii, jj);
+        double[][] out = new double[(int)outBM.countRows()][(int)outBM.countColumns()];
+        for (int ii = 0; ii < out .length; ii++) {
+            for (int jj = 0; jj < out [0].length; jj++) {
+                out[ii][jj]=outStore.get(ii, jj);
             }
         }
 
-        return Out;
+        return out;
     }
 
 
@@ -113,7 +113,7 @@ public class DCTCoeffExtractor {
             //System.out.println();
         }
 
-        double[][] mult = MatrixMultiply(bctmtx,vec);
+        double[][] mult = matrixMultiply(bctmtx, vec);
         int[][] im = vec2im(mult, 8, tstim2.length, tstim2[0].length);
 
         for (int ii=0;ii<im.length;ii++){ //

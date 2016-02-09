@@ -31,122 +31,122 @@ public class NoiseMapExtractor {
 
     int numThreads=6;
 
-    BufferedImage InputImage = null;
+    BufferedImage inputImage = null;
 
-    public double[][] NoiseMap = null;
-    public BufferedImage DisplaySurface = null;
+    public double[][] noiseMap = null;
+    public BufferedImage displaySurface = null;
     public double maxNoiseValue = -Double.MAX_VALUE;
     public double minNoiseValue = Double.MAX_VALUE;
 
     public NoiseMapExtractor(String FileName) throws IOException {
-        InputImage = ImageIO.read(new File(FileName));
-        GetNoiseMap();
+        inputImage = ImageIO.read(new File(FileName));
+        getNoiseMap();
     }
 
-    public void GetNoiseMap() throws IOException {
+    public void getNoiseMap() throws IOException {
 
-        long Begin;
+        long begin;
 
-        BufferedImage img = InputImage;
+        BufferedImage img = inputImage;
         byte[] byteImage;
 
-        int ImWidth, ImHeight;
+        int imWidth, imHeight;
         if (img.getWidth() % 2 == 0) {
-            ImWidth = img.getWidth();
+            imWidth = img.getWidth();
         } else {
-            ImWidth = (img.getWidth() - 1);
+            imWidth = (img.getWidth() - 1);
         }
         if (img.getHeight() % 2 == 0) {
-            ImHeight = img.getHeight();
+            imHeight = img.getHeight();
         } else {
-            ImHeight = (img.getHeight() - 1);
+            imHeight = (img.getHeight() - 1);
         }
 
-        int ColumnFilterScale = (int) (Math.log(ImHeight) / Math.log(2)) - 1;
-        int RowFilterScale = (int) (Math.log(ImWidth) / Math.log(2)) - 1;
+        int columnFilterScale = (int) (Math.log(imHeight) / Math.log(2)) - 1;
+        int rowFilterScale = (int) (Math.log(imWidth) / Math.log(2)) - 1;
 
-        double[][] ImgYAsArray = new double[ImWidth][ImHeight];
-        double[][] FilteredImgYAsArray = new double[ImWidth][ImHeight / 2];
-        double[][] DoubleFilteredImgYAsArray = new double[ImWidth / 2][ImHeight / 2];
-        double[] ImgColumn, ImgRow;
+        double[][] imgYAsArray = new double[imWidth][imHeight];
+        double[][] filteredImgYAsArray = new double[imWidth][imHeight / 2];
+        double[][] doubleFilteredImgYAsArray = new double[imWidth / 2][imHeight / 2];
+        double[] imgColumn, imgRow;
         Color tmpcolor;
         double R, G, B;
 
-        for (int ii = 0; ii < ImWidth; ii++) {
-            for (int jj = 0; jj < ImHeight; jj++) {
+        for (int ii = 0; ii < imWidth; ii++) {
+            for (int jj = 0; jj < imHeight; jj++) {
                 tmpcolor = new Color(img.getRGB(ii, jj));
                 R = tmpcolor.getRed();
                 G = tmpcolor.getGreen();
                 B = tmpcolor.getBlue();
-                ImgYAsArray[ii][jj] = 0.2989 * R + 0.5870 * G + 0.1140 * B;
+                imgYAsArray[ii][jj] = 0.2989 * R + 0.5870 * G + 0.1140 * B;
             }
         }
 
-        double[] WaveletColumn;
+        double[] waveletColumn;
 
 
-        Begin = System.currentTimeMillis();
+        begin = System.currentTimeMillis();
 
-        for (int ii = 0; ii < ImWidth; ii++) {
+        for (int ii = 0; ii < imWidth; ii++) {
             //System.out.println(ii);
             try {
-                ImgColumn = new double[ImHeight];
-                System.arraycopy(ImgYAsArray[ii], 0, ImgColumn, 0, ImHeight);
-                WaveletColumn = DWT.transform(ImgColumn, Wavelet.Daubechies, 8, ColumnFilterScale, DWT.Direction.forward);
+                imgColumn = new double[imHeight];
+                System.arraycopy(imgYAsArray[ii], 0, imgColumn, 0, imHeight);
+                waveletColumn = DWT.transform(imgColumn, Wavelet.Daubechies, 8, columnFilterScale, DWT.Direction.forward);
 
-                System.arraycopy(WaveletColumn, ImHeight / 2, FilteredImgYAsArray[ii], 0, ImHeight / 2);
+                System.arraycopy(waveletColumn, imHeight / 2, filteredImgYAsArray[ii], 0, imHeight / 2);
             } catch (Exception ex) {
                 Logger.getLogger(NoiseMapExtractor.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        double[] WaveletRow;
-        for (int jj = 0; jj < ImHeight / 2; jj++) {
+        double[] waveletRow;
+        for (int jj = 0; jj < imHeight / 2; jj++) {
             try {
-                ImgRow = new double[ImWidth];
-                for (int ii = 0; ii < ImWidth; ii++) {
-                    ImgRow[ii] = FilteredImgYAsArray[ii][jj];
+                imgRow = new double[imWidth];
+                for (int ii = 0; ii < imWidth; ii++) {
+                    imgRow[ii] = filteredImgYAsArray[ii][jj];
                 }
-                WaveletRow = DWT.transform(ImgRow, Wavelet.Daubechies, 8, RowFilterScale, DWT.Direction.forward);
-                for (int ii = 0; ii < ImWidth / 2; ii++) {
-                    DoubleFilteredImgYAsArray[ii][jj] = WaveletRow[ii + ImWidth / 2];
+                waveletRow = DWT.transform(imgRow, Wavelet.Daubechies, 8, rowFilterScale, DWT.Direction.forward);
+                for (int ii = 0; ii < imWidth / 2; ii++) {
+                    doubleFilteredImgYAsArray[ii][jj] = waveletRow[ii + imWidth / 2];
                 }
             } catch (Exception ex) {
                 Logger.getLogger(NoiseMapExtractor.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
 
-        int BlockSize = 8;
-        double[][] BlockMap = Util.BlockNoiseVar(DoubleFilteredImgYAsArray, BlockSize);
+        int blockSize = 8;
+        double[][] blockNoiseVar = Util.blockNoiseVar(doubleFilteredImgYAsArray, blockSize);
 
-        int MedianFilterSize = 7;
-        if (MedianFilterSize>BlockMap.length) {
-            MedianFilterSize = BlockMap.length-1;
+        int medianFilterSize = 7;
+        if (medianFilterSize>blockNoiseVar.length) {
+            medianFilterSize = blockNoiseVar.length-1;
         }
-        if (MedianFilterSize>BlockMap[0].length) {
-            MedianFilterSize = BlockMap[0].length-1;
+        if (medianFilterSize>blockNoiseVar[0].length) {
+            medianFilterSize = blockNoiseVar[0].length-1;
         }
-        if (MedianFilterSize<5) {
+        if (medianFilterSize<5) {
             minNoiseValue = 0;
             maxNoiseValue = 0;
-            NoiseMap = new double[1][1];
-            NoiseMap[0][0]=0;
-            byte[][] ByteOutput = new byte[1][1];
-            ByteOutput[0][0]=0;
-            BufferedImage OutputImage = Util.createJetVisualization(ByteOutput);
-            DisplaySurface = OutputImage;
+            noiseMap = new double[1][1];
+            noiseMap[0][0]=0;
+            byte[][] byteOutput = new byte[1][1];
+            byteOutput[0][0]=0;
+            BufferedImage outputImage = Util.createJetVisualization(byteOutput);
+            displaySurface = outputImage;
             return;
         }
 
 
-        double[][] OutBlockMap = Util.MedianFilter(BlockMap, MedianFilterSize);
+        double[][] outBlockMap = Util.medianFilter(blockNoiseVar, medianFilterSize);
 
         double min = Double.MAX_VALUE;
         double max = -Double.MAX_VALUE;
 
         double colMin, colMax;
 
-        for (double[] OutBlockMap1 : OutBlockMap) {
-            List b = Arrays.asList(ArrayUtils.toObject(OutBlockMap1));
+        for (double[] outBlockMap1 : outBlockMap) {
+            List b = Arrays.asList(ArrayUtils.toObject(outBlockMap1));
             colMin = (double) Collections.min(b);
             if (colMin < min) {
                 min = colMin;
@@ -159,19 +159,19 @@ public class NoiseMapExtractor {
         minNoiseValue = min;
         maxNoiseValue = max;
 
-        NoiseMap = OutBlockMap;
+        noiseMap = outBlockMap;
 
         double spread = max - min;
 
-        byte[][] ByteOutput = new byte[OutBlockMap.length][OutBlockMap[0].length];
+        byte[][] byteOutput = new byte[outBlockMap.length][outBlockMap[0].length];
 
-        for (int ii = 0; ii < OutBlockMap.length; ii++) {
-            for (int jj = 0; jj < OutBlockMap[0].length; jj++) {
-                ByteOutput[ii][jj] = (byte) Math.round(((OutBlockMap[ii][jj] - min) / spread) * 63);
+        for (int ii = 0; ii < outBlockMap.length; ii++) {
+            for (int jj = 0; jj < outBlockMap[0].length; jj++) {
+                byteOutput[ii][jj] = (byte) Math.round(((outBlockMap[ii][jj] - min) / spread) * 63);
             }
         }
-        BufferedImage OutputImage = Util.createJetVisualization(ByteOutput);
+        BufferedImage outputImage = Util.createJetVisualization(byteOutput);
 
-        DisplaySurface = OutputImage;
+        displaySurface = outputImage;
     }
 }

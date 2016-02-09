@@ -32,13 +32,13 @@ public class NNFNoMask {
 	// initialize field with random values
 	public void randomize() {
 		// field
-		this.field = new int[input.W][input.H][3];
+		this.field = new int[input.w][input.h][3];
 		
-		for(int y=0;y<input.H;y++) {
-			for(int x=0;x<input.W;x++) {
-				field[x][y][0] = random.nextInt(output.W);  
-				field[x][y][1] = random.nextInt(output.H);
-				field[x][y][2] = ImageMap.DSCALE;
+		for(int y=0;y<input.h;y++) {
+			for(int x=0;x<input.w;x++) {
+				field[x][y][0] = random.nextInt(output.w);
+				field[x][y][1] = random.nextInt(output.h);
+				field[x][y][2] = ImageMap.dSCALE;
 			}
 		}
 		initialize();
@@ -46,25 +46,25 @@ public class NNFNoMask {
 
 	public void randomizeDist(int minDist) {
 		// field
-		this.field = new int[input.W][input.H][3];
-		double ImageDiagonal=Math.sqrt(input.W*input.W+input.H*input.H);
-		int MinPixelDistance=(int) Math.ceil(ImageDiagonal/minDist);
+		this.field = new int[input.w][input.h][3];
+		double imageDiagonal=Math.sqrt(input.w *input.w +input.h *input.h);
+		int minPixelDistance=(int) Math.ceil(imageDiagonal/minDist);
 
 		int X,Y, dist;
-		for(int y=0;y<input.H;y++) {
-			for(int x=0;x<input.W;x++) {
-				X=random.nextInt(output.W);
-				Y=random.nextInt(output.H);
+		for(int y=0;y<input.h;y++) {
+			for(int x=0;x<input.w;x++) {
+				X=random.nextInt(output.w);
+				Y=random.nextInt(output.h);
 				dist=(X-x)*(X-x)+(Y-y)*(Y-y);
-				while (dist<MinPixelDistance*MinPixelDistance){
-					X=random.nextInt(output.W);
-					Y=random.nextInt(output.H);
+				while (dist<minPixelDistance*minPixelDistance){
+					X=random.nextInt(output.w);
+					Y=random.nextInt(output.h);
 					dist=(X-x)*(X-x)+(Y-y)*(Y-y);
 				}
 
 				field[x][y][0] = X;
 				field[x][y][1] = Y;
-				field[x][y][2] = ImageMap.DSCALE;
+				field[x][y][2] = ImageMap.dSCALE;
 			}
 		}
 		initialize();
@@ -73,18 +73,18 @@ public class NNFNoMask {
 	// initialize field from an existing (possibily smaller) NNF
 	public void initialize(NNFNoMask nnf) {
 		// field
-		this.field = new int[input.W][input.H][3];
+		this.field = new int[input.w][input.h][3];
 		
-		int fx = input.W/nnf.input.W;
-		int fy = input.H/nnf.input.H;
-		//System.out.println("nnf upscale by "+fx+"x"+fy+" : "+nnf.input.W+","+nnf.input.H+" -> "+input.W+","+input.H);
-		for(int y=0;y<input.H;y++) {
-			for(int x=0;x<input.W;x++) {
-				int xlow = Math.min(x/fx, nnf.input.W-1);
-				int ylow = Math.min(y/fy, nnf.input.H-1);
+		int fx = input.w /nnf.input.w;
+		int fy = input.h /nnf.input.h;
+		//System.out.println("nnf upscale by "+fx+"x"+fy+" : "+nnf.input.w+","+nnf.input.h+" -> "+input.w+","+input.h);
+		for(int y=0;y<input.h;y++) {
+			for(int x=0;x<input.w;x++) {
+				int xlow = Math.min(x/fx, nnf.input.w -1);
+				int ylow = Math.min(y/fy, nnf.input.h -1);
 				field[x][y][0] = nnf.field[xlow][ylow][0]*fx;  
 				field[x][y][1] = nnf.field[xlow][ylow][1]*fy;
-				field[x][y][2] = ImageMap.DSCALE;
+				field[x][y][2] = ImageMap.dSCALE;
 			}
 		}
 		initialize();
@@ -92,15 +92,15 @@ public class NNFNoMask {
 	
 	// compute initial value of the distance term
 	private void initialize() {
-		for(int y=0;y<input.H;y++) {
-			for(int x=0;x<input.W;x++) {
+		for(int y=0;y<input.h;y++) {
+			for(int x=0;x<input.w;x++) {
 				field[x][y][2] = distance(x,y,  field[x][y][0],field[x][y][1]);
 
 				// if the distance is INFINITY (all pixels masked ?), try to find a better link
 				int iter=0, maxretry=20;
-				while( field[x][y][2] == ImageMap.DSCALE && iter<maxretry) {
-					field[x][y][0] = random.nextInt(output.W);
-					field[x][y][1] = random.nextInt(output.H);
+				while( field[x][y][2] == ImageMap.dSCALE && iter<maxretry) {
+					field[x][y][0] = random.nextInt(output.w);
+					field[x][y][1] = random.nextInt(output.h);
 					field[x][y][2] = distance(x,y,  field[x][y][0],field[x][y][1]);
 					iter++;
 				}
@@ -111,7 +111,7 @@ public class NNFNoMask {
 	// multi-pass NN-field minimization (see "PatchMatch" - page 4)
 	public void minimize(int pass) {
 
-		int min_x=0, min_y=0, max_x=input.W-1, max_y=input.H-1;
+		int min_x=0, min_y=0, max_x=input.w -1, max_y=input.h -1;
 
 		// multi-pass minimization
 		for(int i=0;i<pass;i++) {
@@ -133,10 +133,10 @@ public class NNFNoMask {
 	// multi-pass NN-field minimization for matches above a distance threshold (modification by Markos Zampoglou)
 	public void minimizeDistance(int pass, int minDist) {
 
-		double ImageDiagonal=Math.sqrt(input.W*input.W+input.H*input.H);
-		int MinPixelDistance=(int) Math.ceil(ImageDiagonal/minDist);
+		double imageDiagonal=Math.sqrt(input.w *input.w +input.h *input.h);
+		int minPixelDistance=(int) Math.ceil(imageDiagonal/minDist);
 
-		int min_x=0, min_y=0, max_x=input.W-1, max_y=input.H-1;
+		int min_x=0, min_y=0, max_x=input.w -1, max_y=input.h -1;
 
 		// multi-pass minimization
 		for(int i=0;i<pass;i++) {
@@ -145,12 +145,12 @@ public class NNFNoMask {
 			// scanline order
 			for(int y=min_y;y<max_y;y++)
 				for(int x=min_x;x<=max_x;x++)
-					if (field[x][y][2]>0) minimizeLinkDistance(x, y, +1, MinPixelDistance);
+					if (field[x][y][2]>0) minimizeLinkDistance(x, y, +1, minPixelDistance);
 
 			// reverse scanline order
 			for(int y=max_y;y>=min_y;y--)
 				for(int x=max_x;x>=min_x;x--)
-					if (field[x][y][2]>0) minimizeLinkDistance(x, y, -1, MinPixelDistance);
+					if (field[x][y][2]>0) minimizeLinkDistance(x, y, -1, minPixelDistance);
 		}
 	}
 
@@ -160,7 +160,7 @@ public class NNFNoMask {
 		int xp,yp,dp;
 		
 		//Propagation Left/Right
-		if (x-dir>0 && x-dir<input.W) {
+		if (x-dir>0 && x-dir<input.w) {
 			xp = field[x-dir][y][0]+dir;
 			yp = field[x-dir][y][1];
 			dp = distance(x,y, xp,yp);
@@ -172,7 +172,7 @@ public class NNFNoMask {
 		}
 		
 		//Propagation Up/Down
-		if (y-dir>0 && y-dir<input.H) {
+		if (y-dir>0 && y-dir<input.h) {
 			xp = field[x][y-dir][0];
 			yp = field[x][y-dir][1]+dir;
 			dp = distance(x,y, xp,yp);
@@ -184,12 +184,12 @@ public class NNFNoMask {
 		}
 		
 		//Random search
-		int wi=output.W, xpi=field[x][y][0], ypi=field[x][y][1];
+		int wi=output.w, xpi=field[x][y][0], ypi=field[x][y][1];
 		while(wi>0) {
 			xp = xpi + random.nextInt(2*wi)-wi;
 			yp = ypi + random.nextInt(2*wi)-wi;
-			xp = Math.max(0, Math.min(output.W-1, xp ));
-			yp = Math.max(0, Math.min(output.H-1, yp ));
+			xp = Math.max(0, Math.min(output.w -1, xp ));
+			yp = Math.max(0, Math.min(output.h -1, yp ));
 			
 			dp = distance(x,y, xp,yp);
 			if (dp<field[x][y][2]) {
@@ -206,7 +206,7 @@ public class NNFNoMask {
 		int xp,yp,dp;
 
 		//Propagation Left/Right
-		if (x-dir>0 && x-dir<input.W) {
+		if (x-dir>0 && x-dir<input.w) {
 			xp = field[x-dir][y][0]+dir;
 			yp = field[x-dir][y][1];
 			dp = distance(x,y, xp,yp);
@@ -219,7 +219,7 @@ public class NNFNoMask {
 
 
 		//Propagation Up/Down
-		if (y-dir>0 && y-dir<input.H) {
+		if (y-dir>0 && y-dir<input.h) {
 			xp = field[x][y-dir][0];
 			yp = field[x][y-dir][1]+dir;
 			dp = distance(x,y, xp,yp);
@@ -231,12 +231,12 @@ public class NNFNoMask {
 		}
 
 		//Random search
-		int wi=output.W, xpi=field[x][y][0], ypi=field[x][y][1];
+		int wi=output.w, xpi=field[x][y][0], ypi=field[x][y][1];
 		while(wi>0) {
 			xp = xpi + random.nextInt(2*wi)-wi;
 			yp = ypi + random.nextInt(2*wi)-wi;
-			xp = Math.max(0, Math.min(output.W-1, xp ));
-			yp = Math.max(0, Math.min(output.H-1, yp ));
+			xp = Math.max(0, Math.min(output.w -1, xp ));
+			yp = Math.max(0, Math.min(output.h -1, yp ));
 
 			dp = distance(x,y, xp,yp);
 			if (((xp-x)*(xp-x)+(yp-y)*(yp-y)>minDist*minDist) & (dp<field[x][y][2])) {
@@ -259,73 +259,73 @@ public class NNFNoMask {
 	}
 
 	public void removeLowVar(int varBlockSize, double varThreshold){
-		double[][] varMap=input.LocalVariance(varBlockSize);
+		double[][] varMap=input.localVariance(varBlockSize);
 		for (int ii=0; ii<field.length;ii++){
 			for (int jj=0; jj<field[0].length;jj++){
 				if (varMap[ii][jj]<varThreshold) {
-					field[ii][jj][2] = input.DSCALE;
+					field[ii][jj][2] = input.dSCALE;
 				}
 			}
 		}
 	}
 
     public int[][] linearFilterField(){
-        int[][] FieldX = new int[input.W][input.H];
-        int[][] FieldY = new int[input.W][input.H];
-        for (int ii=0; ii<FieldX.length;ii++){
-            for (int jj=0; jj<FieldX[0].length;jj++){
-                FieldX[ii][jj] = field[ii][jj][0];
+        int[][] fieldX = new int[input.w][input.h];
+        int[][] fieldY = new int[input.w][input.h];
+        for (int ii=0; ii<fieldX.length;ii++){
+            for (int jj=0; jj<fieldX[0].length;jj++){
+                fieldX[ii][jj] = field[ii][jj][0];
             }
         }
-        for (int ii=0; ii<FieldX.length;ii++){
-            for (int jj=0; jj<FieldX[0].length;jj++){
-                FieldY[ii][jj] = field[ii][jj][1];
+        for (int ii=0; ii<fieldX.length;ii++){
+            for (int jj=0; jj<fieldX[0].length;jj++){
+                fieldY[ii][jj] = field[ii][jj][1];
             }
         }
 
-        int[][] FieldX_horz = new int[input.W][input.H];
-        int[][] FieldX_vert = new int[input.W][input.H];
-        int[][] FieldY_horz = new int[input.W][input.H];
-        int[][] FieldY_vert = new int[input.W][input.H];
+        int[][] fieldXHorz = new int[input.w][input.h];
+        int[][] fieldXVert = new int[input.w][input.h];
+        int[][] fieldYHorz = new int[input.w][input.h];
+        int[][] fieldYVert = new int[input.w][input.h];
 
-        for (int ii=0; ii<FieldX.length-1;ii++){
-            for (int jj=0; jj<FieldX[0].length;jj++){
-                FieldX_horz[ii][jj] = Math.abs(FieldX[ii+1][jj] - FieldX[ii][jj]);
+        for (int ii=0; ii<fieldX.length-1;ii++){
+            for (int jj=0; jj<fieldX[0].length;jj++){
+                fieldXHorz[ii][jj] = Math.abs(fieldX[ii+1][jj] - fieldX[ii][jj]);
             }
         }
-        for (int jj=0; jj<FieldX[0].length;jj++){
-            FieldX_horz[FieldX.length-1][jj] = FieldX_horz[FieldX.length-2][jj];
+        for (int jj=0; jj<fieldX[0].length;jj++){
+            fieldXHorz[fieldX.length-1][jj] = fieldXHorz[fieldX.length-2][jj];
         }
-        for (int ii=0; ii<FieldX.length;ii++){
-            for (int jj=0; jj<FieldX[0].length-1;jj++){
-                FieldX_vert[ii][jj] = Math.abs(FieldX[ii][jj+1] - FieldX[ii][jj]);
+        for (int ii=0; ii<fieldX.length;ii++){
+            for (int jj=0; jj<fieldX[0].length-1;jj++){
+                fieldXVert[ii][jj] = Math.abs(fieldX[ii][jj+1] - fieldX[ii][jj]);
             }
         }
-        for (int ii=0; ii<FieldX[0].length;ii++){
-            FieldX_vert[ii][FieldX[0].length-1] = FieldX_horz[ii][FieldX[0].length-2];
-        }
-
-        for (int ii=0; ii<FieldY.length-1;ii++){
-            for (int jj=0; jj<FieldY[0].length;jj++){
-                FieldY_horz[ii][jj] = Math.abs(FieldY[ii+1][jj] - FieldY[ii][jj]);
-            }
-        }
-        for (int jj=0; jj<FieldY[0].length;jj++){
-            FieldX_horz[FieldY.length-1][jj] = FieldY_horz[FieldY.length-2][jj];
-        }
-        for (int ii=0; ii<FieldY.length;ii++){
-            for (int jj=0; jj<FieldY[0].length-1;jj++){
-                FieldY_vert[ii][jj] = Math.abs(FieldY[ii][jj+1] - FieldY[ii][jj]);
-            }
-        }
-        for (int ii=0; ii<FieldY[0].length;ii++){
-            FieldY_vert[ii][FieldY[0].length-1] = FieldY_horz[ii][FieldY[0].length-2];
+        for (int ii=0; ii<fieldX[0].length;ii++){
+            fieldXVert[ii][fieldX[0].length-1] = fieldXHorz[ii][fieldX[0].length-2];
         }
 
-        int[][] sumAmplitude=new int[input.W][input.H];
+        for (int ii=0; ii<fieldY.length-1;ii++){
+            for (int jj=0; jj<fieldY[0].length;jj++){
+                fieldYHorz[ii][jj] = Math.abs(fieldY[ii+1][jj] - fieldY[ii][jj]);
+            }
+        }
+        for (int jj=0; jj<fieldY[0].length;jj++){
+            fieldXHorz[fieldY.length-1][jj] = fieldYHorz[fieldY.length-2][jj];
+        }
+        for (int ii=0; ii<fieldY.length;ii++){
+            for (int jj=0; jj<fieldY[0].length-1;jj++){
+                fieldYVert[ii][jj] = Math.abs(fieldY[ii][jj+1] - fieldY[ii][jj]);
+            }
+        }
+        for (int ii=0; ii<fieldY[0].length;ii++){
+            fieldYVert[ii][fieldY[0].length-1] = fieldYHorz[ii][fieldY[0].length-2];
+        }
+
+        int[][] sumAmplitude=new int[input.w][input.h];
         for (int ii=0; ii<sumAmplitude.length;ii++){
             for (int jj=0; jj<sumAmplitude[0].length;jj++){
-                sumAmplitude[ii][jj] = sumAmplitude[ii][jj]+ FieldX_horz[ii][jj] + FieldY_horz[ii][jj] + FieldX_vert[ii][jj] + FieldY_vert[ii][jj];
+                sumAmplitude[ii][jj] = sumAmplitude[ii][jj]+ fieldXHorz[ii][jj] + fieldYHorz[ii][jj] + fieldXVert[ii][jj] + fieldYVert[ii][jj];
             }
         }
 

@@ -15,10 +15,10 @@ public class ImageMap {
 
 	// image data
 	private BufferedImage image;
-	public final int W,H;
+	public final int w, h;
 
 	// the maximum value returned by MaskedImage.distance()
-	public static final int DSCALE = 65535;
+	public static final int dSCALE = 65535;
 
 	// array for converting distance to similarity
 	public static final double[] similarity;
@@ -32,7 +32,7 @@ public class ImageMap {
 		double invtanh = 0.5*Math.log((1+x)/(1-x));
 		double coef = invtanh/t_halfmax;
 
-		similarity = new double[DSCALE+1];
+		similarity = new double[dSCALE +1];
 		for(int i=0;i<similarity.length;i++) {
 			double t = (double)i/similarity.length;
 			similarity[i] = 0.5-0.5*Math.tanh(coef*(t-t_halfmax));
@@ -42,15 +42,15 @@ public class ImageMap {
 	// construct from existing BufferedImage and mask
 	public ImageMap(BufferedImage image) {
 		this.image = image;
-		this.W=image.getWidth();
-		this.H=image.getHeight();
+		this.w =image.getWidth();
+		this.h =image.getHeight();
 	}
 
 	// construct empty image
 	public ImageMap(int width, int height) {
-		this.W=width;
-		this.H=height;
-		this.image = new BufferedImage(W,H,BufferedImage.TYPE_INT_RGB);
+		this.w =width;
+		this.h =height;
+		this.image = new BufferedImage(w, h,BufferedImage.TYPE_INT_RGB);
 	}
 		
 	public BufferedImage getBufferedImage() {
@@ -71,12 +71,12 @@ public class ImageMap {
 			for(int dx=-S;dx<=S;dx++) {
 				wsum+=ssdmax;
 				int xks=xs+dx, yks=ys+dy;
-				if (xks<0 || xks>=source.W) {distance+=ssdmax; continue;}
-				if (yks<0 || yks>=source.H) {distance+=ssdmax; continue;}
+				if (xks<0 || xks>=source.w) {distance+=ssdmax; continue;}
+				if (yks<0 || yks>=source.h) {distance+=ssdmax; continue;}
 				// corresponding pixel in the target patch
 				int xkt=xt+dx, ykt=yt+dy;
-				if (xkt<0 || xkt>=target.W) {distance+=ssdmax; continue;}
-				if (ykt<0 || ykt>=target.H) {distance+=ssdmax; continue;}
+				if (xkt<0 || xkt>=target.w) {distance+=ssdmax; continue;}
+				if (ykt<0 || ykt>=target.h) {distance+=ssdmax; continue;}
 				// SSD distance between pixels (each value is in [0,255^2])
 				long ssd=0;
 				// value distance (weight for R/G/B components = 3/6/1)
@@ -89,7 +89,7 @@ public class ImageMap {
 				distance += ssd;
 			}
 		}
-		return (int)(DSCALE*distance/wsum);
+		return (int)(dSCALE *distance/wsum);
 	}
 
     public static int distance2(ImageMap source,int xs,int ys, ImageMap target,int xt,int yt, int S) {
@@ -100,12 +100,12 @@ public class ImageMap {
             for(int dx=-S;dx<=S;dx++) {
                 wsum+=ssdmax;
                 int xks=xs+dx, yks=ys+dy;
-                if (xks<0 || xks>=source.W) {distance+=ssdmax; continue;}
-                if (yks<0 || yks>=source.H) {distance+=ssdmax; continue;}
+                if (xks<0 || xks>=source.w) {distance+=ssdmax; continue;}
+                if (yks<0 || yks>=source.h) {distance+=ssdmax; continue;}
                 // corresponding pixel in the target patch
                 int xkt=xt+dx, ykt=yt+dy;
-                if (xkt<0 || xkt>=target.W) {distance+=ssdmax; continue;}
-                if (ykt<0 || ykt>=target.H) {distance+=ssdmax; continue;}
+                if (xkt<0 || xkt>=target.w) {distance+=ssdmax; continue;}
+                if (ykt<0 || ykt>=target.h) {distance+=ssdmax; continue;}
                 // SSD distance between pixels (each value is in [0,255^2])
                 long ssd=0;
                 double s_RGB=source.getSample(xks, yks, 0)+source.getSample(xks, yks, 1)+source.getSample(xks, yks, 2);
@@ -122,7 +122,7 @@ public class ImageMap {
                 distance += ssd;
             }
         }
-        return (int)(DSCALE*distance/wsum);
+        return (int)(dSCALE *distance/wsum);
     }
 
 	// Helper for BufferedImage resize
@@ -137,31 +137,31 @@ public class ImageMap {
 
 	// return a copy of the image
 	public ImageMap copy() {
-		boolean[][] newmask= new boolean[W][H];
-		BufferedImage newimage = new BufferedImage(W,H, BufferedImage.TYPE_INT_RGB);
+		boolean[][] newmask= new boolean[w][h];
+		BufferedImage newimage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
 		newimage.createGraphics().drawImage(image, 0, 0, null);
 		return new ImageMap(newimage);
 	}
 	
 	// return a downsampled image (factor 1/2)
 	public ImageMap downsample() {
-		int newW=W/2, newH=H/2;
+		int newW= w /2, newH= h /2;
 		// Binomial coefficient kernels
 		int[] kernelEven = new int[] {1,5,10,10,5,1}; 
 		int[] kernelOdd = new int[] {1,4,6,4,1};
-		int[] kernelx = (W%2==0)?kernelEven:kernelOdd;
-		int[] kernely = (H%2==0)?kernelEven:kernelOdd;
+		int[] kernelx = (w %2==0)?kernelEven:kernelOdd;
+		int[] kernely = (h %2==0)?kernelEven:kernelOdd;
 
 		ImageMap newimage = new ImageMap(newW, newH);
-		for(int y=0,ny=0;y<H-1;y+=2,ny++) {
-			for(int x=0,nx=0;x<W-1;x+=2,nx++) {
+		for(int y=0,ny=0;y< h -1;y+=2,ny++) {
+			for(int x=0,nx=0;x< w -1;x+=2,nx++) {
 				long r=0,g=0,b=0,ksum=0,masked=0,total=0;
 				for(int dy=0;dy<kernely.length;dy++) {
 					int yk=y+dy-2;
-					if (yk<0 || yk>=H) continue;
+					if (yk<0 || yk>= h) continue;
 					for(int dx=0;dx<kernelx.length;dx++) {
 						int xk = x+dx-2;
-						if (xk<0 || xk>=W) continue;
+						if (xk<0 || xk>= w) continue;
 						
 						total++;
 						int k = kernelx[dx]*kernely[dy];
@@ -189,30 +189,30 @@ public class ImageMap {
 	}
 
     //return a local variance map
-    public double[][] LocalVariance(int blockSize){
-        double[][] GrayscaleIm = new double[W][H];
-        double[][] OutputVariance = new double[W][H];
+    public double[][] localVariance(int blockSize){
+        double[][] grayscaleIm = new double[w][h];
+        double[][] outputVariance = new double[w][h];
 
         int R,G,B;
-        for (int ii = 0; ii < W; ii++) {
-            for (int jj = 0; jj < H; jj++) {
+        for (int ii = 0; ii < w; ii++) {
+            for (int jj = 0; jj < h; jj++) {
                 R = this.getSample(ii, jj, 0);
                 G = this.getSample(ii, jj, 1);
                 B = this.getSample(ii, jj, 2);
-                GrayscaleIm[ii][jj] = 0.2989 * R + 0.5870 * G + 0.1140 * B;
+                grayscaleIm[ii][jj] = 0.2989 * R + 0.5870 * G + 0.1140 * B;
             }
         }
 
-        double[][] BlockVar=Util.BlockVar(GrayscaleIm, blockSize);
+        double[][] blockVar=Util.blockVar(grayscaleIm, blockSize);
 		//System.out.println();
-		//System.out.println(W+ " " + H + " " + BlockNoiseVar.length + " " + BlockNoiseVar[0].length);
+		//System.out.println(w+ " " + h + " " + blockNoiseVar.length + " " + blockNoiseVar[0].length);
 
-        for (int ii=0; ii<(int)Math.floor(((float)W)/blockSize)*blockSize;ii++){
-            for (int jj=0; jj<(int)Math.floor(((float)H)/blockSize)*blockSize;jj++){
-                OutputVariance[ii][jj] = BlockVar[(int)Math.floor(((float)ii)/blockSize)][(int)Math.floor(((float)jj)/blockSize)];
+        for (int ii=0; ii<(int)Math.floor(((float) w)/blockSize)*blockSize;ii++){
+            for (int jj=0; jj<(int)Math.floor(((float) h)/blockSize)*blockSize;jj++){
+                outputVariance[ii][jj] = blockVar[(int)Math.floor(((float)ii)/blockSize)][(int)Math.floor(((float)jj)/blockSize)];
             }
         }
-        return OutputVariance;
+        return outputVariance;
     }
 
 }

@@ -18,38 +18,38 @@ import java.io.IOException;
  */
 public class ELAExtractor {
 
-    public BufferedImage DisplaySurface = null;
-    public double ELAMin;
-    public double ELAMax;
+    public BufferedImage displaySurface = null;
+    public double elaMin;
+    public double elaMax;
 
-    public ELAExtractor(String FileName) throws IOException {
-        GetJPEGELA(FileName);
+    public ELAExtractor(String fileName) throws IOException {
+        getJPEGELA(fileName);
     }
 
-    private BufferedImage GetJPEGELA(String FileName) throws IOException {
+    private BufferedImage getJPEGELA(String fileName) throws IOException {
 
-        int Quality=75;
-        int DisplayMultiplier=20;
+        int quality=75;
+        int displayMultiplier=20;
 
-        BufferedImage OrigImage;
-        OrigImage = ImageIO.read(new File(FileName));
-        int[][][] OrigByteImage = Util.GetRGBArray(OrigImage);
+        BufferedImage origImage;
+        origImage = ImageIO.read(new File(fileName));
+        int[][][] origByteImage = Util.getRGBArray(origImage);
 
-        BufferedImage RecompressedImage = Util.RecompressImage(OrigImage, Quality);
-        int[][][] RecompressedByteImage = Util.GetRGBArray(RecompressedImage);
-        float[][][] ImageDifference = Util.CalculateImageDifference(OrigByteImage, RecompressedByteImage);
-        ELAMin=Util.MinDouble3DArray(ImageDifference);
-        ELAMax=Util.MaxDouble3DArray(ImageDifference);
+        BufferedImage recompressedImage = Util.recompressImage(origImage, quality);
+        int[][][] recompressedByteImage = Util.getRGBArray(recompressedImage);
+        float[][][] imageDifference = Util.calculateImageDifference(origByteImage, recompressedByteImage);
+        elaMin =Util.minDouble3DArray(imageDifference);
+        elaMax =Util.maxDouble3DArray(imageDifference);
 
-        int[][][] IntDifference = new int[ImageDifference.length][ImageDifference[0].length][ImageDifference[0][0].length];
+        int[][][] intDifference = new int[imageDifference.length][imageDifference[0].length][imageDifference[0][0].length];
 
 
-        for (int ii=0;ii<ImageDifference.length;ii++){
-            for (int jj=0;jj<ImageDifference[0].length;jj++){
-                for (int kk=0;kk<ImageDifference[0][0].length;kk++){
-                    IntDifference[ii][jj][kk]=(int) Math.sqrt(ImageDifference[ii][jj][kk])*DisplayMultiplier;
-                    if (IntDifference[ii][jj][kk]>255){
-                        IntDifference[ii][jj][kk]=255;
+        for (int ii=0;ii<imageDifference.length;ii++){
+            for (int jj=0;jj<imageDifference[0].length;jj++){
+                for (int kk=0;kk<imageDifference[0][0].length;kk++){
+                    intDifference[ii][jj][kk]=(int) Math.sqrt(imageDifference[ii][jj][kk])*displayMultiplier;
+                    if (intDifference[ii][jj][kk]>255){
+                        intDifference[ii][jj][kk]=255;
                     }
                 }
             }
@@ -57,8 +57,8 @@ public class ELAExtractor {
 
 
 
-        DisplaySurface =Util.CreateImFromArray(IntDifference);
+        displaySurface =Util.createImFromArray(intDifference);
 
-        return OrigImage;
+        return origImage;
     }
 }

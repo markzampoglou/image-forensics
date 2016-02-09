@@ -11,7 +11,7 @@ package util;
  */
 public class JetMap {
 
-    static double[][] ColorMap = new double[][]{
+    static double[][] colorMap = new double[][]{
         {0, 0, 0.562500000000000},
         {0, 0, 0.625000000000000},
         {0, 0, 0.687500000000000},

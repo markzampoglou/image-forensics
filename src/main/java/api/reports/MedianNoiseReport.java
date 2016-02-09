@@ -8,5 +8,5 @@ import org.mongodb.morphia.annotations.Embedded;
 @Embedded
 public class MedianNoiseReport {
     public Boolean completed=false;
-    public String Map;
+    public String map;
 }

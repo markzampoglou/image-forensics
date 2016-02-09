@@ -41,21 +41,21 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
  */
 public class Util {
 
-    public static BufferedImage RecompressImage(BufferedImage ImageIn, int Quality) {
-        //Apply in-memory JPEG compression to a BufferedImage given a Quality setting (0-100)
+    public static BufferedImage recompressImage(BufferedImage imageIn, int quality) {
+        //Apply in-memory JPEG compression to a BufferedImage given a quality setting (0-100)
         //and return the resulting BufferedImage
 
-        float FQuality = (float) (Quality / 100.0);
+        float fQuality = (float) (quality / 100.0);
 
         //File OutputFile = new File("TestOutput.jpg");
-        BufferedImage OutputImage = null;
+        BufferedImage outputImage = null;
         try {
             ImageWriter writer;
             Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName("jpeg");
             writer = iter.next();
             ImageWriteParam iwp = writer.getDefaultWriteParam();
             iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-            iwp.setCompressionQuality(FQuality);
+            iwp.setCompressionQuality(fQuality);
 
             byte[] imageInByte;
             try ( //ImageOutputStream ios = ImageIO.createImageOutputStream(OutputFile);
@@ -63,59 +63,59 @@ public class Util {
                 MemoryCacheImageOutputStream mcios = new MemoryCacheImageOutputStream(baos);
                 //writer.setOutput(ios);
                 writer.setOutput(mcios);
-                IIOImage tmptmpImage = new IIOImage(ImageIn, null, null);
-                writer.write(null, tmptmpImage, iwp);
+                IIOImage tmpImage = new IIOImage(imageIn, null, null);
+                writer.write(null, tmpImage, iwp);
                 writer.dispose();
                 baos.flush();
                 imageInByte = baos.toByteArray();
             }
             InputStream in = new ByteArrayInputStream(imageInByte);
-            OutputImage = ImageIO.read(in);
+            outputImage = ImageIO.read(in);
         } catch (Exception ex) {
             Logger.getLogger(Util.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return OutputImage;
+        return outputImage;
     }
 
     //possible 10-fold speed increase in:
     //http://stackoverflow.com/questions/6524196/java-get-pixel-array-from-image
     //(but ensure all major bases are covered)
-    public static int[][][] GetRGBArray(BufferedImage ImageIn) {
+    public static int[][][] getRGBArray(BufferedImage imageIn) {
 
-        int ImW = ImageIn.getWidth();
-        int ImH = ImageIn.getHeight();
+        int ImW = imageIn.getWidth();
+        int ImH = imageIn.getHeight();
         Color tmpColor;
-        int[][][] RGBValues = new int[3][ImW][ImH];
+        int[][][] rgbValues = new int[3][ImW][ImH];
 
         for (int ii = 0; ii < ImW; ii++) {
             for (int jj = 0; jj < ImH; jj++) {
-                tmpColor = new Color(ImageIn.getRGB(ii, jj));
-                RGBValues[0][ii][jj] = tmpColor.getRed();
-                RGBValues[1][ii][jj] = tmpColor.getGreen();
-                RGBValues[2][ii][jj] = tmpColor.getBlue();
+                tmpColor = new Color(imageIn.getRGB(ii, jj));
+                rgbValues[0][ii][jj] = tmpColor.getRed();
+                rgbValues[1][ii][jj] = tmpColor.getGreen();
+                rgbValues[2][ii][jj] = tmpColor.getBlue();
             }
         }
-        return RGBValues;
+        return rgbValues;
     }
 
-    public static BufferedImage CreateImFromArray(int[][][] RGBValues) {
+    public static BufferedImage createImFromArray(int[][][] rgbvalues) {
 
-        int ImW = RGBValues[0].length;
-        int ImH = RGBValues[0][0].length;
+        int ImW = rgbvalues[0].length;
+        int ImH = rgbvalues[0][0].length;
         BufferedImage ImageOut = new BufferedImage(ImW, ImH, 5); //5 for PNG;
 
         Color tmpColor;
 
         for (int ii = 0; ii < ImW; ii++) {
             for (int jj = 0; jj < ImH; jj++) {
-                tmpColor = new Color((int) Math.round(RGBValues[0][ii][jj]), (int) Math.round(RGBValues[1][ii][jj]), (int) Math.round(RGBValues[2][ii][jj]));
+                tmpColor = new Color((int) Math.round(rgbvalues[0][ii][jj]), (int) Math.round(rgbvalues[1][ii][jj]), (int) Math.round(rgbvalues[2][ii][jj]));
                 ImageOut.setRGB(ii, jj, tmpColor.getRGB());
             }
         }
         return ImageOut;
     }
 
-    public static float[][][] CalculateImageDifference(int[][][] Image1, int[][][] Image2) {
+    public static float[][][] calculateImageDifference(int[][][] Image1, int[][][] Image2) {
         int Dim1 = Image1.length;
         int Dim2 = Image1[0].length;
         int Dim3 = Image1[0][0].length;
@@ -130,274 +130,274 @@ public class Util {
         return ImageDifference;
     }
 
-    public static float[][][] CalculateResizedImageDifference(BufferedImage Image1, BufferedImage Image2, int NewWidth, int NewHeight){
-        float[][][] OutputMap=new float[3][NewWidth][NewHeight];
-        float WidthModifier=(float)Image1.getWidth()/NewWidth;
-        float HeightModifier=(float)Image1.getHeight()/NewHeight;
+    public static float[][][] calculateResizedImageDifference(BufferedImage image1, BufferedImage image2, int newWidth, int newHeight){
+        float[][][] outputMap=new float[3][newWidth][newHeight];
+        float widthModifier=(float)image1.getWidth()/newWidth;
+        float heightModifier=(float)image1.getHeight()/newHeight;
 
         Color tmpColor1, tmpColor2;
 
-        for (int ii = 0; ii < NewHeight; ii++) {
-            for (int jj = 0; jj < NewWidth; jj++) {
+        for (int ii = 0; ii < newHeight; ii++) {
+            for (int jj = 0; jj < newWidth; jj++) {
                 try {
-                    tmpColor1 = new Color(Image1.getRGB(Math.round(jj * WidthModifier),Math.round(ii * HeightModifier)));
-                    tmpColor2 = new Color(Image2.getRGB(Math.round(jj * WidthModifier),Math.round(ii * HeightModifier)));
-                    OutputMap[0][jj][ii] = (float) (tmpColor1.getRed() - tmpColor2.getRed()) * (tmpColor1.getRed() - tmpColor2.getRed());
-                    OutputMap[1][jj][ii] = (float) (tmpColor1.getGreen() - tmpColor2.getGreen()) * (tmpColor1.getGreen() - tmpColor2.getGreen());
-                    OutputMap[2][jj][ii] = (float) (tmpColor1.getBlue() - tmpColor2.getBlue()) * (tmpColor1.getBlue() - tmpColor2.getBlue());
+                    tmpColor1 = new Color(image1.getRGB(Math.round(jj * widthModifier),Math.round(ii * heightModifier)));
+                    tmpColor2 = new Color(image2.getRGB(Math.round(jj * widthModifier),Math.round(ii * heightModifier)));
+                    outputMap[0][jj][ii] = (float) (tmpColor1.getRed() - tmpColor2.getRed()) * (tmpColor1.getRed() - tmpColor2.getRed());
+                    outputMap[1][jj][ii] = (float) (tmpColor1.getGreen() - tmpColor2.getGreen()) * (tmpColor1.getGreen() - tmpColor2.getGreen());
+                    outputMap[2][jj][ii] = (float) (tmpColor1.getBlue() - tmpColor2.getBlue()) * (tmpColor1.getBlue() - tmpColor2.getBlue());
                 } catch(Exception e) {
-                    System.out.println(NewHeight + " " + NewWidth + " " + Image1.getHeight() + " " + Image1.getWidth() + " " + ii + " " + jj + " " + Math.round(ii * HeightModifier) + " " + Math.round(jj * WidthModifier) + " " + HeightModifier + " " + WidthModifier);
+                    System.out.println(newHeight + " " + newWidth + " " + image1.getHeight() + " " + image1.getWidth() + " " + ii + " " + jj + " " + Math.round(ii * heightModifier) + " " + Math.round(jj * widthModifier) + " " + heightModifier + " " + widthModifier);
                     e.printStackTrace();
-                    return OutputMap;
+                    return outputMap;
                 }
             }
         }
-        return OutputMap;
+        return outputMap;
 
-        //System.out.println(HeightModifier);
-        //System.out.println(WidthModifier);
+        //System.out.println(heightModifier);
+        //System.out.println(widthModifier);
 
     }
 
-    public static float[][] MeanFilterSingleChan(float[][] ImIn, int MeanFilterSize) {
+    public static float[][] meanFilterSingleChan(float[][] imIn, int meanFilterSize) {
         // Mean filter a 2D double array
-        // MeanFilterSize should be odd
+        // meanFilterSize should be odd
         // Careful: this is the mean of the ABS values!
-        int Offset = (MeanFilterSize - 1) / 2;
-        int FilterElements = MeanFilterSize * MeanFilterSize;
-        int ImWidth = ImIn.length;
-        int ImHeight = ImIn[0].length;
-        DescriptiveStatistics BlockValues;
+        int offset = (meanFilterSize - 1) / 2;
+        int filterElements = meanFilterSize * meanFilterSize;
+        int imWidth = imIn.length;
+        int imHeight = imIn[0].length;
+        DescriptiveStatistics blockValues;
 
-        float[][] FilteredImage = new float[ImWidth - 2 * Offset][ImHeight - 2 * Offset];
+        float[][] filteredImage = new float[imWidth - 2 * offset][imHeight - 2 * offset];
 
-        float Sum;
-        for (int ii = Offset; ii <= ImWidth - MeanFilterSize + Offset; ii = ii + 1) {
-            Sum = 0;
-            for (int B_ii = ii - Offset; B_ii < ii + Offset + 1; B_ii++) {
-                for (int B_jj = 0; B_jj < 2 * Offset + 1; B_jj++) {
-                    Sum = Sum + ImIn[B_ii][B_jj];
+        float sum;
+        for (int ii = offset; ii <= imWidth - meanFilterSize + offset; ii = ii + 1) {
+            sum = 0;
+            for (int B_ii = ii - offset; B_ii < ii + offset + 1; B_ii++) {
+                for (int B_jj = 0; B_jj < 2 * offset + 1; B_jj++) {
+                    sum = sum + imIn[B_ii][B_jj];
                 }
             }
-            FilteredImage[ii - Offset][0] = Sum / FilterElements;
+            filteredImage[ii - offset][0] = sum / filterElements;
 
-            for (int jj = Offset + 1; jj <= ImHeight - MeanFilterSize + Offset; jj = jj + 1) {
-                for (int B_ii = ii - Offset; B_ii < ii + Offset + 1; B_ii++) {
-                    Sum = Sum - ImIn[B_ii][jj - Offset - 1];
-                    Sum = Sum + ImIn[B_ii][jj + Offset];
+            for (int jj = offset + 1; jj <= imHeight - meanFilterSize + offset; jj = jj + 1) {
+                for (int B_ii = ii - offset; B_ii < ii + offset + 1; B_ii++) {
+                    sum = sum - imIn[B_ii][jj - offset - 1];
+                    sum = sum + imIn[B_ii][jj + offset];
                 }
-                FilteredImage[ii - Offset][jj - Offset] = Sum / FilterElements;
-                /*                BlockValues = new DescriptiveStatistics();
-                 for (int B_ii = ii - Offset; B_ii < ii + Offset + 1; B_ii++) {
-                 for (int B_jj = jj - Offset; B_jj < jj + Offset + 1; B_jj++) {
-                 BlockValues.addValue(Math.abs(ImIn[B_ii][B_jj]));
+                filteredImage[ii - offset][jj - offset] = sum / filterElements;
+                /*                blockValues = new DescriptiveStatistics();
+                 for (int B_ii = ii - offset; B_ii < ii + offset + 1; B_ii++) {
+                 for (int B_jj = jj - offset; B_jj < jj + offset + 1; B_jj++) {
+                 blockValues.addValue(Math.abs(imIn[B_ii][B_jj]));
                  }
                  }
-                 FilteredImage[ii - Offset][jj - Offset] = BlockValues.getMean();
+                 filteredImage[ii - offset][jj - offset] = blockValues.getMean();
                  */
             }
         }
-        return FilteredImage;
+        return filteredImage;
     }
 
-    public static int[][] SumFilterSingleChanVert(int[][] ImIn, int FilterSize) {
+    public static int[][] sumFilterSingleChanVert(int[][] imIn, int filterSize) {
         // Mean filter a 2D double array
-        // FilterSize should be odd
+        // filterSize should be odd
         // Careful: this is the mean of the ABS values!
-        int Offset = (FilterSize - 1) / 2;
-        int ImWidth = ImIn.length;
-        int ImHeight = ImIn[0].length;
+        int offset = (filterSize - 1) / 2;
+        int imWidth = imIn.length;
+        int imHeight = imIn[0].length;
 
-        int[][] FilteredImage = new int[ImWidth][ImHeight - 2 * Offset];
+        int[][] filteredImage = new int[imWidth][imHeight - 2 * offset];
+
+        int sum;
+        for (int ii = 0; ii < imWidth ; ii++) {
+            sum = 0;
+            for (int B_jj = 0; B_jj < 2 * offset + 1; B_jj++) {
+                    sum = sum + imIn[ii][B_jj];
+            }
+            filteredImage[ii][0] = sum;
+
+            for (int jj = offset + 1; jj <= imHeight - filterSize + offset; jj = jj + 1) {
+                sum = sum - imIn[ii][jj - offset - 1];
+                sum = sum + imIn[ii][jj + offset];
+                filteredImage[ii][jj - offset] = sum;
+            }
+        }
+        return filteredImage;
+    }
+
+    public static int[][] sumFilterSingleChanHorz(int[][] imIn, int filterSize) {
+        // Mean filter a 2D double array
+        // filterSize should be odd
+        // Careful: this is the mean of the ABS values!
+        int offset = (filterSize - 1) / 2;
+        int imWidth = imIn.length;
+        int imHeight = imIn[0].length;
+
+        int[][] filteredImage = new int[imWidth-2*offset][imHeight];
 
         int Sum;
-        for (int ii = 0; ii < ImWidth ; ii++) {
+        for (int jj = 0; jj < imHeight ; jj++) {
             Sum = 0;
-            for (int B_jj = 0; B_jj < 2 * Offset + 1; B_jj++) {
-                    Sum = Sum + ImIn[ii][B_jj];
+            for (int B_ii = 0; B_ii < 2 * offset + 1; B_ii++) {
+                Sum = Sum + imIn[B_ii][jj];
             }
-            FilteredImage[ii][0] = Sum;
+            filteredImage[0][jj] = Sum;
 
-            for (int jj = Offset + 1; jj <= ImHeight - FilterSize + Offset; jj = jj + 1) {
-                Sum = Sum - ImIn[ii][jj - Offset - 1];
-                Sum = Sum + ImIn[ii][jj + Offset];
-                FilteredImage[ii][jj - Offset] = Sum;
+            for (int ii = offset + 1; ii <= imWidth - filterSize + offset; ii = ii + 1) {
+                Sum = Sum - imIn[ii - offset - 1][jj];
+                Sum = Sum + imIn[ii + offset][jj];
+                filteredImage[ii - offset][jj] = Sum;
             }
         }
-        return FilteredImage;
+        return filteredImage;
     }
 
-    public static int[][] SumFilterSingleChanHorz(int[][] ImIn, int FilterSize) {
+    public static int[][] medianFilterSingleChanVert(int[][] imIn, int filterSize) {
+        // Mean filter a 2D double array
+        // filterSize should be odd
+        // Careful: this is the mean of the ABS values!
+        int offset = (filterSize - 1) / 2;
+        int imWidth = imIn.length;
+        int imHeight = imIn[0].length;
+
+        int[][] filteredImage = new int[imWidth][imHeight - 2 * offset];
+
+        ArrayList<Integer> neighborhood;
+        ArrayList<Integer> sortedNeighborhood;
+
+
+        for (int ii = 0; ii < imWidth; ii++) {
+            neighborhood = new ArrayList<>();
+            for (int N_jj=0; N_jj<2*offset+1;N_jj++) {
+                neighborhood.add(imIn[ii][N_jj]);
+            }
+            sortedNeighborhood=new ArrayList<>(neighborhood);
+            Collections.sort(sortedNeighborhood);
+            filteredImage[ii][0] = sortedNeighborhood.get(offset + 1);
+
+            for (int jj = offset+1; jj <= imHeight - filterSize+offset; jj++) {
+                neighborhood.remove(0);
+                neighborhood.add(imIn[ii][jj + offset]);
+                sortedNeighborhood=new ArrayList<>(neighborhood);
+                Collections.sort(sortedNeighborhood);
+                filteredImage[ii][jj-offset] = sortedNeighborhood.get(offset+1);
+            }
+        }
+        return filteredImage;
+    }
+
+    public static int[][] medianFilterSingleChanHorz(int[][] imIn, int FilterSize) {
         // Mean filter a 2D double array
         // FilterSize should be odd
         // Careful: this is the mean of the ABS values!
-        int Offset = (FilterSize - 1) / 2;
-        int ImWidth = ImIn.length;
-        int ImHeight = ImIn[0].length;
+        int offset = (FilterSize - 1) / 2;
+        int imWidth = imIn.length;
+        int imHeight = imIn[0].length;
 
-        int[][] FilteredImage = new int[ImWidth-2*Offset][ImHeight];
+        int[][] filteredImage = new int[imWidth - 2 * offset][imHeight];
 
-        int Sum;
-        for (int jj = 0; jj < ImHeight ; jj++) {
-            Sum = 0;
-            for (int B_ii = 0; B_ii < 2 * Offset + 1; B_ii++) {
-                Sum = Sum + ImIn[B_ii][jj];
+        ArrayList<Integer> neighborhood;
+        ArrayList<Integer> sortedNeighborhood;
+
+
+        for (int jj = 0; jj < imHeight; jj++) {
+            neighborhood = new ArrayList<>();
+            for (int N_ii=0; N_ii<2*offset+1;N_ii++) {
+                neighborhood.add(imIn[N_ii][jj]);
             }
-            FilteredImage[0][jj] = Sum;
+            sortedNeighborhood=new ArrayList<>(neighborhood);
+            Collections.sort(sortedNeighborhood);
+            filteredImage[0][jj] = sortedNeighborhood.get(offset + 1);
 
-            for (int ii = Offset + 1; ii <= ImWidth - FilterSize + Offset; ii = ii + 1) {
-                Sum = Sum - ImIn[ii - Offset - 1][jj];
-                Sum = Sum + ImIn[ii + Offset][jj];
-                FilteredImage[ii - Offset][jj] = Sum;
-            }
-        }
-        return FilteredImage;
-    }
-
-    public static int[][] MedianFilterSingleChanVert(int[][] ImIn, int FilterSize) {
-        // Mean filter a 2D double array
-        // FilterSize should be odd
-        // Careful: this is the mean of the ABS values!
-        int Offset = (FilterSize - 1) / 2;
-        int ImWidth = ImIn.length;
-        int ImHeight = ImIn[0].length;
-
-        int[][] FilteredImage = new int[ImWidth][ImHeight - 2 * Offset];
-
-        ArrayList<Integer> Neighborhood;
-        ArrayList<Integer> SortedNeighborhood;
-
-
-        for (int ii = 0; ii < ImWidth; ii++) {
-            Neighborhood = new ArrayList<>();
-            for (int N_jj=0; N_jj<2*Offset+1;N_jj++) {
-                Neighborhood.add(ImIn[ii][N_jj]);
-            }
-            SortedNeighborhood=new ArrayList<>(Neighborhood);
-            Collections.sort(SortedNeighborhood);
-            FilteredImage[ii][0] = SortedNeighborhood.get(Offset + 1);
-
-            for (int jj = Offset+1; jj <= ImHeight - FilterSize+Offset; jj++) {
-                Neighborhood.remove(0);
-                Neighborhood.add(ImIn[ii][jj+Offset]);
-                SortedNeighborhood=new ArrayList<>(Neighborhood);
-                Collections.sort(SortedNeighborhood);
-                FilteredImage[ii][jj-Offset] = SortedNeighborhood.get(Offset+1);
+            for (int ii = offset+1; ii <= imWidth - FilterSize+offset; ii++) {
+                neighborhood.remove(0);
+                neighborhood.add(imIn[ii + offset][jj]);
+                sortedNeighborhood=new ArrayList<>(neighborhood);
+                Collections.sort(sortedNeighborhood);
+                filteredImage[ii-offset][jj] = sortedNeighborhood.get(offset+1);
             }
         }
-        return FilteredImage;
-    }
-
-    public static int[][] MedianFilterSingleChanHorz(int[][] ImIn, int FilterSize) {
-        // Mean filter a 2D double array
-        // FilterSize should be odd
-        // Careful: this is the mean of the ABS values!
-        int Offset = (FilterSize - 1) / 2;
-        int ImWidth = ImIn.length;
-        int ImHeight = ImIn[0].length;
-
-        int[][] FilteredImage = new int[ImWidth - 2 * Offset][ImHeight];
-
-        ArrayList<Integer> Neighborhood;
-        ArrayList<Integer> SortedNeighborhood;
-
-
-        for (int jj = 0; jj < ImHeight; jj++) {
-            Neighborhood = new ArrayList<>();
-            for (int N_ii=0; N_ii<2*Offset+1;N_ii++) {
-                Neighborhood.add(ImIn[N_ii][jj]);
-            }
-            SortedNeighborhood=new ArrayList<>(Neighborhood);
-            Collections.sort(SortedNeighborhood);
-            FilteredImage[0][jj] = SortedNeighborhood.get(Offset + 1);
-
-            for (int ii = Offset+1; ii <= ImWidth - FilterSize+Offset; ii++) {
-                Neighborhood.remove(0);
-                Neighborhood.add(ImIn[ii+Offset][jj]);
-                SortedNeighborhood=new ArrayList<>(Neighborhood);
-                Collections.sort(SortedNeighborhood);
-                FilteredImage[ii-Offset][jj] = SortedNeighborhood.get(Offset+1);
-            }
-        }
-        return FilteredImage;
+        return filteredImage;
     }
 
 
-    public static float[][][] MeanFilterRGB(float[][][] ImIn, int MeanFilterSize) {
-        int Offset = (MeanFilterSize - 1) / 2;
-        float[][][] FilteredIm = new float[3][ImIn[0].length - 2 * Offset][ImIn[0][0].length - 2 * Offset];
+    public static float[][][] meanFilterRGB(float[][][] ImIn, int meanFilterSize) {
+        int offset = (meanFilterSize - 1) / 2;
+        float[][][] filteredIm = new float[3][ImIn[0].length - 2 * offset][ImIn[0][0].length - 2 * offset];
 
-        FilteredIm[0] = MeanFilterSingleChan(ImIn[0], MeanFilterSize);
-        FilteredIm[1] = MeanFilterSingleChan(ImIn[1], MeanFilterSize);
-        FilteredIm[2] = MeanFilterSingleChan(ImIn[2], MeanFilterSize);
+        filteredIm[0] = meanFilterSingleChan(ImIn[0], meanFilterSize);
+        filteredIm[1] = meanFilterSingleChan(ImIn[1], meanFilterSize);
+        filteredIm[2] = meanFilterSingleChan(ImIn[2], meanFilterSize);
 
-        return FilteredIm;
+        return filteredIm;
     }
 
-    public static float[][] MeanChannelImage(float[][][] ImIn) {
-        int ImWidth = ImIn[0].length;
-        int ImHeight = ImIn[0][0].length;
-        float[][] OutIm = new float[ImWidth][ImHeight];
+    public static float[][] meanChannelImage(float[][][] imIn) {
+        int imWidth = imIn[0].length;
+        int imHeight = imIn[0][0].length;
+        float[][] outIm = new float[imWidth][imHeight];
 
-        for (int ii = 0; ii < ImWidth; ii++) {
-            for (int jj = 0; jj < ImHeight; jj++) {
-                OutIm[ii][jj] = (ImIn[0][ii][jj] + ImIn[1][ii][jj] + ImIn[2][ii][jj]) / 3;
+        for (int ii = 0; ii < imWidth; ii++) {
+            for (int jj = 0; jj < imHeight; jj++) {
+                outIm[ii][jj] = (imIn[0][ii][jj] + imIn[1][ii][jj] + imIn[2][ii][jj]) / 3;
             }
         }
 
-        return OutIm;
+        return outIm;
     }
 
-    public static float SingleChannelMean(float[][] ImIn) {
-        int ImWidth = ImIn.length;
-        int ImHeight = ImIn[0].length;
-        float Mean = 0;
+    public static float SingleChannelMean(float[][] imIn) {
+        int imWidth = imIn.length;
+        int imHeight = imIn[0].length;
+        float mean = 0;
         /*
-         for (int kkkk = ImHeight-5; kkkk < ImHeight; kkkk++) {
-         for (int llll = ImWidth-5; llll < ImWidth; llll++) {
-         System.out.print(ImIn[llll][kkkk] + " ");
+         for (int kkkk = imHeight-5; kkkk < imHeight; kkkk++) {
+         for (int llll = imWidth-5; llll < imWidth; llll++) {
+         System.out.print(imIn[llll][kkkk] + " ");
          }
          System.out.println();
          }
          System.out.println("----");
          */
-        for (int ii = 0; ii < ImWidth; ii++) {
-            for (int jj = 0; jj < ImHeight; jj++) {
-                Mean = Mean + ImIn[ii][jj];
+        for (int ii = 0; ii < imWidth; ii++) {
+            for (int jj = 0; jj < imHeight; jj++) {
+                mean = mean + imIn[ii][jj];
             }
         }
-        Mean = Mean / (ImWidth * ImHeight);
+        mean = mean / (imWidth * imHeight);
 
-        return Mean;
+        return mean;
     }
 
-    public static List<Integer> GetArrayLocalMinima(float[] ValuesIn) {
-        List<Integer> Minima = new ArrayList();
+    public static List<Integer> getArrayLocalMinima(float[] valuesIn) {
+        List<Integer> minima = new ArrayList();
 
-        for (int ii = 1; ii < ValuesIn.length - 1; ii++) {
-            //System.out.println(ValuesIn[ii - 1]);
-            if ((ValuesIn[ii - 1] > ValuesIn[ii]) & (ValuesIn[ii + 1] > ValuesIn[ii])) {
+        for (int ii = 1; ii < valuesIn.length - 1; ii++) {
+            //System.out.println(valuesIn[ii - 1]);
+            if ((valuesIn[ii - 1] > valuesIn[ii]) & (valuesIn[ii + 1] > valuesIn[ii])) {
                 //System.out.println(ii);
-                Minima.add(ii);
+                minima.add(ii);
             }
         }
-        //System.out.println(ValuesIn[ValuesIn.length - 2]);
-        //System.out.println(ValuesIn[ValuesIn.length - 1]);
-        return Minima;
+        //System.out.println(valuesIn[valuesIn.length - 2]);
+        //System.out.println(valuesIn[valuesIn.length - 1]);
+        return minima;
     }
 
-    public static double[][] NormalizeIm(float[][] ImIn) {
-        int ImWidth = ImIn.length;
-        int ImHeight = ImIn[0].length;
-        double ImOut[][] = new double[ImWidth][ImHeight];
+    public static double[][] normalizeIm(float[][] imIn) {
+        int imWidth = imIn.length;
+        int imHeight = imIn[0].length;
+        double imOut[][] = new double[imWidth][imHeight];
 
         double min = Double.MAX_VALUE;
         double max = -Double.MAX_VALUE;
 
         double colMin, colMax;
 
-        for (float[] ImInRow : ImIn) {
-            List b = Arrays.asList(ArrayUtils.toObject(ImInRow));
+        for (float[] imInRow : imIn) {
+            List b = Arrays.asList(ArrayUtils.toObject(imInRow));
             colMin = (float) Collections.min(b);
             if (colMin < min) {
                 min = colMin;
@@ -409,32 +409,32 @@ public class Util {
         }
         double spread = max - min;
 
-        for (int ii = 0; ii < ImWidth; ii++) {
-            for (int jj = 0; jj < ImHeight; jj++) {
-                ImOut[ii][jj] = (ImIn[ii][jj] - min) / spread;
+        for (int ii = 0; ii < imWidth; ii++) {
+            for (int jj = 0; jj < imHeight; jj++) {
+                imOut[ii][jj] = (imIn[ii][jj] - min) / spread;
             }
         }
-        return ImOut;
+        return imOut;
     }
 
-    public static BufferedImage VisualizeWithJet(double[][] ImIn) {
-        int ImWidth = ImIn.length;
-        int ImHeight = ImIn[0].length;
-        BufferedImage OutIm = new BufferedImage(ImWidth, ImHeight, 5);
-        Color RGB;
+    public static BufferedImage visualizeWithJet(double[][] ImIn) {
+        int imWidth = ImIn.length;
+        int imHeight = ImIn[0].length;
+        BufferedImage outIm = new BufferedImage(imWidth, imHeight, 5);
+        Color rgb;
 
-        double[][] Map = JetMap.ColorMap;
+        double[][] map = JetMap.colorMap;
 
         byte bytevalue;
 
-        for (int ii = 0; ii < ImWidth; ii++) {
-            for (int jj = 0; jj < ImHeight; jj++) {
+        for (int ii = 0; ii < imWidth; ii++) {
+            for (int jj = 0; jj < imHeight; jj++) {
                 bytevalue = (byte) Math.round(ImIn[ii][jj] * 63);
-                RGB = new Color((float) Map[bytevalue][0], (float) Map[bytevalue][1], (float) Map[(byte) Math.round(ImIn[ii][jj]) * 63][2]);
-                OutIm.setRGB(ii, jj, RGB.getRGB());
+                rgb = new Color((float) map[bytevalue][0], (float) map[bytevalue][1], (float) map[(byte) Math.round(ImIn[ii][jj]) * 63][2]);
+                outIm.setRGB(ii, jj, rgb.getRGB());
             }
         }
-        return OutIm;
+        return outIm;
     }
 
     public static int rem(int x, int y) {
@@ -451,92 +451,92 @@ public class Util {
         return out;
     }
 
-    public static double[][] MedianFilter(double[][] ImIn, int MedianFilterSize) {
+    public static double[][] medianFilter(double[][] imIn, int medianFilterSize) {
         // Median filter a 2D double array
-        // MedianFilterSize should be odd
+        // medianFilterSize should be odd
         // Careful: this is the mean of the ABS values!
-        int Offset = (MedianFilterSize - 1) / 2;
-        int ImWidth = ImIn.length;
-        int ImHeight = ImIn[0].length;
-        DescriptiveStatistics BlockValues;
+        int offset = (medianFilterSize - 1) / 2;
+        int imWidth = imIn.length;
+        int imHeight = imIn[0].length;
+        DescriptiveStatistics blockValues;
 
-        double[][] FilteredImage = new double[ImWidth - 2 * Offset][ImHeight - 2 * Offset];
+        double[][] filteredImage = new double[imWidth - 2 * offset][imHeight - 2 * offset];
 
-        for (int ii = Offset; ii <= ImWidth - MedianFilterSize + Offset; ii = ii + 1) {
-            for (int jj = Offset; jj <= ImHeight - MedianFilterSize + Offset; jj = jj + 1) {
-                BlockValues = new DescriptiveStatistics();
-                for (int B_ii = ii - Offset; B_ii < ii + Offset + 1; B_ii++) {
-                    for (int B_jj = jj - Offset; B_jj < jj + Offset + 1; B_jj++) {
-                        BlockValues.addValue(Math.abs(ImIn[B_ii][B_jj]));
+        for (int ii = offset; ii <= imWidth - medianFilterSize + offset; ii = ii + 1) {
+            for (int jj = offset; jj <= imHeight - medianFilterSize + offset; jj = jj + 1) {
+                blockValues = new DescriptiveStatistics();
+                for (int B_ii = ii - offset; B_ii < ii + offset + 1; B_ii++) {
+                    for (int B_jj = jj - offset; B_jj < jj + offset + 1; B_jj++) {
+                        blockValues.addValue(Math.abs(imIn[B_ii][B_jj]));
                     }
                 }
-                FilteredImage[ii - Offset][jj - Offset] = BlockValues.getPercentile(50);
+                filteredImage[ii - offset][jj - offset] = blockValues.getPercentile(50);
             }
         }
-        return FilteredImage;
+        return filteredImage;
     }
 
-    public static BufferedImage createJetVisualization(byte[][] InputGrayImage) {
-        double[][] Map = JetMap.ColorMap;
-        BufferedImage outImage = new BufferedImage(InputGrayImage.length, InputGrayImage[0].length, 5); //5 for PNG;
-        Color RGB;
-        //System.out.println(InputGrayImage.length);
-        //System.out.println(InputGrayImage[0].length);
+    public static BufferedImage createJetVisualization(byte[][] inputGrayImage) {
+        double[][] map = JetMap.colorMap;
+        BufferedImage outImage = new BufferedImage(inputGrayImage.length, inputGrayImage[0].length, 5); //5 for PNG;
+        Color rgb;
+        //System.out.println(inputGrayImage.length);
+        //System.out.println(inputGrayImage[0].length);
 
-        for (int ii = 0; ii < InputGrayImage.length; ii++) {
-            for (int jj = 0; jj < InputGrayImage[ii].length; jj++) {
-                RGB = new Color((float) Map[InputGrayImage[ii][jj]][0], (float) Map[InputGrayImage[ii][jj]][1], (float) Map[InputGrayImage[ii][jj]][2]);
-                outImage.setRGB(ii, jj, RGB.getRGB());
+        for (int ii = 0; ii < inputGrayImage.length; ii++) {
+            for (int jj = 0; jj < inputGrayImage[ii].length; jj++) {
+                rgb = new Color((float) map[inputGrayImage[ii][jj]][0], (float) map[inputGrayImage[ii][jj]][1], (float) map[inputGrayImage[ii][jj]][2]);
+                outImage.setRGB(ii, jj, rgb.getRGB());
             }
         }
         return outImage;
     }
 
-    public static double[][] BlockNoiseVar(double[][] InputIm, int BlockSize) {
-        int BlockedWidth = (int) Math.floor(InputIm.length / BlockSize) * BlockSize;
-        int BlockedHeight = (int) Math.floor(InputIm[0].length / BlockSize) * BlockSize;
-        double[][] BlockedIm = new double[BlockedWidth / BlockSize][BlockedHeight / BlockSize];
+    public static double[][] blockNoiseVar(double[][] inputIm, int blockSize) {
+        int blockedWidth = (int) Math.floor(inputIm.length / blockSize) * blockSize;
+        int blockedHeight = (int) Math.floor(inputIm[0].length / blockSize) * blockSize;
+        double[][] blockedIm = new double[blockedWidth / blockSize][blockedHeight / blockSize];
 
-        DescriptiveStatistics BlockValues;
-        for (int ii = 0; ii < BlockedWidth; ii = ii + BlockSize) {
-            for (int jj = 0; jj < BlockedHeight; jj = jj + BlockSize) {
-                BlockValues = new DescriptiveStatistics();
-                for (int B_ii = ii; B_ii < ii + BlockSize; B_ii++) {
-                    for (int B_jj = jj; B_jj < jj + BlockSize; B_jj++) {
-                        BlockValues.addValue(Math.abs(InputIm[B_ii][B_jj]));
+        DescriptiveStatistics blockValues;
+        for (int ii = 0; ii < blockedWidth; ii = ii + blockSize) {
+            for (int jj = 0; jj < blockedHeight; jj = jj + blockSize) {
+                blockValues = new DescriptiveStatistics();
+                for (int B_ii = ii; B_ii < ii + blockSize; B_ii++) {
+                    for (int B_jj = jj; B_jj < jj + blockSize; B_jj++) {
+                        blockValues.addValue(Math.abs(inputIm[B_ii][B_jj]));
                     }
                 }
-                BlockedIm[ii / BlockSize][jj / BlockSize] = Math.sqrt(BlockValues.getPercentile(50) / 0.6745);
+                blockedIm[ii / blockSize][jj / blockSize] = Math.sqrt(blockValues.getPercentile(50) / 0.6745);
             }
         }
-        return BlockedIm;
+        return blockedIm;
     }
 
-    public static double[][] BlockVar(double[][] InputIm, int BlockSize) {
-        int BlockedWidth = (int) Math.floor(InputIm.length / BlockSize) * BlockSize;
-        int BlockedHeight = (int) Math.floor(InputIm[0].length / BlockSize) * BlockSize;
-        double[][] BlockedIm = new double[BlockedWidth / BlockSize][BlockedHeight / BlockSize];
+    public static double[][] blockVar(double[][] inputIm, int blockSize) {
+        int blockedWidth = (int) Math.floor(inputIm.length / blockSize) * blockSize;
+        int blockedHeight = (int) Math.floor(inputIm[0].length / blockSize) * blockSize;
+        double[][] blockedIm = new double[blockedWidth / blockSize][blockedHeight / blockSize];
 
-        DescriptiveStatistics BlockValues;
-        for (int ii = 0; ii < BlockedWidth; ii = ii + BlockSize) {
-            for (int jj = 0; jj < BlockedHeight; jj = jj + BlockSize) {
-                BlockValues = new DescriptiveStatistics();
-                for (int B_ii = ii; B_ii < ii + BlockSize; B_ii++) {
-                    for (int B_jj = jj; B_jj < jj + BlockSize; B_jj++) {
-                        BlockValues.addValue(Math.abs(InputIm[B_ii][B_jj]));
+        DescriptiveStatistics blockValues;
+        for (int ii = 0; ii < blockedWidth; ii = ii + blockSize) {
+            for (int jj = 0; jj < blockedHeight; jj = jj + blockSize) {
+                blockValues = new DescriptiveStatistics();
+                for (int B_ii = ii; B_ii < ii + blockSize; B_ii++) {
+                    for (int B_jj = jj; B_jj < jj + blockSize; B_jj++) {
+                        blockValues.addValue(Math.abs(inputIm[B_ii][B_jj]));
                     }
                 }
-                BlockedIm[ii / BlockSize][jj / BlockSize] = BlockValues.getPopulationVariance();
-                //System.out.print(BlockedIm[ii / BlockSize][jj / BlockSize] + " ");
+                blockedIm[ii / blockSize][jj / blockSize] = blockValues.getPopulationVariance();
+                //System.out.print(blockedIm[ii / blockSize][jj / blockSize] + " ");
             }
             //System.out.println();
         }
-        return BlockedIm;
+        return blockedIm;
     }
 
-    public static String GetImageFormat(File InputImage) throws IOException {
+    public static String getImageFormat(File inputImage) throws IOException {
         String format = null;
-        ImageInputStream iis = ImageIO.createImageInputStream(InputImage);
+        ImageInputStream iis = ImageIO.createImageInputStream(inputImage);
         Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
         if (!iter.hasNext()) {
             throw new RuntimeException("No readers found! I don't think this is an image file");
@@ -547,12 +547,12 @@ public class Util {
         return format;
     }
 
-    public static float MinDouble2DArray(float[][] ArrayIn) {
+    public static float minDouble2DArray(float[][] arrayIn) {
         float min = Float.MAX_VALUE;
         float colMin;
 
-        for (float[] ArrayInRow : ArrayIn) {
-            List b = Arrays.asList(ArrayUtils.toObject(ArrayInRow));
+        for (float[] arrayInRow : arrayIn) {
+            List b = Arrays.asList(ArrayUtils.toObject(arrayInRow));
             colMin = (float) Collections.min(b);
             if (colMin < min) {
                 min = colMin;
@@ -561,11 +561,11 @@ public class Util {
         return min;
     }
 
-    public static float MaxDouble2DArray(float[][] ArrayIn) {
+    public static float maxDouble2DArray(float[][] arrayIn) {
         float max = -Float.MAX_VALUE;
         float colMax;
-        for (float[] ArrayInRow : ArrayIn) {
-            List b = Arrays.asList(ArrayUtils.toObject(ArrayInRow));
+        for (float[] arrayInRow : arrayIn) {
+            List b = Arrays.asList(ArrayUtils.toObject(arrayInRow));
             colMax = (float) Collections.max(b);
             if (colMax > max) {
                 max = colMax;
@@ -574,13 +574,13 @@ public class Util {
         return max;
     }
 
-    public static float MinDouble3DArray(float[][][] ArrayIn) {
+    public static float minDouble3DArray(float[][][] arrayIn) {
         float min = Float.MAX_VALUE;
         float colMin;
 
-        for (float[][] TwoDInRow : ArrayIn) {
-            for (float[] ArrayInRow : TwoDInRow) {
-                List b = Arrays.asList(ArrayUtils.toObject(ArrayInRow));
+        for (float[][] twoDInRow : arrayIn) {
+            for (float[] arrayInRow : twoDInRow) {
+                List b = Arrays.asList(ArrayUtils.toObject(arrayInRow));
                 colMin = (float) Collections.min(b);
                 if (colMin < min) {
                     min = colMin;
@@ -590,13 +590,13 @@ public class Util {
         return min;
     }
 
-    public static double MaxDouble3DArray(float[][][] ArrayIn) {
+    public static double maxDouble3DArray(float[][][] arrayIn) {
         double max = -Double.MAX_VALUE;
         double colMax;
 
-        for (float[][] TwoDInRow : ArrayIn) {
-            for (float[] ArrayInRow : TwoDInRow) {
-                List b = Arrays.asList(ArrayUtils.toObject(ArrayInRow));
+        for (float[][] twoDInRow : arrayIn) {
+            for (float[] arrayInRow : twoDInRow) {
+                List b = Arrays.asList(ArrayUtils.toObject(arrayInRow));
                 colMax = (float) Collections.max(b);
                 if (colMax > max) {
                     max = colMax;
@@ -606,32 +606,32 @@ public class Util {
         return max;
     }
 
-    public static BufferedImage AddTextToImage(BufferedImage ImIn, String Text, int ManualImageHeight){
+    public static BufferedImage addTextToImage(BufferedImage imIn, String text, int manualImageHeight){
         
-        //use ManualImageHeight=0 to automatically detect height - set an ManualImageHeight value to insert multiple lines of equal height.
+        //use manualImageHeight=0 to automatically detect height - set an manualImageHeight value to insert multiple lines of equal height.
 
-        int ImageHeight;
-        if (ManualImageHeight!=0) {
-            ImageHeight=ManualImageHeight;
+        int imageHeight;
+        if (manualImageHeight!=0) {
+            imageHeight=manualImageHeight;
         } else {
-            ImageHeight=ImIn.getHeight();
+            imageHeight=imIn.getHeight();
         }
         
         BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = img.createGraphics();
-        Font font = new Font("Arial", Font.PLAIN, (int) Math.round(ImageHeight*0.1));
+        Font font = new Font("Arial", Font.PLAIN, (int) Math.round(imageHeight*0.1));
         g2d.setFont(font);
         FontMetrics fm = g2d.getFontMetrics();
-        //int width = fm.stringWidth(Text);
+        //int width = fm.stringWidth(text);
         int height = fm.getHeight();
 
         g2d.dispose();
         
         
-        BufferedImage OutIm=new BufferedImage( ImIn.getWidth(), ImIn.getHeight()+height, BufferedImage.TYPE_INT_RGB);;
-        for (int ii=0; ii<ImIn.getWidth();ii++){
-        for (int jj=0; jj<ImIn.getHeight();jj++){
-            OutIm.setRGB(ii, jj, ImIn.getRGB(ii, jj));
+        BufferedImage outIm=new BufferedImage( imIn.getWidth(), imIn.getHeight()+height, BufferedImage.TYPE_INT_RGB);;
+        for (int ii=0; ii<imIn.getWidth();ii++){
+        for (int jj=0; jj<imIn.getHeight();jj++){
+            outIm.setRGB(ii, jj, imIn.getRGB(ii, jj));
         }
         }
 
@@ -641,7 +641,7 @@ public class Util {
            of the final image
          */
 
-        g2d = OutIm.createGraphics();
+        g2d = outIm.createGraphics();
         g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
@@ -652,113 +652,113 @@ public class Util {
         g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
         g2d.setFont(font);
         g2d.setColor(Color.WHITE);
-        g2d.drawString(Text, 5, OutIm.getHeight()-Math.round(height*0.2));
+        g2d.drawString(text, 5, outIm.getHeight()-Math.round(height*0.2));
         g2d.dispose();
         
-        return OutIm;
+        return outIm;
     }
 
-    public static List <BufferedImage> AddJPEGQualitiesToList(List<BufferedImage> ImIn, List<Integer> Qualities, List<Double> MinValues, List<Double> MaxValues, List<Integer> LocalMinGhostQualities){
-    List <BufferedImage> OutList = new ArrayList();
+    public static List <BufferedImage> addJPEGQualitiesToList(List<BufferedImage> imIn, List<Integer> qualities, List<Double> minValues, List<Double> maxValues, List<Integer> localMinGhostQualities){
+    List <BufferedImage> outList = new ArrayList();
          BufferedImage tmpImage;
          
-        int ImageHeight=ImIn.get(0).getHeight();
-        if (ImageHeight>ImIn.get(0).getWidth()) {
-            ImageHeight=(int)Math.round(ImIn.get(0).getWidth());
+        int ImageHeight=imIn.get(0).getHeight();
+        if (ImageHeight>imIn.get(0).getWidth()) {
+            ImageHeight=(int)Math.round(imIn.get(0).getWidth());
         }
         
          
-        for (int ii=0;ii<ImIn.size();ii++){
-            tmpImage=AddTextToImage(ImIn.get(ii),"JPEG Quality: " + String.valueOf(Qualities.get(ii)),ImageHeight);
-            tmpImage=AddTextToImage(tmpImage,"Min Value: " + String.format("%.2f", MinValues.get(ii)),ImageHeight);
-            tmpImage=AddTextToImage(tmpImage,"Max Value: " + String.format("%.2f", MaxValues.get(ii)),ImageHeight);
-            OutList.add(tmpImage);
-            if (LocalMinGhostQualities.contains(Qualities.get(ii)) | Qualities.get(ii)==100){
+        for (int ii=0;ii<imIn.size();ii++){
+            tmpImage= addTextToImage(imIn.get(ii), "JPEG Quality: " + String.valueOf(qualities.get(ii)), ImageHeight);
+            tmpImage= addTextToImage(tmpImage, "Min Value: " + String.format("%.2f", minValues.get(ii)), ImageHeight);
+            tmpImage= addTextToImage(tmpImage, "Max Value: " + String.format("%.2f", maxValues.get(ii)), ImageHeight);
+            outList.add(tmpImage);
+            if (localMinGhostQualities.contains(qualities.get(ii)) | qualities.get(ii)==100){
                 for (int jj=0;jj<4;jj++){
-                    OutList.add(tmpImage);
+                    outList.add(tmpImage);
                 }
             }
     }
     
-    return OutList;
+    return outList;
     }
 
-    public static float[][] ShrinkMap(float[][] OrigMap, int NewWidth, int NewHeight){
+    public static float[][] shrinkMap(float[][] origMap, int newWidth, int newHeight){
         // shrink an input map using nearest neighbour interpolation
 
-        float[][] OutputMap=new float[NewWidth][NewHeight];
-        float WidthModifier=(float)OrigMap.length/NewWidth;
-        float HeightModifier=(float)OrigMap[0].length/NewHeight;
-        //System.out.println(HeightModifier);
-        //System.out.println(WidthModifier);
+        float[][] outputMap=new float[newWidth][newHeight];
+        float widthModifier=(float)origMap.length/newWidth;
+        float heightModifier=(float)origMap[0].length/newHeight;
+        //System.out.println(heightModifier);
+        //System.out.println(widthModifier);
 
-        for (int ii=0;ii<NewWidth;ii++) {
-            for (int jj=0;jj<NewHeight;jj++) {
+        for (int ii=0;ii<newWidth;ii++) {
+            for (int jj=0;jj<newHeight;jj++) {
                 try {
-                    OutputMap[ii][jj] = OrigMap[Math.round(ii * WidthModifier)][Math.round(jj * HeightModifier)];
+                    outputMap[ii][jj] = origMap[Math.round(ii * widthModifier)][Math.round(jj * heightModifier)];
                 }catch (Exception e) {
-                    System.out.println(OutputMap.length + " " + OutputMap[0].length + " " + OrigMap.length + " " + OrigMap[0].length + " " + ii + " " + jj + " " + Math.round(ii * HeightModifier) + " " + Math.round(jj * WidthModifier) + " " + HeightModifier + " " + WidthModifier);
+                    System.out.println(outputMap.length + " " + outputMap[0].length + " " + origMap.length + " " + origMap[0].length + " " + ii + " " + jj + " " + Math.round(ii * heightModifier) + " " + Math.round(jj * widthModifier) + " " + heightModifier + " " + widthModifier);
                 }
             }
         }
-        return OutputMap;
+        return outputMap;
     }
 
-    public static int[][] MirrorPadImage(int[][] ImOrig, int PadWidth, int PadHeight){
+    public static int[][] mirrorPadImage(int[][] imOrig, int padWidth, int padHeight){
 
-        int[][] PaddedY = new int[ImOrig.length+2*PadWidth][ImOrig[0].length];
-        for (int ii=PadWidth;ii<ImOrig.length+PadWidth;ii++){
-            for (int jj=0;jj<PaddedY[0].length;jj++){
-                PaddedY[ii][jj]=ImOrig[ii-PadWidth][jj];
+        int[][] paddedY = new int[imOrig.length+2*padWidth][imOrig[0].length];
+        for (int ii=padWidth;ii<imOrig.length+padWidth;ii++){
+            for (int jj=0;jj<paddedY[0].length;jj++){
+                paddedY[ii][jj]=imOrig[ii-padWidth][jj];
             }
         }
         //mirror
-        for (int ii=0;ii<PadWidth;ii++){
-            for (int jj=0;jj<PaddedY[0].length;jj++){
-                PaddedY[ii][jj]=PaddedY[2*PadWidth-ii][jj];
-                PaddedY[PaddedY.length-ii-1][jj]=PaddedY[PaddedY.length-2*PadWidth+ii-1][jj];
+        for (int ii=0;ii<padWidth;ii++){
+            for (int jj=0;jj<paddedY[0].length;jj++){
+                paddedY[ii][jj]=paddedY[2*padWidth-ii][jj];
+                paddedY[paddedY.length-ii-1][jj]=paddedY[paddedY.length-2*padWidth+ii-1][jj];
             }
         }
 
-        int[][] Padded= new int[ImOrig.length+2*PadWidth][ImOrig[0].length+2*PadHeight];
+        int[][] padded= new int[imOrig.length+2*padWidth][imOrig[0].length+2*padHeight];
 
-        for (int ii=0;ii<Padded.length;ii++){
-            for (int jj=PadHeight;jj<PaddedY[0].length+PadHeight;jj++){
-                Padded[ii][jj]=PaddedY[ii][jj-PadHeight];
+        for (int ii=0;ii<padded.length;ii++){
+            for (int jj=padHeight;jj<paddedY[0].length+padHeight;jj++){
+                padded[ii][jj]=paddedY[ii][jj-padHeight];
             }
         }
         //mirror
-        for (int ii=0;ii<PaddedY.length;ii++){
-            for (int jj=0;jj<PadHeight;jj++){
-                Padded[ii][jj]=Padded[ii][2*PadHeight-jj];
-                Padded[ii][Padded[0].length-jj-1]=Padded[ii][Padded[0].length-2*PadHeight+jj-1];
+        for (int ii=0;ii<paddedY.length;ii++){
+            for (int jj=0;jj<padHeight;jj++){
+                padded[ii][jj]=padded[ii][2*padHeight-jj];
+                padded[ii][padded[0].length-jj-1]=padded[ii][padded[0].length-2*padHeight+jj-1];
             }
         }
 
-        return Padded;
+        return padded;
     }
 
-    public static int[][] SubtractImage(int[][] Im1, int[][] Im2){
+    public static int[][] subtractImage(int[][] Im1, int[][] Im2){
 
-        int[][] ImOut = new int[Im1.length][Im1[0].length];
+        int[][] imOut = new int[Im1.length][Im1[0].length];
 
         for (int ii=0;ii<Im1.length;ii++){
             for (int jj=0;jj<Im1[0].length;jj++){
-                ImOut[ii][jj]=Im1[ii][jj]-Im2[ii][jj];
+                imOut[ii][jj]=Im1[ii][jj]-Im2[ii][jj];
             }
         }
-        return ImOut;
+        return imOut;
     }
 
-    public static int[][] AddImage(int[][] Im1, int[][] Im2){
+    public static int[][] addImage(int[][] Im1, int[][] Im2){
 
-        int[][] ImOut = new int[Im1.length][Im1[0].length];
+        int[][] imOut = new int[Im1.length][Im1[0].length];
         for (int ii=0;ii<Im1.length;ii++){
             for (int jj=0;jj<Im1[0].length;jj++){
-                ImOut[ii][jj]=Im1[ii][jj]+Im2[ii][jj];
+                imOut[ii][jj]=Im1[ii][jj]+Im2[ii][jj];
             }
         }
-        return ImOut;
+        return imOut;
     }
 
 

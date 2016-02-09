@@ -12,16 +12,16 @@ import java.util.concurrent.Callable;
 
 public class GhostCalculationThread implements Callable<GhostCalculationResult>{
 
-    private int Quality;
-    private BufferedImage ImIn;
+    private int quality;
+    private BufferedImage imIn;
     private int[][][] OrigByteImage;
-    private int MaxImageSmallDimension;
+    private int maxImageSmallDimension;
 
-    public GhostCalculationThread(int Quality, BufferedImage ImIn, int[][][] OrigByteImage, int MaxImageSmallDimension) {
-        this.Quality = Quality;
-        this.ImIn = ImIn;
-        this.OrigByteImage = OrigByteImage;
-        this.MaxImageSmallDimension=MaxImageSmallDimension;
+    public GhostCalculationThread(int quality, BufferedImage imIn, int[][][] origByteImage, int maxImageSmallDimension) {
+        this.quality = quality;
+        this.imIn = imIn;
+        this.OrigByteImage = origByteImage;
+        this.maxImageSmallDimension =maxImageSmallDimension;
     }
 
     @Override
@@ -31,54 +31,54 @@ public class GhostCalculationThread implements Callable<GhostCalculationResult>{
      */
     public GhostCalculationResult call() throws Exception {
         float[][] difference = calculateDifference();
-        return new GhostCalculationResult(Quality, difference);
+        return new GhostCalculationResult(quality, difference);
     }
 
     public float[][] calculateDifference() {
 
-        int NewHeight, NewWidth;
-        float ScaleFactor;
+        int newHeight, newWidth;
+        float scaleFactor;
 
-        int ImageHeight=ImIn.getHeight();
-        int ImageWidth=ImIn.getWidth();
-        if (ImageHeight>ImageWidth & ImageWidth> MaxImageSmallDimension*1.5) {
-            NewWidth= MaxImageSmallDimension;
-            ScaleFactor=((float)ImageWidth)/((float)NewWidth);
-            NewHeight=Math.round(((float)ImageHeight)/ScaleFactor);
-        } else if (ImageWidth>ImageHeight & ImageHeight> MaxImageSmallDimension*1.5)
+        int imageHeight= imIn.getHeight();
+        int imageWidth= imIn.getWidth();
+        if (imageHeight>imageWidth & imageWidth> maxImageSmallDimension *1.5) {
+            newWidth= maxImageSmallDimension;
+            scaleFactor=((float)imageWidth)/((float)newWidth);
+            newHeight=Math.round(((float)imageHeight)/scaleFactor);
+        } else if (imageWidth>imageHeight & imageHeight> maxImageSmallDimension *1.5)
         {
-            NewHeight= MaxImageSmallDimension;
-            ScaleFactor=((float)ImageHeight)/((float)NewHeight);
-            NewWidth=Math.round(((float)ImageWidth)/ScaleFactor);
+            newHeight= maxImageSmallDimension;
+            scaleFactor=((float)imageHeight)/((float)newHeight);
+            newWidth=Math.round(((float)imageWidth)/scaleFactor);
         } else {
-            NewHeight=ImageHeight;
-            NewWidth=ImageWidth;
-            ScaleFactor=1;
+            newHeight=imageHeight;
+            newWidth=imageWidth;
+            scaleFactor=1;
         }
 
 
-        BufferedImage RecompressedImage = Util.RecompressImage(ImIn, Quality);
-        //int[][][] RecompressedByteImage = Util.GetRGBArray(RecompressedImage);
-        //float[][][] ImageDifference = Util.CalculateImageDifference(OrigByteImage, RecompressedByteImage);
-        float[][][] ImageDifference = Util.CalculateResizedImageDifference(ImIn, RecompressedImage, NewWidth, NewHeight);
+        BufferedImage recompressedImage = Util.recompressImage(imIn, quality);
+        //int[][][] RecompressedByteImage = Util.getRGBArray(recompressedImage);
+        //float[][][] resizedImageDifference = Util.calculateImageDifference(OrigByteImage, RecompressedByteImage);
+        float[][][] resizedImageDifference = Util.calculateResizedImageDifference(imIn, recompressedImage, newWidth, newHeight);
 
 
-        int FilterSize=Math.round(17 / ScaleFactor);  //17 acc. to the paper
-        if (FilterSize<2){FilterSize=2;}
-        float[][][] Smooth = Util.MeanFilterRGB(ImageDifference, FilterSize);
-        float[][] GrayDifference = Util.MeanChannelImage(Smooth);
-        float GhostMin = Util.MinDouble2DArray(GrayDifference);
-        float GhostMax = Util.MaxDouble2DArray(GrayDifference);
-        float GhostMean = Util.SingleChannelMean(GrayDifference);
-        //JetImageDifference=Util.VisualizeWithJet(Util.NormalizeIm(MeanDifference));
-        //JetImageDifference=(BufferedImage) JetImageDifference.getScaledInstance(NewWidth,NewHeight, Image.SCALE_FAST);
+        int filterSize=Math.round(17 / scaleFactor);  //17 acc. to the paper
+        if (filterSize<2){filterSize=2;}
+        float[][][] smooth = Util.meanFilterRGB(resizedImageDifference, filterSize);
+        float[][] grayDifference = Util.meanChannelImage(smooth);
+        float ghostMin = Util.minDouble2DArray(grayDifference);
+        float ghostMax = Util.maxDouble2DArray(grayDifference);
+        float ghostMean = Util.SingleChannelMean(grayDifference);
+        //JetImageDifference=Util.visualizeWithJet(Util.normalizeIm(MeanDifference));
+        //JetImageDifference=(BufferedImage) JetImageDifference.getScaledInstance(newWidth,newHeight, Image.SCALE_FAST);
 
-        if (NewHeight<ImageHeight) {
-            GrayDifference = Util.ShrinkMap(GrayDifference, NewWidth, NewHeight);
+        if (newHeight<imageHeight) {
+            grayDifference = Util.shrinkMap(grayDifference, newWidth, newHeight);
         }
 
-        return GrayDifference;
-        //System.out.println(Quality);
+        return grayDifference;
+        //System.out.println(quality);
     }
 
 

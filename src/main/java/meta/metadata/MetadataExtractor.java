@@ -15,18 +15,18 @@ import com.google.gson.JsonObject;
  * Created by marzampoglou on 11/18/15.
  */
 public class MetadataExtractor {
-    public JsonObject MetadataReport = null;
+    public JsonObject metadataReport = null;
 
     public MetadataExtractor(String FileName) throws IOException, ImageProcessingException {
-        this.MetadataReport=GetMetadata(FileName);
+        this.metadataReport = getMetadata(FileName);
     }
 
-    private JsonObject GetMetadata(String FileName) throws IOException, ImageProcessingException {
+    private JsonObject getMetadata(String FileName) throws IOException, ImageProcessingException {
         com.drew.metadata.Metadata metadata = ImageMetadataReader.readMetadata(new File(FileName));
-        JsonObject JSONObj;
+        JsonObject jsonObject;
 /*
         JsonObject JSONChild;
-        JSONObj=new JsonObject();
+        jsonObject=new JsonObject();
         for (Directory directory : meta.metadata.getDirectories()) {
             //System.out.println(directory.getName());
             JSONChild = new JsonObject();
@@ -34,45 +34,45 @@ public class MetadataExtractor {
                 //System.out.println(tag.getTagName() + " - " + tag.getDescription());
                 JSONChild.addProperty(tag.getTagName(),tag.getDescription());
             }
-            JSONObj.add(directory.getName(),JSONChild);
+            jsonObject.add(directory.getName(),JSONChild);
         }
-        //System.out.println(JSONObj.toString());
+        //System.out.println(jsonObject.toString());
 */
-        JSONObj=new JsonObject();
-        JsonObject JSONDirChild;
-        JsonArray JsonDirArray=new JsonArray();
-        JsonArray JsonTagArray;
-        JsonObject JSONTagChild;
+        jsonObject=new JsonObject();
+        JsonObject jsonChild;
+        JsonArray jsonDirArray=new JsonArray();
+        JsonArray jsonTagArray;
+        JsonObject jsonTagChild;
 
-        JSONObj.addProperty("name","metadataArray");
+        jsonObject.addProperty("name", "metadataArray");
         for (Directory directory : metadata.getDirectories()) {
-            JSONDirChild = new JsonObject();
-            JSONDirChild.addProperty("name", directory.getName());
-            JsonTagArray=new JsonArray();
+            jsonChild = new JsonObject();
+            jsonChild.addProperty("name", directory.getName());
+            jsonTagArray=new JsonArray();
             for (Tag tag : directory.getTags()) {
-                JSONTagChild=new JsonObject();
-                JSONTagChild.addProperty("name",tag.getTagName());
-                JSONTagChild.addProperty("value", tag.getDescription());
-                JsonTagArray.add(JSONTagChild);
+                jsonTagChild =new JsonObject();
+                jsonTagChild.addProperty("name", tag.getTagName());
+                jsonTagChild.addProperty("value", tag.getDescription());
+                jsonTagArray.add(jsonTagChild);
             }
             if (directory.getTagCount()==0){
-                JSONTagChild=new JsonObject();
-                JSONTagChild.addProperty("name","REVEAL warning");
-                JSONTagChild.addProperty("value", "This category exists but is empty. It is possible that its content was erased.");
-                JsonTagArray.add(JSONTagChild);
+                jsonTagChild =new JsonObject();
+                jsonTagChild.addProperty("name", "Info");
+                jsonTagChild.addProperty("value", "This category exists but is empty.");
+                jsonTagArray.add(jsonTagChild);
             }
-            JSONDirChild.add("values", JsonTagArray);
-            JsonDirArray.add(JSONDirChild);
+            jsonChild.add("values", jsonTagArray);
+            jsonDirArray.add(jsonChild);
         }
-        JSONObj.add("values",JsonDirArray);
+        jsonObject.add("values", jsonDirArray);
 
         //System.out.println(JSONObj2.toString());
         //System.out.println("----------------------------------------------------------");
-        //System.out.println(JSONObj.toString());
+        //System.out.println(jsonObject.toString());
 
 
 
-        return JSONObj;
+        return jsonObject;
     }
 
     private JsonObject ReformatNameValue(JsonObject InputElement){
@@ -80,4 +80,5 @@ public class MetadataExtractor {
 
         return null;
     }
+
 }

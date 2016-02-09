@@ -12,46 +12,46 @@ public class GPSExtractor {
     public double longitude=Double.MAX_VALUE;
 
     public GPSExtractor(JsonObject metadata) {
-        GetGPSData(metadata);
+        getGPSData(metadata);
     }
 
-    private void GetGPSData(JsonObject metadata) {
-        System.out.println("GetGPSData called");
+    private void getGPSData(JsonObject metadata) {
+        System.out.println("getGPSData called");
         JsonArray jsonArray = metadata.getAsJsonArray("values");
         for (int fieldInd=0; fieldInd < jsonArray.size(); fieldInd++){
             JsonObject child = jsonArray.get(fieldInd).getAsJsonObject();
             if (child.get("name").getAsString().equalsIgnoreCase("GPS")){
                 JsonArray gpsObject = child.getAsJsonArray("values");
                 System.out.println("Found GPS data");
-                String LatitudeRef=null;
-                String LongitudeRef=null;
-                String LatitudeString=null;
-                String LongitudeString=null;
+                String latitudeRef=null;
+                String longitudeRef=null;
+                String latitudeString=null;
+                String longitudeString=null;
                 for (int gpsFieldInd=0; gpsFieldInd<gpsObject.size();gpsFieldInd++){
                     if (gpsObject.get(gpsFieldInd).getAsJsonObject().get("name").getAsString().equalsIgnoreCase("GPS Latitude Ref")){
-                        LatitudeRef=gpsObject.get(gpsFieldInd).getAsJsonObject().get("value").getAsString();
+                        latitudeRef=gpsObject.get(gpsFieldInd).getAsJsonObject().get("value").getAsString();
                     }
                     if (gpsObject.get(gpsFieldInd).getAsJsonObject().get("name").getAsString().equalsIgnoreCase("GPS Longitude Ref")){
-                        LongitudeRef=gpsObject.get(gpsFieldInd).getAsJsonObject().get("value").getAsString();
+                        longitudeRef=gpsObject.get(gpsFieldInd).getAsJsonObject().get("value").getAsString();
                     }
                     if (gpsObject.get(gpsFieldInd).getAsJsonObject().get("name").getAsString().equalsIgnoreCase("GPS Latitude")){
                         if (!gpsObject.get(gpsFieldInd).getAsJsonObject().get("value").isJsonNull()) {
-                            LatitudeString = gpsObject.get(gpsFieldInd).getAsJsonObject().get("value").getAsString();
+                            latitudeString = gpsObject.get(gpsFieldInd).getAsJsonObject().get("value").getAsString();
                         }
                     }
                     if (gpsObject.get(gpsFieldInd).getAsJsonObject().get("name").getAsString().equalsIgnoreCase("GPS Longitude")){
                         if (!gpsObject.get(gpsFieldInd).getAsJsonObject().get("value").isJsonNull()) {
-                            LongitudeString = gpsObject.get(gpsFieldInd).getAsJsonObject().get("value").getAsString();
+                            longitudeString = gpsObject.get(gpsFieldInd).getAsJsonObject().get("value").getAsString();
                         }
                     }
                 }
-                if ((LatitudeRef!=null) &&  (LongitudeRef!=null) &&  (LatitudeString!=null) && (LongitudeString!=null)) {
-                        String[] strArray = LatitudeString.split("[°\"']");
+                if ((latitudeRef!=null) &&  (longitudeRef!=null) &&  (latitudeString!=null) && (longitudeString!=null)) {
+                        String[] strArray = latitudeString.split("[°\"']");
                         latitude=Math.abs(Double.parseDouble(strArray[0])) + Double.parseDouble(strArray[1]) / 60 + Double.parseDouble(strArray[2]) / 3600;
-                        String[] strArray2 = LongitudeString.split("[°\"']");
+                        String[] strArray2 = longitudeString.split("[°\"']");
                         longitude=Math.abs(Double.parseDouble(strArray2[0])) + Double.parseDouble(strArray2[1]) / 60 + Double.parseDouble(strArray2[2]) / 3600;
-                    if (LatitudeRef.equalsIgnoreCase("S")) latitude=-latitude;
-                    if (LongitudeRef.equalsIgnoreCase("W")) longitude=-longitude;
+                    if (latitudeRef.equalsIgnoreCase("S")) latitude=-latitude;
+                    if (longitudeRef.equalsIgnoreCase("W")) longitude=-longitude;
                 }
             }
             }

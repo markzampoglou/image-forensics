@@ -14,6 +14,7 @@ import java.util.concurrent.Future;
 
 
 import api.reports.*;
+import com.drew.imaging.ImageProcessingException;
 import maps.dwnoise.NoiseMapExtractor;
 import meta.metadata.MetadataExtractor;
 import meta.thumbnail.ThumbnailExtractor;
@@ -25,7 +26,7 @@ import meta.gps.GPSExtractor;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 import maps.dq.DQExtractor;
-import maps.mediannoise.MmedianNoiseExtractor;
+import maps.mediannoise.MedianNoiseExtractor;
 import maps.ela.ELAExtractor;
 import maps.ghost.GhostExtractor;
 import maps.blocking.BlockingExtractor;
@@ -37,222 +38,222 @@ import javax.imageio.ImageIO;
  * Created by marzampoglou on 11/19/15.
  */
 public class ReportManagement {
-    static int NumberOfThreads=7; //DQ, Noise, Ghost, ELA, Metadata, BLK, MedianNoise
-    static long ComputationTimeoutLimit=60000;
-    static int MaxGhostImageSmallDimension=768;
+    static int numberOfThreads =7; //DQ, Noise, Ghost, ELA, Metadata, BLK, MedianNoise
+    static long computationTimeoutLimit =60000;
+    static int maxGhostImageSmallDimension =768;
     static int numGhostThreads=5;
-    private static ExecutorService threadpool;
 
-    public static String DownloadURL(String URLIn, String FolderOut, String MongoHostIP) {
+    public static String downloadURL(String urlIn, String folderOut, String mongoHostIP) {
 
-        MongoClient mongoclient = new MongoClient(MongoHostIP, 27017);
+        MongoClient mongoclient = new MongoClient(mongoHostIP, 27017);
         Morphia morphia = new Morphia();
-        morphia.map(ForensicReport.class).map(DQReport.class);
+        morphia.map(ForensicReport.class).map(dqReport.class);
         Datastore ds = new Morphia().createDatastore(mongoclient, "ForensicDatabase");
         ds.ensureCaps();
 
-        String URLHash = null;
+        String urlHash = null;
         try {
-            URLHash = buildURLHash(URLIn);
+            urlHash = buildURLHash(urlIn);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println(URLHash);
+        System.out.println(urlHash);
 
-        String BaseFolder = FolderOut + URLHash + "/";
+        String baseFolder = folderOut + urlHash + "/";
 
-        ForensicReport Report = ds.get(ForensicReport.class, URLHash);
-        if (Report != null) {
+        ForensicReport report = ds.get(ForensicReport.class, urlHash);
+        if (report != null) {
             System.out.println("Exists");
             //JsonParser parser = new JsonParser();
-            //JsonObject ExtractedMetadataReport = parser.parse(Report.MetadataStringReport).getAsJsonObject();
+            //JsonObject ExtractedMetadataReport = parser.parse(report.metadataStringReport).getAsJsonObject();
             //System.out.println(ExtractedMetadataReport.toString());
         } else {
-            Report = new ForensicReport();
-            Report.id = URLHash;
-            //ds.save(Report);
+            report = new ForensicReport();
+            report.id = urlHash;
+            //ds.save(report);
             try {
-                File WriteFolder=new File(BaseFolder);
-                if (!WriteFolder.exists())
-                    WriteFolder.mkdirs();
-                DownloadFile(URLIn, BaseFolder);
-                Report.SourceImage = BaseFolder + "Raw";
-                Report.DisplayImage = BaseFolder + "Display.jpg";
-                Report.SourceURL = URLIn;
-                Report.status = "Downloaded";
-                ds.save(Report);
+                File writeFolder=new File(baseFolder);
+                if (!writeFolder.exists())
+                    writeFolder.mkdirs();
+                downloadFile(urlIn, baseFolder);
+                report.sourceImage = baseFolder + "Raw";
+                report.displayImage = baseFolder + "Display.jpg";
+                report.sourceURL = urlIn;
+                report.status = "Downloaded";
+                ds.save(report);
             } catch (Exception e) {
                 //e.printStackTrace();
                 System.out.println("ERROR: The requested URL does not respond or does not exist. Exiting.");
-                //ds.delete(ForensicReport.class, URLHash);
+                //ds.delete(ForensicReport.class, urlHash);
                 return "URL_ERROR";
             }
         }
         mongoclient.close();
-        return URLHash;
+        return urlHash;
     }
 
-    public static String CreateReport(String URLHash, String MongoHostIP, String FolderOut, int MaxGhostImageSmallDimension, int numGhostThreads, long ComputationTimeoutLimit) {
-        return ReportCalculation(URLHash, MongoHostIP, FolderOut, MaxGhostImageSmallDimension, numGhostThreads, ComputationTimeoutLimit);
+    public static String createReport(String urlHash, String mongoHostIP, String folderOut, int maxGhostImageSmallDimension, int numGhostThreads, long computationTimeoutLimit) {
+        return reportCalculation(urlHash, mongoHostIP, folderOut, maxGhostImageSmallDimension, numGhostThreads, computationTimeoutLimit);
     }
 
-    public static String CreateReport(String URLHash, String MongoHostIP, String FolderOut) {
-        return ReportCalculation(URLHash, MongoHostIP, FolderOut, MaxGhostImageSmallDimension, numGhostThreads, ComputationTimeoutLimit);
+    public static String createReport(String urlHash, String mongoHostIP, String folderOut) {
+        return reportCalculation(urlHash, mongoHostIP, folderOut, maxGhostImageSmallDimension, numGhostThreads, computationTimeoutLimit);
     }
 
-    public static String ReportCalculation(String URLHash, String MongoHostIP, String FolderOut, int MaxGhostImageSmallDimension, int numGhostThreads, long ComputationTimeoutLimit){
-        String  OutMessage="COMPLETEDSUCCESSFULLY";
-        threadpool = Executors.newFixedThreadPool(NumberOfThreads);
-        MongoClient mongoclient = new MongoClient(MongoHostIP, 27017);        Morphia morphia = new Morphia();
-        morphia.map(ForensicReport.class).map(DQReport.class);
+    public static String reportCalculation(String urlHash, String mongoHostIP, String folderOut, int maxGhostImageSmallDimension, int numGhostThreads, long computationTimeoutLimit){
+        String  outMessage="COMPLETEDSUCCESSFULLY";
+        ExecutorService threadpool = Executors.newFixedThreadPool(numberOfThreads);
+        MongoClient mongoclient = new MongoClient(mongoHostIP, 27017);
+        Morphia morphia = new Morphia();
+        morphia.map(ForensicReport.class).map(dqReport.class);
         Datastore ds = new Morphia().createDatastore(mongoclient, "ForensicDatabase");
         ds.ensureCaps();
-        String BaseFolder = FolderOut + URLHash + "/";
-        ForensicReport Report = ds.get(ForensicReport.class, URLHash);
-        if (Report == null) {
+        String baseFolder = folderOut + urlHash + "/";
+        ForensicReport report = ds.get(ForensicReport.class, urlHash);
+        if (report == null) {
             return "HASHNOTFOUND";
         }
-        if (Report.status.equalsIgnoreCase("Processing")) {
+        if (report.status.equalsIgnoreCase("Processing")) {
             return "ALREADYPROCESSING";
         }
-        if (Report.status.equalsIgnoreCase("Done")) {
+        if (report.status.equalsIgnoreCase("Done")) {
             return "PROCESSINGALREADYCOMPLETE";
         }
-            Report.status="Processing";
-            DQReport DQ=new DQReport();
-            ELAReport ELA=new ELAReport();
-            GhostReport Ghost=new GhostReport();
-            DWNoiseReport NoiseDW=new DWNoiseReport();
-            BlockingReport BLK=new BlockingReport();
-            MedianNoiseReport MedianNoise=new MedianNoiseReport();
-            GPSReport GPS = new GPSReport();
+            report.status="Processing";
+            dqReport dqReport=new dqReport();
+            ELAReport elaReport=new ELAReport();
+            GhostReport ghostReport =new GhostReport();
+            DWNoiseReport dwNoiseReport=new DWNoiseReport();
+            BlockingReport blockingReport=new BlockingReport();
+            MedianNoiseReport medianNoiseReport=new MedianNoiseReport();
+            GPSReport gpsReport = new GPSReport();
 
-            File DQOutputfile = new File(BaseFolder,"DQOutput.png");
-            File DWNoiseOutputfile = new File(BaseFolder,"DWNoiseOutput.png");
+            File dqOutputfile = new File(baseFolder,"DQOutput.png");
+            File dwNoiseOutputfile = new File(baseFolder,"DWNoiseOutput.png");
             File ghostOutputfile;
-            File ELAOutputfile = new File(BaseFolder,"ELAOutput.png");
-            File BLKOutputfile = new File(BaseFolder,"BLKOutput.png");
-            File MedianNoiseOutputFile = new File(BaseFolder, "MedianNoiseOutput.png");
+            File elaOutputfile = new File(baseFolder,"ELAOutput.png");
+            File blkOutputfile = new File(baseFolder,"BLKOutput.png");
+            File medianNoiseOutputFile = new File(baseFolder, "MedianNoiseOutput.png");
 
             try {
-            if (ImageIO.read(new File(Report.SourceImage)).getColorModel().hasAlpha()) {
+            if (ImageIO.read(new File(report.sourceImage)).getColorModel().hasAlpha()) {
                 //If image has an alpha channel, then assume transparent PNG -No point in processing it
-                BufferedImage TransparencyNotAccepted= ArtificialImages.TransparentPNGNotAccepted();
-                ImageIO.write(TransparencyNotAccepted, "png", DQOutputfile);
-                DQ.Map=DQOutputfile.getCanonicalPath();
-                DQ.completed=true;
-                Report.DQ_Report=DQ;
-                ImageIO.write(TransparencyNotAccepted, "png", DQOutputfile);
-                NoiseDW.Map = DWNoiseOutputfile.getCanonicalPath();
-                NoiseDW.completed=true;
-                Report.NoiseDW_Report=NoiseDW;
-                ghostOutputfile=new File(BaseFolder, "GhostOutput" + String.format("%02d", 0) + ".png");
-                ImageIO.write(TransparencyNotAccepted, "png", ghostOutputfile);
-                Ghost.Maps.add(ghostOutputfile.getCanonicalPath());
-                Ghost.Differences.add((float) 0.0);
-                Ghost.Qualities.add(0);
-                Ghost.MinValues.add((float) 0.0);
-                Ghost.MaxValues.add((float) 0.0);
-                Ghost.completed=true;
-                Report.Ghost_Report=Ghost;
-                ImageIO.write(TransparencyNotAccepted, "png", DWNoiseOutputfile);
-                ELA.Map = ELAOutputfile.getCanonicalPath();
-                ELA.completed=true;
-                Report.ELA_Report=ELA;
-                ImageIO.write(TransparencyNotAccepted, "png", DQOutputfile);
-                BLK.Map=BLKOutputfile.getCanonicalPath();
-                BLK.completed=true;
-                Report.BLK_Report=BLK;
-                ImageIO.write(TransparencyNotAccepted, "png", BLKOutputfile);
-                MedianNoise.Map=MedianNoiseOutputFile.getCanonicalPath();
-                MedianNoise.completed=true;
-                Report.MedianNoise_Report=MedianNoise;
-                ds.save(Report);
+                BufferedImage transparentPNGNotAccepted= ArtificialImages.transparentPNGNotAccepted();
+                ImageIO.write(transparentPNGNotAccepted, "png", dqOutputfile);
+                dqReport.map = dqOutputfile.getCanonicalPath();
+                dqReport.completed=true;
+                report.dqReport =dqReport;
+                ImageIO.write(transparentPNGNotAccepted, "png", dqOutputfile);
+                dwNoiseReport.map = dwNoiseOutputfile.getCanonicalPath();
+                dwNoiseReport.completed=true;
+                report.dwNoiseReport =dwNoiseReport;
+                ghostOutputfile=new File(baseFolder, "GhostOutput" + String.format("%02d", 0) + ".png");
+                ImageIO.write(transparentPNGNotAccepted, "png", ghostOutputfile);
+                ghostReport.maps.add(ghostOutputfile.getCanonicalPath());
+                ghostReport.differences.add((float) 0.0);
+                ghostReport.qualities.add(0);
+                ghostReport.minValues.add((float) 0.0);
+                ghostReport.maxValues.add((float) 0.0);
+                ghostReport.completed=true;
+                report.ghostReport = ghostReport;
+                ImageIO.write(transparentPNGNotAccepted, "png", dwNoiseOutputfile);
+                elaReport.map = elaOutputfile.getCanonicalPath();
+                elaReport.completed=true;
+                report.elaReport =elaReport;
+                ImageIO.write(transparentPNGNotAccepted, "png", dqOutputfile);
+                blockingReport.map = blkOutputfile.getCanonicalPath();
+                blockingReport.completed=true;
+                report.blockingReport =blockingReport;
+                ImageIO.write(transparentPNGNotAccepted, "png", blkOutputfile);
+                medianNoiseReport.map =medianNoiseOutputFile.getCanonicalPath();
+                medianNoiseReport.completed=true;
+                report.medianNoiseReport =medianNoiseReport;
+                ds.save(report);
             } else {
-                Boolean DQSaved=false, NoiseDWSaved=false, GhostSaved=false, ELASaved=false, BLKSaved=false, MedianNoiseSaved=false;
-                DQThread DQtask = new DQThread(Report.SourceImage,DQOutputfile);
-                Future DQfuture = threadpool.submit(DQtask);
-                NoiseDWThread NoiseDWtask = new NoiseDWThread(Report.SourceImage,DWNoiseOutputfile);
-                Future NoiseDWfuture = threadpool.submit(NoiseDWtask);
-                GhostThread Ghosttask = new GhostThread(Report.SourceImage,BaseFolder, MaxGhostImageSmallDimension, numGhostThreads);
-                Future Ghostfuture = threadpool.submit(Ghosttask);
-                ELAThread ELAtask = new ELAThread(Report.SourceImage,ELAOutputfile);
-                Future ELAfuture = threadpool.submit(ELAtask);
-                BLKThread BLKtask = new BLKThread(Report.SourceImage,BLKOutputfile);
-                Future BLKfuture = threadpool.submit(BLKtask);
-                MedianNoiseThread MedianNoisetask = new MedianNoiseThread(Report.SourceImage,MedianNoiseOutputFile);
-                Future MedianNoisefuture = threadpool.submit(MedianNoisetask);
+                Boolean dqSaved =false, noiseDWSaved=false, ghostSaved=false, elaSaved =false, blkSaved =false, medianNoiseSaved =false;
+                DQThread dqThread = new DQThread(report.sourceImage, dqOutputfile);
+                Future dqFuture = threadpool.submit(dqThread);
+                noiseDWThread noiseDWThread = new noiseDWThread(report.sourceImage, dwNoiseOutputfile);
+                Future noiseDWFuture = threadpool.submit(noiseDWThread);
+                GhostThread ghostThread = new GhostThread(report.sourceImage,baseFolder, maxGhostImageSmallDimension, numGhostThreads);
+                Future ghostFuture = threadpool.submit(ghostThread);
+                ELAThread elaThread = new ELAThread(report.sourceImage, elaOutputfile);
+                Future elaFuture = threadpool.submit(elaThread);
+                BLKThread blkThread = new BLKThread(report.sourceImage, blkOutputfile);
+                Future blkFuture = threadpool.submit(blkThread);
+                MedianNoiseThread medianNoiseThread = new MedianNoiseThread(report.sourceImage,medianNoiseOutputFile);
+                Future medianNoiseFuture = threadpool.submit(medianNoiseThread);
 
                 Long startTime=System.currentTimeMillis();
                 MetadataExtractor metaExtractor;
-                metaExtractor=new MetadataExtractor(Report.SourceImage);
-                JsonObject MetadataReport=metaExtractor.MetadataReport;
-                MetadataReport.addProperty("completed", true);
-                Report.MetadataStringReport = MetadataReport.toString();
-                ds.save(Report);
+                metaExtractor=new MetadataExtractor(report.sourceImage);
+                JsonObject metadataReport=metaExtractor.metadataReport;
+                metadataReport.addProperty("completed", true);
+                report.metadataStringReport = metadataReport.toString();
+                ds.save(report);
 
-                GPSExtractor GPSEx=new GPSExtractor(MetadataReport);
-                GPS.completed=true;
-                GPS.exists=GPSEx.exists;
-                GPS.latitude=GPSEx.latitude;
-                GPS.longitude=GPSEx.longitude;
-                Report.GPS_Report=GPS;
-                ds.save(Report);
+                GPSExtractor gpsExtractor=new GPSExtractor(metadataReport);
+                gpsReport.completed=true;
+                gpsReport.exists=gpsExtractor.exists;
+                gpsReport.latitude=gpsExtractor.latitude;
+                gpsReport.longitude=gpsExtractor.longitude;
+                report.gpsReport =gpsReport;
+                ds.save(report);
 
-                ThumbnailReport Thumbnail=new ThumbnailReport();
-                ThumbnailExtractor thumbExtractor;
-                thumbExtractor = new ThumbnailExtractor(Report.SourceImage);
-                Thumbnail.NumberOfThumbnails=thumbExtractor.NumberOfThumbnails;
-                File ThumbFile;
-                for (int ThumbInd=0; ThumbInd<thumbExtractor.NumberOfThumbnails;ThumbInd++){
-                    ThumbFile = new File(BaseFolder,"Thumbnail" + String.valueOf(ThumbInd) + ".png");
-                    ImageIO.write(thumbExtractor.Thumbnails.get(ThumbInd), "png", ThumbFile);
-                    Thumbnail.ThumbnailList.add(ThumbFile.getCanonicalPath());
+                ThumbnailReport thumbnail=new ThumbnailReport();
+                ThumbnailExtractor thumbnailExtractor;
+                thumbnailExtractor = new ThumbnailExtractor(report.sourceImage);
+                thumbnail.numberOfThumbnails =thumbnailExtractor.numberOfThumbnails;
+                File thumbFile;
+                for (int thumbInd=0; thumbInd<thumbnailExtractor.numberOfThumbnails;thumbInd++){
+                    thumbFile = new File(baseFolder,"Thumbnail" + String.valueOf(thumbInd) + ".png");
+                    ImageIO.write(thumbnailExtractor.thumbnails.get(thumbInd), "png", thumbFile);
+                    thumbnail.thumbnailList.add(thumbFile.getCanonicalPath());
                 }
-                Report.Thumbnail_Report=Thumbnail;
-                ds.save(Report);
+                report.thumbnailReport =thumbnail;
+                ds.save(report);
 
-                while (!DQfuture.isDone() | !NoiseDWfuture.isDone() | !Ghostfuture.isDone() | !ELAfuture.isDone() | !BLKfuture.isDone() | !MedianNoisefuture.isDone()) {
+                while (!dqFuture.isDone() | !noiseDWFuture.isDone() | !ghostFuture.isDone() | !elaFuture.isDone() | !blkFuture.isDone() | !medianNoiseFuture.isDone()) {
                     Thread.sleep(100); //sleep for 1 millisecond before checking again
-                    if (DQfuture.isDone() & !DQSaved){
-                        Report.DQ_Report=(DQReport) DQfuture.get();
-                        DQSaved=true;
-                        ds.save(Report);
-                        System.out.println("DQ Done");
+                    if (dqFuture.isDone() & !dqSaved){
+                        report.dqReport =(api.reports.dqReport) dqFuture.get();
+                        dqSaved =true;
+                        ds.save(report);
+                        System.out.println("dqReport Done");
                     }
-                    if (NoiseDWfuture.isDone() & !NoiseDWSaved){
-                        Report.NoiseDW_Report=(DWNoiseReport) NoiseDWfuture.get();
-                        NoiseDWSaved=true;
-                        ds.save(Report);
-                        System.out.println("NoiseDW Done");
+                    if (noiseDWFuture.isDone() & !noiseDWSaved){
+                        report.dwNoiseReport =(DWNoiseReport) noiseDWFuture.get();
+                        noiseDWSaved=true;
+                        ds.save(report);
+                        System.out.println("DWNoiseReport Done");
                     }
-                    if (Ghostfuture.isDone() & !GhostSaved){
-                        Report.Ghost_Report=(GhostReport) Ghostfuture.get();
-                        GhostSaved=true;
-                        ds.save(Report);
+                    if (ghostFuture.isDone() & !ghostSaved){
+                        report.ghostReport =(GhostReport) ghostFuture.get();
+                        ghostSaved=true;
+                        ds.save(report);
                         System.out.println("Ghost Done");
                     }
-                    if (ELAfuture.isDone() & !ELASaved){
-                        Report.ELA_Report=(ELAReport) ELAfuture.get();
-                        ELASaved=true;
-                        ds.save(Report);
-                        System.out.println("ELA Done");
+                    if (elaFuture.isDone() & !elaSaved){
+                        report.elaReport =(ELAReport) elaFuture.get();
+                        elaSaved =true;
+                        ds.save(report);
+                        System.out.println("elaReport Done");
                     }
-                    if (BLKfuture.isDone() & !BLKSaved){
-                        Report.BLK_Report=(BlockingReport) BLKfuture.get();
-                        BLKSaved=true;
-                        ds.save(Report);
-                        System.out.println("BLK Done");
+                    if (blkFuture.isDone() & !blkSaved){
+                        report.blockingReport =(BlockingReport) blkFuture.get();
+                        blkSaved =true;
+                        ds.save(report);
+                        System.out.println("blockingReport Done");
                     }
-                    if (MedianNoisefuture.isDone() & !MedianNoiseSaved){
-                        Report.MedianNoise_Report=(MedianNoiseReport) MedianNoisefuture.get();
-                        MedianNoiseSaved=true;
-                        ds.save(Report);
+                    if (medianNoiseFuture.isDone() & !medianNoiseSaved){
+                        report.medianNoiseReport =(MedianNoiseReport) medianNoiseFuture.get();
+                        medianNoiseSaved =true;
+                        ds.save(report);
                         System.out.println("Median Noise Done");
                     }
-                    if ((System.currentTimeMillis()-startTime) > ComputationTimeoutLimit){
+                    if ((System.currentTimeMillis()-startTime) > computationTimeoutLimit){
                         System.out.println("Computation timed out");
-                        OutMessage="TIMEDOUT";
+                        outMessage="TIMEDOUT";
                         break;
                     }
                 }
@@ -263,266 +264,284 @@ public class ReportManagement {
                 threadpool.shutdown();
                 e.printStackTrace();
             }
-        Report.status="Done";
-        ds.save(Report);
+        report.status="Done";
+        ds.save(report);
         System.out.println("Will now close mongodb connection");
         mongoclient.close();
-        return OutMessage;
+        return outMessage;
         }
 
 
-    public static ForensicReport GetReport(String URLHash, String MongoHostIP){
-        MongoClient mongoclient = new MongoClient(MongoHostIP, 27017);
+    public static ForensicReport getReport(String urlHash, String mongoHostIP){
+        MongoClient mongoclient = new MongoClient(mongoHostIP, 27017);
         Morphia morphia = new Morphia();
-        morphia.map(ForensicReport.class).map(DQReport.class);
+        morphia.map(ForensicReport.class).map(dqReport.class);
         Datastore ds = new Morphia().createDatastore(mongoclient, "ForensicDatabase");
         ds.ensureCaps();
-        ForensicReport Report = ds.get(ForensicReport.class, URLHash);
-        if (Report!=null) {
+        ForensicReport report = ds.get(ForensicReport.class, urlHash);
+        if (report!=null) {
             JsonParser parser = new JsonParser();
-            JsonObject tmpJson = parser.parse(Report.MetadataStringReport).getAsJsonObject();
+            JsonObject tmpJson = parser.parse(report.metadataStringReport).getAsJsonObject();
             GsonBuilder builder = new GsonBuilder();
-            Report.MetadataObjectReport = builder.create().fromJson(tmpJson, Object.class);
+            report.metadataObjectReport = builder.create().fromJson(tmpJson, Object.class);
         }
         mongoclient.close();
-        return Report;
+        return report;
     }
 
-    private static void DownloadFile(String URLIn, String FolderOut) throws IOException {
-        URL ImageURL = new URL(URLIn);
-        File LocalDir = new File(FolderOut);
-        LocalDir.mkdir();
-        File ImageFile = new File (FolderOut,"Raw");
+    private static void downloadFile(String urlIn, String folderOut) throws IOException {
+        URL imageURL = new URL(urlIn);
+        File localDir = new File(folderOut);
+        localDir.mkdir();
+        File imageFile = new File (folderOut,"Raw");
         InputStream inputStream = null;
         URLConnection urlConnection = null;
         int noOfBytes = 0;
         byte[] byteChunk = new byte[4096];
         ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-        urlConnection = ImageURL.openConnection();
+        urlConnection = imageURL.openConnection();
         urlConnection.addRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
         urlConnection.connect();
         inputStream = urlConnection.getInputStream();
         while ((noOfBytes = inputStream.read(byteChunk)) > 0) {
             byteOutputStream.write(byteChunk, 0, noOfBytes);
         }
-        OutputStream outputStream = new FileOutputStream(ImageFile);
+        OutputStream outputStream = new FileOutputStream(imageFile);
         byteOutputStream.writeTo(outputStream);
         outputStream.close();
 
-        BufferedImage DownloadedImage=ImageIO.read(ImageFile);
-        ImageIO.write(DownloadedImage, "JPEG", new File(FolderOut , "Display.jpg"));
+        BufferedImage downloadedImage=ImageIO.read(imageFile);
+        ImageIO.write(downloadedImage, "JPEG", new File(folderOut , "Display.jpg"));
     }
 
 
-    static String buildURLHash(String URLIn) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    static String buildURLHash(String urlIn) throws UnsupportedEncodingException, NoSuchAlgorithmException {
 
         //Build a hash based on the URL -would be better to build it based on the file content itself, but that might cause
         // synchronization issues while waiting for the file to download
         MessageDigest md = MessageDigest.getInstance("MD5");
-        md.update(URLIn.getBytes("UTF-8")); // Change this to "UTF-16" if needed
+        md.update(urlIn.getBytes("UTF-8")); // Change this to "UTF-16" if needed
         byte[] digest = md.digest();
-        String URLHash = String.format("%032x", new java.math.BigInteger(1, digest));
-        return URLHash;
+        String urlHash = String.format("%032x", new java.math.BigInteger(1, digest));
+        return urlHash;
     }
 
     private static class DQThread implements Callable {
-        String SourceFile="";
-        File Outputfile=null;
-        public DQThread(String SourceFile,File Outputfile){
-            this.SourceFile=SourceFile;
-            this.Outputfile=Outputfile;
+        String sourceFile ="";
+        File outputFile =null;
+        public DQThread(String SourceFile,File outputFile){
+            this.sourceFile =SourceFile;
+            this.outputFile = outputFile;
         }
         @Override
-        public DQReport call() {
-            DQReport output=null;
+        public dqReport call() {
+            dqReport output=null;
             try {
-                output=DQCalculation();
+                output= dqCalculation();
             } catch (IOException e) {
                 e.printStackTrace();
             }
             return output;
         }
-        public DQReport DQCalculation() throws IOException {
-            DQReport DQ=new DQReport();
+        public dqReport dqCalculation() throws IOException {
+            dqReport dqReport=new dqReport();
             DQExtractor dqDetector;
-            dqDetector = new DQExtractor(SourceFile);
-            ImageIO.write(dqDetector.DisplaySurface, "png", Outputfile);
-            DQ.Map = Outputfile.getCanonicalPath();
-            DQ.MaxValue = dqDetector.maxProbValue;
-            DQ.MinValue = dqDetector.minProbValue;
-            DQ.completed=true;
-            return DQ;
+            dqDetector = new DQExtractor(sourceFile);
+            ImageIO.write(dqDetector.displaySurface, "png", outputFile);
+            dqReport.map = outputFile.getCanonicalPath();
+            dqReport.maxValue = dqDetector.maxProbValue;
+            dqReport.minvalue = dqDetector.minProbValue;
+            dqReport.completed=true;
+            return dqReport;
         }
     }
 
-    private static class NoiseDWThread implements Callable {
-        String SourceFile="";
-        File Outputfile=null;
-        public NoiseDWThread(String SourceFile,File Outputfile){
-            this.SourceFile=SourceFile;
-            this.Outputfile=Outputfile;
+    private static class noiseDWThread implements Callable {
+        String sourceFile ="";
+        File outputFile =null;
+        public noiseDWThread(String sourceFile, File outputFile){
+            this.sourceFile =sourceFile;
+            this.outputFile = outputFile;
         }
         @Override
         public DWNoiseReport call() {
             DWNoiseReport output=null;
             try {
-                output=NoiseDWCalculation();
+                output= noiseDWCalculation();
             } catch (IOException e) {
                 e.printStackTrace();
             }
             return output;
         }
-        public DWNoiseReport NoiseDWCalculation() throws IOException {
-            DWNoiseReport NoiseDW=new DWNoiseReport();
+        public DWNoiseReport noiseDWCalculation() throws IOException {
+            DWNoiseReport dwNoiseReport=new DWNoiseReport();
             NoiseMapExtractor noiseExtractor;
-            noiseExtractor = new NoiseMapExtractor(SourceFile);
-            ImageIO.write(noiseExtractor.DisplaySurface, "png", Outputfile);
-            NoiseDW.Map = Outputfile.getCanonicalPath();
-            NoiseDW.MaxValue = noiseExtractor.maxNoiseValue;
-            NoiseDW.MinValue = noiseExtractor.minNoiseValue;
-            NoiseDW.completed=true;
-            return NoiseDW;
+            noiseExtractor = new NoiseMapExtractor(sourceFile);
+            ImageIO.write(noiseExtractor.displaySurface, "png", outputFile);
+            dwNoiseReport.map = outputFile.getCanonicalPath();
+            dwNoiseReport.maxvalue = noiseExtractor.maxNoiseValue;
+            dwNoiseReport.minValue = noiseExtractor.minNoiseValue;
+            dwNoiseReport.completed=true;
+            return dwNoiseReport;
         }
     }
 
     private static class GhostThread implements Callable {
-        String SourceFile="";
-        String BaseFolder="";
-        int MaxGhostImageSmallDimension;
+        String sourceFile ="";
+        String baseFolder ="";
+        int maxGhostImageSmallDimension;
         int numGhostThreads;
-        public GhostThread(String SourceFile,String BaseFolder, int MaxGhostImageSmallDimension, int numGhostThreads){
-            this.SourceFile=SourceFile;
-            this.BaseFolder=BaseFolder;
-            this.MaxGhostImageSmallDimension= MaxGhostImageSmallDimension;
+        public GhostThread(String sourceFile,String baseFolder, int maxGhostImageSmallDimension, int numGhostThreads){
+            this.sourceFile =sourceFile;
+            this.baseFolder =baseFolder;
+            this.maxGhostImageSmallDimension = maxGhostImageSmallDimension;
             this.numGhostThreads=numGhostThreads;
         }
         @Override
         public GhostReport call() {
             GhostReport output=null;
             try {
-                output=GhostCalculation(MaxGhostImageSmallDimension, numGhostThreads);
+                output= ghostCalculation(maxGhostImageSmallDimension, numGhostThreads);
             } catch (IOException e) {
                 e.printStackTrace();
             }
             return output;
         }
-        public GhostReport GhostCalculation(int MaxImageSmallDimension,int numThreads) throws IOException {
+        public GhostReport ghostCalculation(int maxImageSmallDimension, int numThreads) throws IOException {
             File ghostOutputfile;
-            GhostReport Ghost=new GhostReport();
+            GhostReport ghostReport=new GhostReport();
             GhostExtractor ghostExtractor;
-            ghostExtractor = new GhostExtractor(SourceFile, MaxImageSmallDimension, numThreads);
-            BufferedImage GhostMap;
-            for (int GhostMapInd=0;GhostMapInd<ghostExtractor.GhostMaps.size();GhostMapInd++) {
-                ghostOutputfile=new File(BaseFolder, "GhostOutput" + String.format("%02d", GhostMapInd) + ".png");
-                GhostMap=ghostExtractor.GhostMaps.get(GhostMapInd);
-                ImageIO.write(GhostMap, "png", ghostOutputfile);
-                Ghost.Maps.add(ghostOutputfile.getCanonicalPath());
-                Ghost.Differences = ghostExtractor.AllDifferences;
-                Ghost.MinQuality = ghostExtractor.QualityMin;
-                Ghost.MaxQuality = ghostExtractor.QualityMax;
-                Ghost.Qualities = ghostExtractor.GhostQualities;
-                Ghost.MinValues = ghostExtractor.GhostMin;
-                Ghost.MaxValues = ghostExtractor.GhostMax;
+            ghostExtractor = new GhostExtractor(sourceFile, maxImageSmallDimension, numThreads);
+            BufferedImage ghostMap;
+            for (int ghostMapInd=0;ghostMapInd<ghostExtractor.ghostMaps.size();ghostMapInd++) {
+                ghostOutputfile=new File(baseFolder, "GhostOutput" + String.format("%02d", ghostMapInd) + ".png");
+                ghostMap=ghostExtractor.ghostMaps.get(ghostMapInd);
+                ImageIO.write(ghostMap, "png", ghostOutputfile);
+                ghostReport.maps.add(ghostOutputfile.getCanonicalPath());
+                ghostReport.differences = ghostExtractor.allDifferences;
+                ghostReport.minQuality = ghostExtractor.qualityMin;
+                ghostReport.maxQuality = ghostExtractor.qualityMax;
+                ghostReport.qualities = ghostExtractor.ghostQualities;
+                ghostReport.minValues = ghostExtractor.ghostMin;
+                ghostReport.maxValues = ghostExtractor.ghostMax;
             }
-            Ghost.completed=true;
-            return Ghost;
+            ghostReport.completed=true;
+            return ghostReport;
         }
     }
 
     private static class ELAThread implements Callable {
-        String SourceFile="";
-        File Outputfile=null;
-        public ELAThread(String SourceFile,File Outputfile){
-            this.SourceFile=SourceFile;
-            this.Outputfile=Outputfile;
+        String sourceFile ="";
+        File outputFile =null;
+        public ELAThread(String SourceFile,File outputFile){
+            this.sourceFile =SourceFile;
+            this.outputFile = outputFile;
         }
         @Override
         public ELAReport call() {
             ELAReport output=null;
             try {
-                output=ELACalculation();
+                output= elaCalculation();
             } catch (IOException e) {
                 e.printStackTrace();
             }
             return output;
         }
-        public ELAReport ELACalculation() throws IOException {
-            ELAReport ELA=new ELAReport();
-            ELAExtractor ELAExtractor;
-            ELAExtractor = new ELAExtractor(SourceFile);
-            ImageIO.write(ELAExtractor.DisplaySurface, "png", Outputfile);
-            ELA.Map = Outputfile.getCanonicalPath();
-            ELA.MaxValue = ELAExtractor.ELAMax;
-            ELA.MinValue = ELAExtractor.ELAMin;
-            ELA.completed=true;
-            return ELA;
+        public ELAReport elaCalculation() throws IOException {
+            ELAReport elaReport=new ELAReport();
+            ELAExtractor elaExtractor;
+            elaExtractor = new ELAExtractor(sourceFile);
+            ImageIO.write(elaExtractor.displaySurface, "png", outputFile);
+            elaReport.map = outputFile.getCanonicalPath();
+            elaReport.maxValue = elaExtractor.elaMax;
+            elaReport.minvalue = elaExtractor.elaMin;
+            elaReport.completed=true;
+            return elaReport;
         }
     }
 
     private static class BLKThread implements Callable {
-        String SourceFile="";
-        File Outputfile=null;
-        public BLKThread(String SourceFile,File Outputfile){
-            this.SourceFile=SourceFile;
-            this.Outputfile=Outputfile;
+        String sourceFile ="";
+        File outputFile =null;
+        public BLKThread(String sourceFile,File outputFile){
+            this.sourceFile =sourceFile;
+            this.outputFile = outputFile;
         }
         @Override
         public BlockingReport call() {
             BlockingReport output=null;
             try {
-                output=BLKCalculation();
+                output= blkCalculation();
             } catch (IOException e) {
                 e.printStackTrace();
             }
             return output;
         }
-        public BlockingReport BLKCalculation() throws IOException {
-            BlockingReport BLK=new BlockingReport();
-            BlockingExtractor BLKExtractor;
-            BLKExtractor = new BlockingExtractor(SourceFile);
-            ImageIO.write(BLKExtractor.DisplaySurface, "png", Outputfile);
-            BLK.Map = Outputfile.getCanonicalPath();
-            BLK.MaxValue = BLKExtractor.BLKMax;
-            BLK.MinValue = BLKExtractor.BLKMin;
-            BLK.completed=true;
-            return BLK;
+        public BlockingReport blkCalculation() throws IOException {
+            BlockingReport blockingReport=new BlockingReport();
+            BlockingExtractor blockingExtractor;
+            blockingExtractor = new BlockingExtractor(sourceFile);
+            ImageIO.write(blockingExtractor.displaySurface, "png", outputFile);
+            blockingReport.map = outputFile.getCanonicalPath();
+            blockingReport.maxValue = blockingExtractor.blkmax;
+            blockingReport.minValue = blockingExtractor.blkmin;
+            blockingReport.completed=true;
+            return blockingReport;
         }
     }
 
     private static class MedianNoiseThread implements Callable {
-        String SourceFile="";
-        File Outputfile=null;
-        public MedianNoiseThread(String SourceFile,File Outputfile){
-            this.SourceFile=SourceFile;
-            this.Outputfile=Outputfile;
+        String sourceFile ="";
+        File outputFile =null;
+        public MedianNoiseThread(String sourceFile,File outputFile){
+            this.sourceFile =sourceFile;
+            this.outputFile = outputFile;
         }
         @Override
         public MedianNoiseReport call() {
             MedianNoiseReport output=null;
             try {
-                output=MedianNoiseCalculation();
+                output= medianNoiseCalculation();
             } catch (IOException e) {
                 e.printStackTrace();
             }
             return output;
         }
-        public MedianNoiseReport MedianNoiseCalculation() throws IOException {
-            MedianNoiseReport MedianNoise=new MedianNoiseReport();
-            MmedianNoiseExtractor MedianExtractor;
-            MedianExtractor = new MmedianNoiseExtractor(SourceFile);
-            ImageIO.write(MedianExtractor.DisplaySurface, "png", Outputfile);
-            MedianNoise.Map = Outputfile.getCanonicalPath();
-            MedianNoise.completed=true;
-            return MedianNoise;
+        public MedianNoiseReport medianNoiseCalculation() throws IOException {
+            MedianNoiseReport medianNoiseReport=new MedianNoiseReport();
+            MedianNoiseExtractor medianNoiseExtractor;
+            medianNoiseExtractor = new MedianNoiseExtractor(sourceFile);
+            ImageIO.write(medianNoiseExtractor.displaySurface, "png", outputFile);
+            medianNoiseReport.map = outputFile.getCanonicalPath();
+            medianNoiseReport.completed=true;
+            return medianNoiseReport;
         }
     }
 
     public static void main (String[] args) {
-        String OutputFolder = "/home/marzampoglou/Pictures/Reveal/ManipulationOutput/";
+        //String OutputFolder = "/home/marzampoglou/Pictures/Reveal/ManipulationOutput/";
         //String URL="";
-        String Hash1;//=DownloadURL("https://dl.dropboxusercontent.com/u/67895186/DSCF3065_X-E2_manip%2B.jpg", OutputFolder);
-        Hash1=DownloadURL("http://160.40.51.26/projects/Reveal/imgs/example1_big.jpg",OutputFolder, "127.0.0.1");
-        CreateReport(Hash1, "127.0.0.1", OutputFolder);
+        String Hash1;//=downloadURL("https://dl.dropboxusercontent.com/u/67895186/DSCF3065_X-E2_manip%2B.jpg", OutputFolder);
+        //Hash1=downloadURL("https://dl.dropboxusercontent.com/u/67895186/Tp_D_CND_M_N_ani00018_sec00096_00138.tif",OutputFolder, "127.0.0.1");
+        //createReport(Hash1, "127.0.0.1", OutputFolder);
+
+        MetadataExtractor metaExtractor;
+        try {
+            metaExtractor=new MetadataExtractor(args[0]);
+            JsonObject metadataReport=metaExtractor.metadataReport;
+            metadataReport.addProperty("completed", true);
+            String metadataStringReport = metadataReport.toString();
+            try(  PrintWriter out = new PrintWriter( "filename.txt" )  ){
+                out.println( metadataStringReport );
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ImageProcessingException e) {
+            e.printStackTrace();
+        }
+
+
 
 /*        try {
             ThumbnailExtractor ex=new ThumbnailExtractor("/home/marzampoglou/Desktop/img_1771.jpg");
@@ -537,17 +556,17 @@ public class ReportManagement {
         }
 */
 
-        //String Hash2=DownloadURL("http://www.lincolnvscadillac.com/forum/attachment.php?attachmentid=37425&stc=1&d=1220640009", OutputFolder);
-        //CreateReport(Hash2, OutputFolder);
-/*        String Hash3=DownloadURL("http://de.trinixy.ru/pics4/20100318/podborka_14.jpg", OutputFolder);
-        CreateReport(Hash3, OutputFolder);
+        //String Hash2=downloadURL("http://www.lincolnvscadillac.com/forum/attachment.php?attachmentid=37425&stc=1&d=1220640009", OutputFolder);
+        //createReport(Hash2, OutputFolder);
+/*        String Hash3=downloadURL("http://de.trinixy.ru/pics4/20100318/podborka_14.jpg", OutputFolder);
+        createReport(Hash3, OutputFolder);
         System.out.println(Hash3);
-        String Hash4=DownloadURL("http://batona.net/uploads/posts/2014-01/1390536866_005.jpg", OutputFolder);
-        CreateReport(Hash4, OutputFolder);
+        String Hash4=downloadURL("http://batona.net/uploads/posts/2014-01/1390536866_005.jpg", OutputFolder);
+        createReport(Hash4, OutputFolder);
         System.out.println(Hash4);
 */
-        //ForensicReport Report = GetReport("79b16f4bced02b565416b7aeaea32db13a3590b32835bfcf3c5d6bc765948a3e");
-        //System.out.println(Report.MetadataObjectReport.toString());
+        //ForensicReport Report = getReport("79b16f4bced02b565416b7aeaea32db13a3590b32835bfcf3c5d6bc765948a3e");
+        //System.out.println(Report.metadataObjectReport.toString());
         /*
         try {
 
@@ -559,5 +578,27 @@ public class ReportManagement {
             e.printStackTrace();
         }
     */
+    }
+    public static String getMeta(String path) {
+        //String OutputFolder = "/home/marzampoglou/Pictures/Reveal/ManipulationOutput/";
+        //String URL="";
+        String Hash1;//=downloadURL("https://dl.dropboxusercontent.com/u/67895186/DSCF3065_X-E2_manip%2B.jpg", OutputFolder);
+        //Hash1=downloadURL("https://dl.dropboxusercontent.com/u/67895186/Tp_D_CND_M_N_ani00018_sec00096_00138.tif",OutputFolder, "127.0.0.1");
+        //createReport(Hash1, "127.0.0.1", OutputFolder);
+
+        MetadataExtractor metaExtractor;
+        String metadataStringReport = "";
+        try {
+            metaExtractor = new MetadataExtractor(path);
+            JsonObject metadataReport = metaExtractor.metadataReport;
+            metadataReport.addProperty("completed", true);
+            metadataStringReport = metadataReport.toString();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ImageProcessingException e) {
+            e.printStackTrace();
+        }
+        return metadataStringReport;
     }
 }

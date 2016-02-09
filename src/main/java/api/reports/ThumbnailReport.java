@@ -10,6 +10,6 @@ import java.util.List;
  */
 @Embedded
 public class ThumbnailReport {
-    public int NumberOfThumbnails=0;
-    public List<String> ThumbnailList= new ArrayList();
+    public int numberOfThumbnails =0;
+    public List<String> thumbnailList = new ArrayList();
 }

@@ -12,25 +12,25 @@ import org.mongodb.morphia.annotations.Id;
 public class ForensicReport {
     public @Id String id;
     public String status="";
-    public String SourceImage="";
-    public String DisplayImage="";
-    public String SourceURL="";
-    public String MetadataStringReport ="{completed: false}";
-    public Object MetadataObjectReport=null;
+    public String sourceImage ="";
+    public String displayImage ="";
+    public String sourceURL ="";
+    public String metadataStringReport ="{completed: false}";
+    public Object metadataObjectReport =null;
     public @Embedded
-    ThumbnailReport Thumbnail_Report = new ThumbnailReport();
+    ThumbnailReport thumbnailReport = new ThumbnailReport();
     public @Embedded
-    DQReport DQ_Report=new DQReport();
+    api.reports.dqReport dqReport =new dqReport();
     public @Embedded
-    DWNoiseReport NoiseDW_Report=new DWNoiseReport();
+    DWNoiseReport dwNoiseReport =new DWNoiseReport();
     public @Embedded
-    GhostReport Ghost_Report=new GhostReport();
+    GhostReport ghostReport =new GhostReport();
     public @Embedded
-    ELAReport ELA_Report=new ELAReport();
+    ELAReport elaReport =new ELAReport();
     public @Embedded
-    BlockingReport BLK_Report=new BlockingReport();
+    BlockingReport blockingReport =new BlockingReport();
     public @Embedded
-    MedianNoiseReport MedianNoise_Report=new MedianNoiseReport();
+    MedianNoiseReport medianNoiseReport =new MedianNoiseReport();
     public @Embedded
-    GPSReport GPS_Report=new GPSReport();
+    GPSReport gpsReport =new GPSReport();
 }

@@ -15,8 +15,8 @@ import java.util.List;
  * Created by marzampoglou on 12/3/15.
  */
 public class ThumbnailExtractor {
-    public List<BufferedImage> Thumbnails =new ArrayList<>();
-    public int NumberOfThumbnails=0;
+    public List<BufferedImage> thumbnails =new ArrayList<>();
+    public int numberOfThumbnails =0;
 
     public ThumbnailExtractor(String FileName) {
         try {
@@ -35,21 +35,21 @@ public class ThumbnailExtractor {
         reader.setInput(iis);
 
         System.out.println(reader.getNumImages(true));
-        NumberOfThumbnails=reader.getNumThumbnails(0);
-        if (NumberOfThumbnails!=0) {
+        numberOfThumbnails =reader.getNumThumbnails(0);
+        if (numberOfThumbnails !=0) {
             BufferedImage thumb;
-            for (int ii = 0; ii < NumberOfThumbnails; ii++) {
+            for (int ii = 0; ii < numberOfThumbnails; ii++) {
                 thumb = reader.readThumbnail(0, ii);
-                Thumbnails.add(thumb);
+                thumbnails.add(thumb);
             }
             iis.close();
         } else {
             BufferedImage thumb = JPEGMetaData.getThumbnail(new File(FileName));
             if (thumb!=null){
-                NumberOfThumbnails=1;
-                Thumbnails.add(thumb);
+                numberOfThumbnails =1;
+                thumbnails.add(thumb);
             } else {
-                NumberOfThumbnails=0;
+                numberOfThumbnails =0;
             }
         }
     }

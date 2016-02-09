@@ -7,7 +7,7 @@ import java.awt.image.BufferedImage;
  * Created by marzampoglou on 11/19/15.
  */
 public class ArtificialImages {
-    public static BufferedImage TransparentPNGNotAccepted() {
+    public static BufferedImage transparentPNGNotAccepted() {
         String text = "PNG files with ";
 
         /*

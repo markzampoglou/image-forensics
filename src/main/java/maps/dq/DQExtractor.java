@@ -27,10 +27,10 @@ import org.apache.commons.math3.transform.TransformType;
 
 import javax.imageio.ImageIO;
 
-import static util.Util.VisualizeWithJet;
+import static util.Util.visualizeWithJet;
 import static util.Util.rem;
 
-import util.DCTCoeffExtractor;
+import util.dctCoeffExtractor;
 
 /**
  *
@@ -38,12 +38,12 @@ import util.DCTCoeffExtractor;
  */
 public final class DQExtractor {
 
-    int[][] DCTs; // The array of DCT Coefficients of the image
-    int MaxCoeffs = 15; //How many DCT coefficients to take into account
+    int[][] dcts; // The array of DCT Coefficients of the image
+    int maxCoeffs = 15; //How many DCT coefficients to take into account
     // The sequence of DCT coefficients: zigzag order
     int[] coeff = {1, 9, 2, 3, 10, 17, 25, 18, 11, 4, 5, 12, 19, 26, 33, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 57, 50, 43, 36, 29, 22, 15, 8, 16, 23, 30, 37, 44, 51, 58, 59, 52, 45, 38, 31, 24, 32, 39, 46, 53, 60, 61, 54, 47, 40, 48, 55, 62, 63, 56, 64};
-    public double[][] ProbabilityMap = null;
-    public BufferedImage DisplaySurface = null;
+    public double[][] probabilityMap = null;
+    public BufferedImage displaySurface = null;
     public double minProbValue = Double.MAX_VALUE;
     public double maxProbValue = -Double.MAX_VALUE;
 
@@ -51,21 +51,21 @@ public final class DQExtractor {
 
         CLibrary JPEGlib = (CLibrary) Native.loadLibrary((Platform.isWindows() ? "ExportDCT" : "ExportDCT"), CLibrary.class);
         int testInOut(int a);
-        IntByReference GetDCT(String FileName);
+        IntByReference getDCT(String FileName);
     }
 
-    public DQExtractor(String FileName) throws IOException {
-        String imageFormat = util.Util.GetImageFormat(new File(FileName));
+    public DQExtractor(String fileName) throws IOException {
+        String imageFormat = util.Util.getImageFormat(new File(fileName));
         try {
             if (imageFormat.equalsIgnoreCase("JPEG") | imageFormat.equalsIgnoreCase("JPG")) {
-                DCTs = GetDCTCoeffsFromFile(FileName);
+                dcts = getDCTCoeffsFromFile(fileName);
             }
             else {
                 System.out.println("Not a JPEG image, getting DCT coefficients from pixel values (in case it is a resave from an older JPEG).");
-                BufferedImage OrigImage;
-                try {OrigImage = ImageIO.read(new File(FileName));
-                    int[][] DCTs2=DCTCoeffExtractor.ExtractYDCT(OrigImage);
-                    DCTs=DCTs2;
+                BufferedImage origImage;
+                try {origImage = ImageIO.read(new File(fileName));
+                    int[][] dcts2= dctCoeffExtractor.extractYDCT(origImage);
+                    dcts =dcts2;
                 }catch
                  (IOException e) {
                     e.printStackTrace();
@@ -75,9 +75,9 @@ public final class DQExtractor {
         } catch (Error err) {
         System.out.println("Could not load native JPEGlib-based DCT extractor, getting DCT coefficients from pixel values.");
         BufferedImage OrigImage;
-        try {OrigImage = ImageIO.read(new File(FileName));
-            int[][] DCTs2=DCTCoeffExtractor.ExtractYDCT(OrigImage);
-            DCTs=DCTs2;
+        try {OrigImage = ImageIO.read(new File(fileName));
+            int[][] DCTs2= dctCoeffExtractor.extractYDCT(OrigImage);
+            dcts =DCTs2;
         }
         catch
                 (IOException e) {
@@ -87,107 +87,107 @@ public final class DQExtractor {
 
 
 
-        DetectDQDiscontinuities();
+        detectDQDiscontinuities();
     }
 
-    public void DetectDQDiscontinuities() {
+    public void detectDQDiscontinuities() {
 
-        int ImWidth = DCTs.length;
-        int ImHeight = DCTs[0].length;
+        int imWidth = dcts.length;
+        int imHeight = dcts[0].length;
 
-        int[] p_h_avg = new int[MaxCoeffs];
-        int[] p_h_fft = new int[MaxCoeffs];
-        int[] p_final = new int[MaxCoeffs];
+        int[] p_h_avg = new int[maxCoeffs];
+        int[] p_h_fft = new int[maxCoeffs];
+        int[] p_final = new int[maxCoeffs];
 
-        double[][] P_tampered = new double[MaxCoeffs][];
-        double[][] P_untampered = new double[MaxCoeffs][];
+        double[][] pTampered = new double[maxCoeffs][];
+        double[][] pUntampered = new double[maxCoeffs][];
 
-        for (int coeffIndex = 0; coeffIndex < MaxCoeffs; coeffIndex++) {
+        for (int coeffIndex = 0; coeffIndex < maxCoeffs; coeffIndex++) {
 
             int coe = coeff[coeffIndex];
-            int StartY = coe % 8 - 1;
-            if (StartY == -1) {
-                StartY = 8;
+            int startY = coe % 8 - 1;
+            if (startY == -1) {
+                startY = 8;
             }
-            int StartX = (int) Math.floor((coe - 1) / 8);
+            int startX = (int) Math.floor((coe - 1) / 8);
 
             List<Integer> selectedCoeffs = new ArrayList();
-            for (int ii = StartX; ii < ImWidth; ii += 8) {
-                for (int jj = StartY; jj < ImHeight; jj += 8) {
-                    selectedCoeffs.add(DCTs[ii][jj]);
+            for (int ii = startX; ii < imWidth; ii += 8) {
+                for (int jj = startY; jj < imHeight; jj += 8) {
+                    selectedCoeffs.add(dcts[ii][jj]);
                 }
             }
 
             int minCoeffValue = Collections.min(selectedCoeffs);
             int maxCoeffValue = Collections.max(selectedCoeffs);
             int s_0;
-            Double[] CoeffHist = new Double[0];
+            Double[] coeffHist = new Double[0];
             if (maxCoeffValue - minCoeffValue > 0) {
-                //will be a power of 2 to allow for FFT (zero padded)
-                int TrueHistRange = maxCoeffValue - minCoeffValue + 1;
-                //int HistLength = TrueHistRange;
-                int HistLength = (int) Math.pow(2, Math.ceil(Math.log(TrueHistRange) / Math.log(2)));
+                //will be a power of 2 to allow for fft (zero padded)
+                int trueHistRange = maxCoeffValue - minCoeffValue + 1;
+                //int histLength = trueHistRange;
+                int histLength = (int) Math.pow(2, Math.ceil(Math.log(trueHistRange) / Math.log(2)));
 
-                CoeffHist = new Double[HistLength];
+                coeffHist = new Double[histLength];
 
-                boolean NonZeroValue = false;
+                boolean nonZeroValue = false;
 
-                for (int ii = 0; ii < CoeffHist.length; ii++) {
-                    CoeffHist[ii] = 0.0;
+                for (int ii = 0; ii < coeffHist.length; ii++) {
+                    coeffHist[ii] = 0.0;
                 }
 
                 for (Integer selectedCoeff : selectedCoeffs) {
-                    CoeffHist[selectedCoeff - minCoeffValue] += 1;
+                    coeffHist[selectedCoeff - minCoeffValue] += 1;
                 }
 
-                List<Double> CoeffHistList = Arrays.asList(CoeffHist);
-                s_0 = CoeffHistList.indexOf(Collections.max(CoeffHistList));
+                List<Double> coeffHistList = Arrays.asList(coeffHist);
+                s_0 = coeffHistList.indexOf(Collections.max(coeffHistList));
 
-                List<Double> H = new ArrayList<>();
+                List<Double> h = new ArrayList<>();
                 DescriptiveStatistics vals;
-                for (int coeffInd = 1; coeffInd < CoeffHistList.size(); coeffInd++) {
+                for (int coeffInd = 1; coeffInd < coeffHistList.size(); coeffInd++) {
                     vals = new DescriptiveStatistics();
-                    for (int leapInd = s_0; leapInd < CoeffHistList.size(); leapInd += coeffInd) {
-                        vals.addValue(CoeffHistList.get(leapInd));
+                    for (int leapInd = s_0; leapInd < coeffHistList.size(); leapInd += coeffInd) {
+                        vals.addValue(coeffHistList.get(leapInd));
                     }
                     for (int leapInd = s_0 - coeffInd; leapInd >= 0; leapInd -= coeffInd) {
-                        vals.addValue(CoeffHistList.get(leapInd));
+                        vals.addValue(coeffHistList.get(leapInd));
                     }
-                    H.add(vals.getMean());
+                    h.add(vals.getMean());
                 }
-                p_h_avg[coeffIndex] = (H.indexOf(Collections.max(H)));
+                p_h_avg[coeffIndex] = (h.indexOf(Collections.max(h)));
 
-                FastFourierTransformer FFTransformer = new FastFourierTransformer(DftNormalization.STANDARD);
-                Complex[] FFT = FFTransformer.transform(ArrayUtils.toPrimitive(CoeffHist), TransformType.FORWARD);
+                FastFourierTransformer fastFourierTransformer = new FastFourierTransformer(DftNormalization.STANDARD);
+                Complex[] fft = fastFourierTransformer.transform(ArrayUtils.toPrimitive(coeffHist), TransformType.FORWARD);
 
-                double[] Power = new double[FFT.length];
-                for (int ii = 0; ii < Power.length; ii++) {
-                    Power[ii] = FFT[ii].abs();
+                double[] power = new double[fft.length];
+                for (int ii = 0; ii < power.length; ii++) {
+                    power[ii] = fft[ii].abs();
                 }
 
                 //Find first local minimum, to bypass DC peak
-                double DC = Power[0];
+                double DC = power[0];
                 int FreqValley = 1;
-                while (FreqValley < Power.length - 1 & Power[FreqValley] >= Power[FreqValley + 1]) {
+                while (FreqValley < power.length - 1 & power[FreqValley] >= power[FreqValley + 1]) {
                     FreqValley++;
                 }
 
-                int MaxFFTInd = 0;
-                double MaxFFTVal = 0;
-                double MinFFTVal = Double.MAX_VALUE;
-                for (int ii = FreqValley; ii < Power.length / 2; ii++) {
-                    if (Power[ii] > MaxFFTVal) {
-                        MaxFFTInd = ii;
-                        MaxFFTVal = Power[ii];
+                int maxFFTInd = 0;
+                double maxFFTVal = 0;
+                double minFFTVal = Double.MAX_VALUE;
+                for (int ii = FreqValley; ii < power.length / 2; ii++) {
+                    if (power[ii] > maxFFTVal) {
+                        maxFFTInd = ii;
+                        maxFFTVal = power[ii];
                     }
-                    if (Power[ii] < MinFFTVal) {
-                        MinFFTVal = Power[ii];
+                    if (power[ii] < minFFTVal) {
+                        minFFTVal = power[ii];
                     }
                 }
-                if (MaxFFTInd == 0 | MaxFFTVal < (DC / 5) | MinFFTVal / MaxFFTVal > 0.9) {
+                if (maxFFTInd == 0 | maxFFTVal < (DC / 5) | minFFTVal / maxFFTVal > 0.9) {
                     p_h_fft[coeffIndex] = 1;
                 } else {
-                    p_h_fft[coeffIndex] = Math.round(CoeffHist.length / MaxFFTInd);
+                    p_h_fft[coeffIndex] = Math.round(coeffHist.length / maxFFTInd);
                 }
 
             } else {
@@ -201,8 +201,8 @@ public final class DQExtractor {
                 p_final[coeffIndex] = p_h_fft[coeffIndex];
             }
 
-            P_tampered[coeffIndex] = new double[selectedCoeffs.size()];
-            P_untampered[coeffIndex] = new double[selectedCoeffs.size()];
+            pTampered[coeffIndex] = new double[selectedCoeffs.size()];
+            pUntampered[coeffIndex] = new double[selectedCoeffs.size()];
             int[] adjustedCoeffs = new int[selectedCoeffs.size()];
             int[] period_start = new int[selectedCoeffs.size()];
             int[] period;
@@ -222,17 +222,17 @@ public final class DQExtractor {
                         period = new int[p_final[coeffIndex]];
                         for (int ii = 0; ii < p_final[coeffIndex]; ii++) {
                             period[ii] = period_start[kk] + ii;
-                            //if (period_start[kk] + p_final[coeffIndex] - 1 > CoeffHist.length) {
-                                if (period[ii] >= CoeffHist.length) {
+                            //if (period_start[kk] + p_final[coeffIndex] - 1 > coeffHist.length) {
+                                if (period[ii] >= coeffHist.length) {
                                     period[ii] = period[ii] - p_final[coeffIndex];
                                 }
                             //}
                         }
-                        num[kk] = (int) CoeffHist[adjustedCoeffs[kk]].doubleValue();
+                        num[kk] = (int) coeffHist[adjustedCoeffs[kk]].doubleValue();
                         denom[kk] = 0;
                         for (int ll = 0; ll < period.length; ll++) {
-                            //System.out.println(period[ll] + " " + CoeffHist.length);
-                            denom[kk] = denom[kk] + (int) CoeffHist[period[ll]].doubleValue();
+                            //System.out.println(period[ll] + " " + coeffHist.length);
+                            denom[kk] = denom[kk] + (int) coeffHist[period[ll]].doubleValue();
                         }
                     } else {
                         period = new int[p_final[coeffIndex]];
@@ -244,101 +244,101 @@ public final class DQExtractor {
                                 }
                             }
                         }
-                        num[kk] = (int) CoeffHist[adjustedCoeffs[kk]].doubleValue();
+                        num[kk] = (int) coeffHist[adjustedCoeffs[kk]].doubleValue();
                         denom[kk] = 0;
                         for (int ll = 0; ll < period.length; ll++) {
-                            denom[kk] = denom[kk] + (int) CoeffHist[period[ll]].doubleValue();
+                            denom[kk] = denom[kk] + (int) coeffHist[period[ll]].doubleValue();
                         }
                     }
 
                     P_u[kk] = ((double) num[kk] / denom[kk]);
                     P_t[kk] = (1.0 / p_final[coeffIndex]);
                     if (P_u[kk] + P_t[kk] != 0) {
-                        P_tampered[coeffIndex][kk] = P_t[kk] / (P_u[kk] + P_t[kk]);
-                        P_untampered[coeffIndex][kk] = P_u[kk] / (P_u[kk] + P_t[kk]);
+                        pTampered[coeffIndex][kk] = P_t[kk] / (P_u[kk] + P_t[kk]);
+                        pUntampered[coeffIndex][kk] = P_u[kk] / (P_u[kk] + P_t[kk]);
 
                     } else {
-                        P_tampered[coeffIndex][kk] = 0.5;
-                        P_untampered[coeffIndex][kk] = 0.5;
+                        pTampered[coeffIndex][kk] = 0.5;
+                        pUntampered[coeffIndex][kk] = 0.5;
                     }
                 }
 
             } else {
                 for (int kk = 0; kk < selectedCoeffs.size(); kk++) {
-                    P_tampered[coeffIndex][kk] = 0.5;
-                    P_untampered[coeffIndex][kk] = 0.5;
+                    pTampered[coeffIndex][kk] = 0.5;
+                    pUntampered[coeffIndex][kk] = 0.5;
                 }
             }
 
         }
-        double[] P_tampered_Overall = new double[P_tampered[0].length];
-        double P_tampered_prod;
-        double P_untampered_prod;
+        double[] pTamperedOverall = new double[pTampered[0].length];
+        double pTamperedProd;
+        double pUntamperedProd;
 
-        for (int locationIndex = 0; locationIndex < P_tampered[0].length; locationIndex++) {
-            P_tampered_prod = 1;
-            P_untampered_prod = 1;
-            for (int coeffIndex = 0; coeffIndex < P_tampered.length; coeffIndex++) {
-                P_tampered_prod = P_tampered_prod * P_tampered[coeffIndex][locationIndex];
-                P_untampered_prod = P_untampered_prod * P_untampered[coeffIndex][locationIndex];
+        for (int locationIndex = 0; locationIndex < pTampered[0].length; locationIndex++) {
+            pTamperedProd = 1;
+            pUntamperedProd = 1;
+            for (int coeffIndex = 0; coeffIndex < pTampered.length; coeffIndex++) {
+                pTamperedProd = pTamperedProd * pTampered[coeffIndex][locationIndex];
+                pUntamperedProd = pUntamperedProd * pUntampered[coeffIndex][locationIndex];
             }
-            if (P_tampered_prod + P_untampered_prod != 0) {
-                P_tampered_Overall[locationIndex] = P_tampered_prod / (P_tampered_prod + P_untampered_prod);
+            if (pTamperedProd + pUntamperedProd != 0) {
+                pTamperedOverall[locationIndex] = pTamperedProd / (pTamperedProd + pUntamperedProd);
             } else {
-                P_tampered_Overall[locationIndex] = 0;
+                pTamperedOverall[locationIndex] = 0;
             }
         }
 
-        int BlocksH = ImWidth / 8;
-        int BlocksV = ImHeight / 8;
-        double[][] OutputMap = new double[BlocksV][BlocksH];
-        for (int kk = 0; kk < P_tampered_Overall.length; kk++) {
-            OutputMap[kk % BlocksV][(int) Math.floor(kk / BlocksV)] = P_tampered_Overall[kk];
-            if (P_tampered_Overall[kk] > maxProbValue) {
-                maxProbValue = P_tampered_Overall[kk];
+        int blocksH = imWidth / 8;
+        int blocksV = imHeight / 8;
+        double[][] outputMap = new double[blocksV][blocksH];
+        for (int kk = 0; kk < pTamperedOverall.length; kk++) {
+            outputMap[kk % blocksV][(int) Math.floor(kk / blocksV)] = pTamperedOverall[kk];
+            if (pTamperedOverall[kk] > maxProbValue) {
+                maxProbValue = pTamperedOverall[kk];
             }
-            if (P_tampered_Overall[kk] < minProbValue) {
-                minProbValue = P_tampered_Overall[kk];
+            if (pTamperedOverall[kk] < minProbValue) {
+                minProbValue = pTamperedOverall[kk];
             }
         }
 
-        ProbabilityMap = OutputMap;
+        probabilityMap = outputMap;
 
-        BufferedImage OutputIm = VisualizeWithJet(OutputMap);
-        DisplaySurface = OutputIm;
+        BufferedImage outputIm = visualizeWithJet(outputMap);
+        displaySurface = outputIm;
     }
 
 
 
-    public final int[][] GetDCTCoeffsFromFile(String FileName) {
-        IntByReference intFromC;
-        int[][] DCTCoeffs=null;
-        intFromC = CLibrary.JPEGlib.GetDCT(FileName);
-        Pointer p = intFromC.getPointer();
-        int[] ImageSize = new int[2];
-        p.read(0, ImageSize, 0, 2);
-        int NBlocksX, NBlocksY;
-        NBlocksX = (int) ImageSize[0];
-        NBlocksY = (int) ImageSize[1];
-        int[] IntFromC = new int[NBlocksX * NBlocksY * 64];
-        p.read(8, IntFromC, 0, NBlocksX * NBlocksY * 64);
+    public final int[][] getDCTCoeffsFromFile(String FileName) {
+        IntByReference intFromCByRef;
+        int[][] dctCoeffs =null;
+        intFromCByRef = CLibrary.JPEGlib.getDCT(FileName);
+        Pointer p = intFromCByRef.getPointer();
+        int[] imageSize = new int[2];
+        p.read(0, imageSize, 0, 2);
+        int nBlocksX, nBlocksY;
+        nBlocksX = (int) imageSize[0];
+        nBlocksY = (int) imageSize[1];
+        int[] intFromC = new int[nBlocksX * nBlocksY * 64];
+        p.read(8, intFromC, 0, nBlocksX * nBlocksY * 64);
 
-        DCTCoeffs = new int[(NBlocksX) * 8][(NBlocksY) * 8]; //matlab structure, rows first
+        dctCoeffs = new int[(nBlocksX) * 8][(nBlocksY) * 8]; //matlab structure, rows first
 
-        int SerialInd;
-        for (int BXInd = 0; BXInd < NBlocksX; BXInd++) {
-            for (int BYInd = 0; BYInd < NBlocksY; BYInd++) {
+        int serialInd;
+        for (int bxInd = 0; bxInd < nBlocksX; bxInd++) {
+            for (int byInd = 0; byInd < nBlocksY; byInd++) {
                 for (int ii = 0; ii < 8; ii++) {
                     for (int jj = 0; jj < 8; jj++) {
-                        SerialInd = (BXInd * (NBlocksY) + BYInd) * 64 + ii * 8 + jj;
-                        DCTCoeffs[BXInd * 8 + ii][BYInd * 8 + jj] = IntFromC[SerialInd];
+                        serialInd = (bxInd * (nBlocksY) + byInd) * 64 + ii * 8 + jj;
+                        dctCoeffs[bxInd * 8 + ii][byInd * 8 + jj] = intFromC[serialInd];
                     }
                 }
             }
         }
 
 
-        return DCTCoeffs;
+        return dctCoeffs;
     }
 
 
@@ -351,7 +351,7 @@ public final class DQExtractor {
     public static void JPGDemo() {
 
         IntByReference intFromC;
-        intFromC = CLibrary.JPEGlib.GetDCT("JPEGDemo.jpg");
+        intFromC = CLibrary.JPEGlib.getDCT("JPEGDemo.jpg");
         Pointer p = intFromC.getPointer();
 
         int[] ImageSize = new int[2];
@@ -372,7 +372,7 @@ public final class DQExtractor {
         System.out.println("Image size:" + ImageSize[0] + "x" + ImageSize[1]);
         System.out.println("Coefficients imported: " + IntFromC.length);
 
-        int[][] DCTs = new int[(NBlocksX) * 8][(NBlocksY) * 8]; //matlab structure, rows first
+        int[][] dcts = new int[(NBlocksX) * 8][(NBlocksY) * 8]; //matlab structure, rows first
 
         int SerialInd;
         for (int BXInd = 0; BXInd < NBlocksX; BXInd++) {
@@ -380,7 +380,7 @@ public final class DQExtractor {
                 for (int ii = 0; ii < 8; ii++) {
                     for (int jj = 0; jj < 8; jj++) {
                         SerialInd = (BXInd * (NBlocksY) + BYInd) * 64 + ii * 8 + jj;
-                        DCTs[BXInd * 8 + ii][BYInd * 8 + jj] = IntFromC[SerialInd];
+                        dcts[BXInd * 8 + ii][BYInd * 8 + jj] = IntFromC[SerialInd];
                     }
                 }
             }
@@ -388,14 +388,14 @@ public final class DQExtractor {
 
         for (int ii = 0; ii < 8; ii++) {
             for (int jj = 0; jj < 16; jj++) {
-                System.out.print((DCTs[ii][jj] + " "));
+                System.out.print((dcts[ii][jj] + " "));
             }
             System.out.println();
         }
         System.out.println();
-        for (int ii = DCTs.length - 8; ii < DCTs.length; ii++) {
-            for (int jj = DCTs[1].length - 16; jj < DCTs[1].length; jj++) {
-                System.out.print((DCTs[ii][jj] + " "));
+        for (int ii = dcts.length - 8; ii < dcts.length; ii++) {
+            for (int jj = dcts[1].length - 16; jj < dcts[1].length; jj++) {
+                System.out.print((dcts[ii][jj] + " "));
             }
             System.out.println();
         }

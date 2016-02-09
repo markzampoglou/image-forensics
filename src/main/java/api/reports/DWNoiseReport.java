@@ -7,7 +7,7 @@ import org.mongodb.morphia.annotations.Embedded;
 @Embedded
 public class DWNoiseReport {
     public Boolean completed=false;
-    public String Map;
-    public double MaxValue;
-    public double MinValue;
+    public String map;
+    public double maxvalue;
+    public double minValue;
 }

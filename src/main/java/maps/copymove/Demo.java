@@ -19,10 +19,10 @@ public class Demo {
 	// display widget
 	static JLabel jlabel;
 
-	public static void display(BufferedImage bimg) {
+	public static void display(BufferedImage bImg) {
 		if (jlabel==null) {
-			int H = bimg.getHeight();
-			int W = bimg.getWidth();
+			int h = bImg.getHeight();
+			int w = bImg.getWidth();
 
 			JFrame frame = new JFrame();
 			frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -31,13 +31,13 @@ public class Demo {
 			panneau.add(label0);
 			JScrollPane scrollPane = new JScrollPane(panneau);
 			frame.getContentPane().add(scrollPane);
-			frame.setSize(W + 32, H + 64);
+			frame.setSize(w + 32, h + 64);
 			frame.setVisible(true);
 			label0.setIcon(new ImageIcon());
 			
 			jlabel = label0;
 		}
-		((ImageIcon)jlabel.getIcon()).setImage(bimg);
+		((ImageIcon)jlabel.getIcon()).setImage(bImg);
 		jlabel.repaint();
 	}
 	
@@ -60,16 +60,16 @@ public class Demo {
 		BufferedImage maskimage = loadImage("Au_ani_10104_Mask.png");
 
 		// generate mask array from mask image
-		int W=maskimage.getWidth(), H=maskimage.getHeight();
-		boolean[][] mask = new boolean[W][H];
-		for(int y=0;y<H;y++) 
-			for(int x=0;x<W;x++) 
+		int w=maskimage.getWidth(), h=maskimage.getHeight();
+		boolean[][] mask = new boolean[w][h];
+		for(int y=0;y<h;y++)
+			for(int x=0;x<w;x++)
 				mask[x][y]=(maskimage.getRGB(x, y)!=0xFF000000);
 		
 		// overwrite image, to see the mask in RED
-		W=input.getWidth(); H=input.getHeight();
-		for(int y=0;y<H;y++) 
-			for(int x=0;x<W;x++)
+		w=input.getWidth(); h=input.getHeight();
+		for(int y=0;y<h;y++)
+			for(int x=0;x<w;x++)
 				if (mask[x][y]) input.setRGB(x, y, 0xFFFF0000);
 	
 		display(input);
@@ -84,7 +84,7 @@ public class Demo {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		BufferedImage output=new CloneDetect().FindClones(imIn, 3);
+		BufferedImage output=new CloneDetect().findClones(imIn, 3);
 		//display(output);
 		try {
 			ImageIO.write(output,"PNG",new File("/home/marzampoglou/Pictures/Reveal/ManipulationOutput/diffMap.png"));

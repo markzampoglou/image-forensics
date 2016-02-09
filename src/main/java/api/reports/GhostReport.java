@@ -10,12 +10,12 @@ import org.mongodb.morphia.annotations.Embedded;
 @Embedded
 public class GhostReport {
     public Boolean completed=false;
-    public List<String> Maps = new ArrayList();
-    public String GIFMaps;
-    public List<Integer> Qualities = new ArrayList();
-    public List<Float> Differences = new ArrayList();
-    public List<Float> MinValues = new ArrayList();
-    public List<Float> MaxValues = new ArrayList();
-    public int MinQuality;
-    public int MaxQuality;
+    public List<String> maps = new ArrayList();
+    public String gifMaps;
+    public List<Integer> qualities = new ArrayList();
+    public List<Float> differences = new ArrayList();
+    public List<Float> minValues = new ArrayList();
+    public List<Float> maxValues = new ArrayList();
+    public int minQuality;
+    public int maxQuality;
 }
