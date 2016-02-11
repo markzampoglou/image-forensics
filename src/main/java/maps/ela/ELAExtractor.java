@@ -33,11 +33,9 @@ public class ELAExtractor {
 
         BufferedImage origImage;
         origImage = ImageIO.read(new File(fileName));
-        int[][][] origByteImage = Util.getRGBArray(origImage);
 
         BufferedImage recompressedImage = Util.recompressImage(origImage, quality);
-        int[][][] recompressedByteImage = Util.getRGBArray(recompressedImage);
-        float[][][] imageDifference = Util.calculateImageDifference(origByteImage, recompressedByteImage);
+        float[][][] imageDifference = Util.getImageDifference(origImage, recompressedImage);
         elaMin =Util.minDouble3DArray(imageDifference);
         elaMax =Util.maxDouble3DArray(imageDifference);
 
@@ -57,7 +55,7 @@ public class ELAExtractor {
 
 
 
-        displaySurface =Util.createImFromArray(intDifference);
+        displaySurface =Util.getBufferedIm(intDifference);
 
         return origImage;
     }

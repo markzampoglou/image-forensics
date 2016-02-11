@@ -49,7 +49,14 @@ public final class DQExtractor {
 
     public interface CLibrary extends Library {
 
-        CLibrary JPEGlib = (CLibrary) Native.loadLibrary((Platform.isWindows() ? "ExportDCT" : "ExportDCT"), CLibrary.class);
+        CLibrary dctLib = (CLibrary) Native.loadLibrary((Platform.isWindows() ? "ExportDCT" : "ExportDCT"), CLibrary.class);
+        int testInOut(int a);
+        IntByReference getDCT(String FileName);
+    }
+
+    public interface CLibrary2 extends Library {
+
+        CLibrary JPEGlib = (CLibrary) Native.loadLibrary((Platform.isWindows() ? "jpeg" : "jpeg"), CLibrary.class);
         int testInOut(int a);
         IntByReference getDCT(String FileName);
     }
@@ -66,23 +73,23 @@ public final class DQExtractor {
                 try {origImage = ImageIO.read(new File(fileName));
                     int[][] dcts2= dctCoeffExtractor.extractYDCT(origImage);
                     dcts =dcts2;
-                }catch
-                 (IOException e) {
+                }catch (IOException e) {
                     e.printStackTrace();
                 }
             }
 
         } catch (Error err) {
-        System.out.println("Could not load native JPEGlib-based DCT extractor, getting DCT coefficients from pixel values.");
-        BufferedImage OrigImage;
-        try {OrigImage = ImageIO.read(new File(fileName));
-            int[][] DCTs2= dctCoeffExtractor.extractYDCT(OrigImage);
-            dcts =DCTs2;
-        }
-        catch
-                (IOException e) {
-            e.printStackTrace();
-        }
+            err.printStackTrace();
+            System.out.println("Could not load native JPEGlib-based DCT extractor, getting DCT coefficients from pixel values.");
+            BufferedImage OrigImage;
+            try {OrigImage = ImageIO.read(new File(fileName));
+                int[][] DCTs2= dctCoeffExtractor.extractYDCT(OrigImage);
+                dcts =DCTs2;
+            }
+            catch
+                    (IOException e) {
+                e.printStackTrace();
+            }
         }
 
 
@@ -216,22 +223,18 @@ public final class DQExtractor {
                     adjustedCoeffs[ii] = selectedCoeffs.get(ii) - minCoeffValue;
                     period_start[ii] = adjustedCoeffs[ii] - rem(adjustedCoeffs[ii] - s_0, p_final[coeffIndex]);
                 }
-
                 for (int kk = 0; kk < selectedCoeffs.size(); kk++) {
                     if (period_start[kk] > s_0) {
                         period = new int[p_final[coeffIndex]];
                         for (int ii = 0; ii < p_final[coeffIndex]; ii++) {
                             period[ii] = period_start[kk] + ii;
-                            //if (period_start[kk] + p_final[coeffIndex] - 1 > coeffHist.length) {
-                                if (period[ii] >= coeffHist.length) {
-                                    period[ii] = period[ii] - p_final[coeffIndex];
-                                }
-                            //}
+                            if (period[ii] >= coeffHist.length) {
+                                period[ii] = period[ii] - p_final[coeffIndex];
+                            }
                         }
                         num[kk] = (int) coeffHist[adjustedCoeffs[kk]].doubleValue();
                         denom[kk] = 0;
                         for (int ll = 0; ll < period.length; ll++) {
-                            //System.out.println(period[ll] + " " + coeffHist.length);
                             denom[kk] = denom[kk] + (int) coeffHist[period[ll]].doubleValue();
                         }
                     } else {
@@ -311,9 +314,13 @@ public final class DQExtractor {
 
 
     public final int[][] getDCTCoeffsFromFile(String FileName) {
+
+        System.out.println(CLibrary.dctLib.testInOut(3));
+
         IntByReference intFromCByRef;
         int[][] dctCoeffs =null;
-        intFromCByRef = CLibrary.JPEGlib.getDCT(FileName);
+        intFromCByRef = CLibrary.dctLib.getDCT(FileName);
+
         Pointer p = intFromCByRef.getPointer();
         int[] imageSize = new int[2];
         p.read(0, imageSize, 0, 2);
@@ -347,11 +354,11 @@ public final class DQExtractor {
     //infrastructure has been properly set up. The expected output from this 
     //method appears at the end
 
-    /*
+
     public static void JPGDemo() {
 
         IntByReference intFromC;
-        intFromC = CLibrary.JPEGlib.getDCT("JPEGDemo.jpg");
+        intFromC = CLibrary.dctLib.getDCT("src/main/resources/3.Flag.jpg");
         Pointer p = intFromC.getPointer();
 
         int[] ImageSize = new int[2];
@@ -400,7 +407,16 @@ public final class DQExtractor {
             System.out.println();
         }
     }
-    */
+
+    public static void main (String[] args){
+        try {
+            DQExtractor dqExtractor=new DQExtractor("src/main/resources/3.Flag.jpg");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }
 
 

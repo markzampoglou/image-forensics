@@ -200,7 +200,7 @@ public class GhostExtractor {
             allDifferences.add(differences[GhostInd]);
         }
         */
-        //BufferedImage OutputImage = Util.createImFromArray(smooth);
+        //BufferedImage OutputImage = Util.getBufferedIm(smooth);
 
 
     }

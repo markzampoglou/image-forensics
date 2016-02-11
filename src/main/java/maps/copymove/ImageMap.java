@@ -202,11 +202,7 @@ public class ImageMap {
                 grayscaleIm[ii][jj] = 0.2989 * R + 0.5870 * G + 0.1140 * B;
             }
         }
-
         double[][] blockVar=Util.blockVar(grayscaleIm, blockSize);
-		//System.out.println();
-		//System.out.println(w+ " " + h + " " + blockNoiseVar.length + " " + blockNoiseVar[0].length);
-
         for (int ii=0; ii<(int)Math.floor(((float) w)/blockSize)*blockSize;ii++){
             for (int jj=0; jj<(int)Math.floor(((float) h)/blockSize)*blockSize;jj++){
                 outputVariance[ii][jj] = blockVar[(int)Math.floor(((float)ii)/blockSize)][(int)Math.floor(((float)jj)/blockSize)];

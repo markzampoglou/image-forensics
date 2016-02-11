@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package maps.dwnoise;
+package maps.dwnoisevar;
 
 // JAI-ImageIO is necessary to ensure TIFF files can be read. The current JAR version is for windows
 // Replace the current divide-by-max approach to a divide by 20 or sth
@@ -15,30 +15,26 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import org.apache.commons.lang3.ArrayUtils;
 
 /**
  *
  * @author markzampoglou
  */
-public class NoiseMapExtractor {
+public class DWNoiseVarExtractor {
 
     int numThreads=6;
 
     BufferedImage inputImage = null;
 
-    public double[][] noiseMap = null;
+    public float[][] noiseMap = null;
     public BufferedImage displaySurface = null;
     public double maxNoiseValue = -Double.MAX_VALUE;
     public double minNoiseValue = Double.MAX_VALUE;
 
-    public NoiseMapExtractor(String FileName) throws IOException {
+    public DWNoiseVarExtractor(String FileName) throws IOException {
         inputImage = ImageIO.read(new File(FileName));
         getNoiseMap();
     }
@@ -96,7 +92,7 @@ public class NoiseMapExtractor {
 
                 System.arraycopy(waveletColumn, imHeight / 2, filteredImgYAsArray[ii], 0, imHeight / 2);
             } catch (Exception ex) {
-                Logger.getLogger(NoiseMapExtractor.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(DWNoiseVarExtractor.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         double[] waveletRow;
@@ -111,7 +107,7 @@ public class NoiseMapExtractor {
                     doubleFilteredImgYAsArray[ii][jj] = waveletRow[ii + imWidth / 2];
                 }
             } catch (Exception ex) {
-                Logger.getLogger(NoiseMapExtractor.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(DWNoiseVarExtractor.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
 
@@ -128,49 +124,25 @@ public class NoiseMapExtractor {
         if (medianFilterSize<5) {
             minNoiseValue = 0;
             maxNoiseValue = 0;
-            noiseMap = new double[1][1];
+            noiseMap = new float[1][1];
             noiseMap[0][0]=0;
-            byte[][] byteOutput = new byte[1][1];
-            byteOutput[0][0]=0;
-            BufferedImage outputImage = Util.createJetVisualization(byteOutput);
+            double[][] artificialOutput = new double[1][1];
+            artificialOutput [0][0]=0;
+            BufferedImage outputImage = Util.visualizeWithJet(artificialOutput);
             displaySurface = outputImage;
             return;
         }
 
 
-        double[][] outBlockMap = Util.medianFilter(blockNoiseVar, medianFilterSize);
+        float[][] outBlockMap = Util.medianFilterSingleChannelImage(blockNoiseVar, medianFilterSize);
 
-        double min = Double.MAX_VALUE;
-        double max = -Double.MAX_VALUE;
-
-        double colMin, colMax;
-
-        for (double[] outBlockMap1 : outBlockMap) {
-            List b = Arrays.asList(ArrayUtils.toObject(outBlockMap1));
-            colMin = (double) Collections.min(b);
-            if (colMin < min) {
-                min = colMin;
-            }
-            colMax = (double) Collections.max(b);
-            if (colMax > max) {
-                max = colMax;
-            }
-        }
-        minNoiseValue = min;
-        maxNoiseValue = max;
+        minNoiseValue = Util.minDouble2DArray(outBlockMap);
+        maxNoiseValue = Util.maxDouble2DArray(outBlockMap);
 
         noiseMap = outBlockMap;
+        double[][] normalizedMap=Util.normalizeIm(outBlockMap);
 
-        double spread = max - min;
-
-        byte[][] byteOutput = new byte[outBlockMap.length][outBlockMap[0].length];
-
-        for (int ii = 0; ii < outBlockMap.length; ii++) {
-            for (int jj = 0; jj < outBlockMap[0].length; jj++) {
-                byteOutput[ii][jj] = (byte) Math.round(((outBlockMap[ii][jj] - min) / spread) * 63);
-            }
-        }
-        BufferedImage outputImage = Util.createJetVisualization(byteOutput);
+        BufferedImage outputImage = Util.visualizeWithJet(normalizedMap);
 
         displaySurface = outputImage;
     }

@@ -57,10 +57,10 @@ public class BlockingExtractor {
             im2DiffX[0][jj] = im2DiffX[1][jj];
             im2DiffX[im2DiffX.length - 1][jj] = im2DiffX[im2DiffX.length - 2][jj];
         }
-        int[][] summedV = Util.sumFilterSingleChanVert(im2DiffX, accuSize);
+        int[][] summedV = Util.sumFilterSingleChannelVert(im2DiffX, accuSize);
         int[][] summedVPadded = Util.mirrorPadImage(summedV, (int) Math.floor(accuSize / 2), 0);
-        int[][] midV = Util.medianFilterSingleChanHorz(summedVPadded, accuSize);
-        int[][] eV = Util.subtractImage(summedV, midV);
+        int[][] midV = Util.medianFilterSingleChannelHorz(summedVPadded, accuSize);
+        int[][] eV = Util.get2DArrayDifference(summedV, midV);
         int[][] paddedeV = Util.mirrorPadImage(eV, 16, 0);
         int[][] vertMid = new int[eV.length][eV[0].length];
         ArrayList<Integer> step8;
@@ -88,10 +88,10 @@ public class BlockingExtractor {
             im2DiffY[ii][0] = im2DiffY[ii][1];
             im2DiffY[ii][im2DiffY[0].length - 1] = im2DiffY[ii][im2DiffY[0].length - 2];
         }
-        int[][] summedH = Util.sumFilterSingleChanHorz(im2DiffY, accuSize);
+        int[][] summedH = Util.sumFilterSingleChannelHorz(im2DiffY, accuSize);
         int[][] summedHPadded = Util.mirrorPadImage(summedH, 0, (int) Math.floor(accuSize / 2));
-        int[][] midH = Util.medianFilterSingleChanVert(summedHPadded, accuSize);
-        int[][] eH = Util.subtractImage(summedH, midH);
+        int[][] midH = Util.medianFilterSingleChannelVert(summedHPadded, accuSize);
+        int[][] eH = Util.get2DArrayDifference(summedH, midH);
         int[][] paddedeH = Util.mirrorPadImage(eH, 0, 16);
         int[][] horzMid = new int[eH.length][eH[0].length];
         //ArrayList<Integer> step8;
@@ -105,71 +105,12 @@ public class BlockingExtractor {
                 horzMid[ii][jj-16] = step8.get(3);
             }
         }
-        int[][] blockDiff=Util.addImage(horzMid, vertMid);
+        int[][] blockDiff=Util.get2DArraySum(horzMid, vertMid);
         float[][] blk= blockProcess(blockDiff);
         double[][] normBLK=Util.normalizeIm(blk);
         displaySurface = Util.visualizeWithJet(normBLK);
         blkmax =Util.maxDouble2DArray(blk);
         blkmin =Util.minDouble2DArray(blk);
-        /*
-        saveAnyImage(im2DiffX,"a. im2DiffX");
-        saveAnyImage(summedV,"b. summedV");
-        saveAnyImage(midV,"c. midV");
-        saveAnyImage(eV,"d. eV");
-        saveAnyImage(vertMid,"e. vertMid");
-        saveAnyImage(paddedYY,"f. paddedYY");
-        saveAnyImage(im2DiffY,"g. im2DiffY");
-        saveAnyImage(summedH,"h. summedH");
-        saveAnyImage(midH,"i. midH");
-        saveAnyImage(eH,"j. eH");
-        saveAnyImage(horzMid,"k. horzMid");
-        saveAnyImage(blockDiff,"l. blockDiff");
-        saveAnyImage(blk,"m. blk");
-        */
-        }
-
-        private void saveAnyImage(int[][] imIn, String fileName){
-        int minmin=100000;
-        int maxmax=-100000;
-        int[][] intDispArray=new int[imIn.length][imIn[0].length];
-        for (int ii=0; ii<intDispArray.length; ii++) {
-            for (int jj = 0; jj < intDispArray[0].length; jj++) {
-                intDispArray[ii][jj]=imIn[ii][jj];
-            }
-        }
-
-        for (int ii=0; ii<intDispArray.length; ii++) {
-            for (int jj = 0; jj < intDispArray[0].length; jj++) {
-                if (intDispArray[ii][jj]<minmin) {
-                    minmin=intDispArray[ii][jj];
-                }
-                if (intDispArray[ii][jj]>maxmax) {
-                    maxmax=intDispArray[ii][jj];
-                }
-            }
-        }
-
-        for (int ii=0; ii<intDispArray.length; ii++) {
-            for (int jj = 0; jj < intDispArray[0].length; jj++) {
-                intDispArray[ii][jj]=Math.round((intDispArray[ii][jj]-(float)minmin)/((float)maxmax-minmin)*63);
-                if (intDispArray[ii][jj]<0){
-                    intDispArray[ii][jj]=63;
-                }
-            }
-        }
-
-        byte[][] DispArray=new byte[intDispArray.length][intDispArray[0].length];
-        for (int ii=0; ii<intDispArray.length; ii++) {
-            for (int jj = 0; jj < intDispArray[0].length; jj++) {
-                DispArray[ii][jj]=(byte)intDispArray[ii][jj];
-            }
-        }
-        BufferedImage jetVisualization=Util.createJetVisualization(DispArray);
-            try {
-                ImageIO.write(jetVisualization,"PNG",new File("/home/marzampoglou/"+fileName + ".png"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
 
     private float[][] blockProcess(int[][] ImIn){

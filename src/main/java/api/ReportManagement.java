@@ -15,7 +15,7 @@ import java.util.concurrent.Future;
 
 import api.reports.*;
 import com.drew.imaging.ImageProcessingException;
-import maps.dwnoise.NoiseMapExtractor;
+import maps.dwnoisevar.DWNoiseVarExtractor;
 import meta.metadata.MetadataExtractor;
 import meta.thumbnail.ThumbnailExtractor;
 import com.google.gson.GsonBuilder;
@@ -375,8 +375,8 @@ public class ReportManagement {
         }
         public DWNoiseReport noiseDWCalculation() throws IOException {
             DWNoiseReport dwNoiseReport=new DWNoiseReport();
-            NoiseMapExtractor noiseExtractor;
-            noiseExtractor = new NoiseMapExtractor(sourceFile);
+            DWNoiseVarExtractor noiseExtractor;
+            noiseExtractor = new DWNoiseVarExtractor(sourceFile);
             ImageIO.write(noiseExtractor.displaySurface, "png", outputFile);
             dwNoiseReport.map = outputFile.getCanonicalPath();
             dwNoiseReport.maxvalue = noiseExtractor.maxNoiseValue;
@@ -519,13 +519,15 @@ public class ReportManagement {
     }
 
     public static void main (String[] args) {
-        //String OutputFolder = "/home/marzampoglou/Pictures/Reveal/ManipulationOutput/";
+        String OutputFolder = "/home/marzampoglou/Pictures/Reveal/ManipulationOutput/";
         //String URL="";
-        String Hash1;//=downloadURL("https://dl.dropboxusercontent.com/u/67895186/DSCF3065_X-E2_manip%2B.jpg", OutputFolder);
+        String Hash1=downloadURL("http://160.40.51.26/projects/Reveal/imgs/example1_big.jpg", OutputFolder, "127.0.0.1");
         //Hash1=downloadURL("https://dl.dropboxusercontent.com/u/67895186/Tp_D_CND_M_N_ani00018_sec00096_00138.tif",OutputFolder, "127.0.0.1");
-        //createReport(Hash1, "127.0.0.1", OutputFolder);
+        createReport(Hash1, "127.0.0.1", OutputFolder);
 
+        /*
         MetadataExtractor metaExtractor;
+
         try {
             metaExtractor=new MetadataExtractor(args[0]);
             JsonObject metadataReport=metaExtractor.metadataReport;
@@ -540,44 +542,8 @@ public class ReportManagement {
         } catch (ImageProcessingException e) {
             e.printStackTrace();
         }
+        */
 
-
-
-/*        try {
-            ThumbnailExtractor ex=new ThumbnailExtractor("/home/marzampoglou/Desktop/img_1771.jpg");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            BufferedImage buf = JPEGMetaData.getThumbnail(new File("/home/marzampoglou/Desktop/img_1771.jpg"));
-            ImageIO.write(buf,"JPEG",new File("/home/marzampoglou/Desktop/thumb.jpg"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-*/
-
-        //String Hash2=downloadURL("http://www.lincolnvscadillac.com/forum/attachment.php?attachmentid=37425&stc=1&d=1220640009", OutputFolder);
-        //createReport(Hash2, OutputFolder);
-/*        String Hash3=downloadURL("http://de.trinixy.ru/pics4/20100318/podborka_14.jpg", OutputFolder);
-        createReport(Hash3, OutputFolder);
-        System.out.println(Hash3);
-        String Hash4=downloadURL("http://batona.net/uploads/posts/2014-01/1390536866_005.jpg", OutputFolder);
-        createReport(Hash4, OutputFolder);
-        System.out.println(Hash4);
-*/
-        //ForensicReport Report = getReport("79b16f4bced02b565416b7aeaea32db13a3590b32835bfcf3c5d6bc765948a3e");
-        //System.out.println(Report.metadataObjectReport.toString());
-        /*
-        try {
-
-            //NoiseMapExtractor ex = new NoiseMapExtractor("/home/marzampoglou/Pictures/Reveal/ManipulationOutput/79b16f4bced02b565416b7aeaea32db13a3590b32835bfcf3c5d6bc765948a3e/Raw");
-            MetadataExtractor meta =new MetadataExtractor("/home/marzampoglou/Pictures/Reveal/ManipulationOutput/79b16f4bced02b565416b7aeaea32db13a3590b32835bfcf3c5d6bc765948a3e/Raw");
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ImageProcessingException e) {
-            e.printStackTrace();
-        }
-    */
     }
     public static String getMeta(String path) {
         //String OutputFolder = "/home/marzampoglou/Pictures/Reveal/ManipulationOutput/";
