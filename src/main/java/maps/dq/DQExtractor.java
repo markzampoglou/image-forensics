@@ -54,13 +54,6 @@ public final class DQExtractor {
         IntByReference getDCT(String FileName);
     }
 
-    public interface CLibrary2 extends Library {
-
-        CLibrary JPEGlib = (CLibrary) Native.loadLibrary((Platform.isWindows() ? "jpeg" : "jpeg"), CLibrary.class);
-        int testInOut(int a);
-        IntByReference getDCT(String FileName);
-    }
-
     public DQExtractor(String fileName) throws IOException {
         String imageFormat = util.Util.getImageFormat(new File(fileName));
         try {
@@ -83,8 +76,8 @@ public final class DQExtractor {
             System.out.println("Could not load native JPEGlib-based DCT extractor, getting DCT coefficients from pixel values.");
             BufferedImage OrigImage;
             try {OrigImage = ImageIO.read(new File(fileName));
-                int[][] DCTs2= dctCoeffExtractor.extractYDCT(OrigImage);
-                dcts =DCTs2;
+                int[][] dcts2= dctCoeffExtractor.extractYDCT(OrigImage);
+                dcts =dcts2;
             }
             catch
                     (IOException e) {

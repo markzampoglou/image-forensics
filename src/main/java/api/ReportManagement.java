@@ -520,37 +520,15 @@ public class ReportManagement {
 
     public static void main (String[] args) {
         String OutputFolder = "/home/marzampoglou/Pictures/Reveal/ManipulationOutput/";
-        //String URL="";
-        String Hash1=downloadURL("http://160.40.51.26/projects/Reveal/imgs/example1_big.jpg", OutputFolder, "127.0.0.1");
-        //Hash1=downloadURL("https://dl.dropboxusercontent.com/u/67895186/Tp_D_CND_M_N_ani00018_sec00096_00138.tif",OutputFolder, "127.0.0.1");
+        String Hash1=downloadURL("http://160.40.51.26/projects/Reveal/imgs/example6_big.jpg", OutputFolder, "127.0.0.1");
         createReport(Hash1, "127.0.0.1", OutputFolder);
-
-        /*
-        MetadataExtractor metaExtractor;
-
-        try {
-            metaExtractor=new MetadataExtractor(args[0]);
-            JsonObject metadataReport=metaExtractor.metadataReport;
-            metadataReport.addProperty("completed", true);
-            String metadataStringReport = metadataReport.toString();
-            try(  PrintWriter out = new PrintWriter( "filename.txt" )  ){
-                out.println( metadataStringReport );
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ImageProcessingException e) {
-            e.printStackTrace();
-        }
-        */
-
     }
+
     public static String getMeta(String path) {
-        //String OutputFolder = "/home/marzampoglou/Pictures/Reveal/ManipulationOutput/";
-        //String URL="";
-        String Hash1;//=downloadURL("https://dl.dropboxusercontent.com/u/67895186/DSCF3065_X-E2_manip%2B.jpg", OutputFolder);
-        //Hash1=downloadURL("https://dl.dropboxusercontent.com/u/67895186/Tp_D_CND_M_N_ani00018_sec00096_00138.tif",OutputFolder, "127.0.0.1");
-        //createReport(Hash1, "127.0.0.1", OutputFolder);
+        // Get the metadata from a local file
+        // This code is used in certain side projects
+        // and is not part of the main REVEAL functionalities
+        String Hash1;
 
         MetadataExtractor metaExtractor;
         String metadataStringReport = "";
