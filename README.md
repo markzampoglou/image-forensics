@@ -61,6 +61,8 @@ The class `ThumbnailExtractor` is located in package `meta.thumbnail`. The const
 
 ### Double JPEG Quantization
 
+This is the implementation of the algorithm described in <cite> Lin, Zhouchen, Junfeng He, Xiaoou Tang, and Chi-Keung Tang. "Fast, automatic and fine-grained tampered JPEG image detection via DCT coefficient analysis." Pattern Recognition 42, no. 11 (2009): 2492-2501. </cite>
+
 ### JPEG Ghosts
 
 ### JPEG Blocking Artifact Inconsistencies
