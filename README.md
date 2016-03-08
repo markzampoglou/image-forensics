@@ -61,11 +61,42 @@ The class `ThumbnailExtractor` is located in package `meta.thumbnail`. The const
 
 ### Double JPEG Quantization
 
-This is the implementation of the algorithm described in 
+This is a Java implementation of the algorithm described in:
+* Lin, Zhouchen, Junfeng He, Xiaoou Tang, and Chi-Keung Tang. "Fast, automatic and fine-grained tampered JPEG image detection via DCT coefficient analysis." Pattern Recognition 42, no. 11 (2009): 2492-2501.
 
-<cite> Lin, Zhouchen, Junfeng He, Xiaoou Tang, and Chi-Keung Tang. "Fast, automatic and fine-grained tampered JPEG image detection via DCT coefficient analysis." Pattern Recognition 42, no. 11 (2009): 2492-2501. </cite>
+The class `DQExtractor` is located in package `maps.dq` and, like all other extractors, has a constructor that takes the image file path as a string. It returns a buffered image containing the analysis output, as well as the outputs maximum and minimum probability values.
+
+    DQExtractor dq = new DQExtractor("/home/me/pictures/tmp.jpg");
+    BufferedImage dqMap = dq.displaySurface;
+    double minProbValue = dq.minProbValue;
+    double maxProbValue = dq.maxProbValue;
+
 
 ### JPEG Ghosts
+
+This is a Java implementation of the algorithm described in:
+* Farid, Hany. "Exposing digital forgeries from JPEG ghosts." Information Forensics and Security, IEEE Transactions on 4, no. 1 (2009): 154-160.
+
+The class `GhostExtractor` is located in package `maps.ghost` and returns a buffered image containing the analysis output, as well as the outputs maximum and minimum probability values.
+
+    GhostExtractor ghostExtractor = new GhostExtractor(sourceFile, maxImageSmallDimension, numThreads);
+    List<Integer> qualities = ghostExtractor.ghostQualities;
+    List<Float> differences = ghostExtractor.allDifferences;
+    List<Float> minValues = ghostExtractor.ghostMin;
+    List<Float> maxValues = ghostExtractor.ghostMax;
+    int minQuality = ghostExtractor.qualityMin;
+    int maxQuality = ghostExtractor.qualityMax;
+    ghostReport.maxQuality = ghostExtractor.qualityMax;
+    List<String> maps = new ArrayList();
+    BufferedImage ghostMap;
+    for (int ghostMapInd=0;ghostMapInd<ghostExtractor.ghostMaps.size();ghostMapInd++) {
+        ghostOutputfile=new File(baseFolder, "GhostOutput" + String.format("%02d", ghostMapInd) + ".png");
+        ghostMap=ghostExtractor.ghostMaps.get(ghostMapInd);
+        ImageIO.write(ghostMap, "png", ghostOutputfile);
+        ghostReport.maps.add(ghostOutputfile.getCanonicalPath());
+    }
+
+
 
 ### JPEG Blocking Artifact Inconsistencies
 
