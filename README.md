@@ -96,20 +96,48 @@ This is a Java implementation of the algorithm described in:
 
 The class `BlockingExtractor` is located in package `maps.blocking` and has a constructor that takes the image file path as a string. It returns a buffered image containing the analysis output, as well as the output's maximum and minimum values.
 
-    DQExtractor dq = new DQExtractor("/home/me/pictures/tmp.jpg");
-    BufferedImage blockingMap = dq.displaySurface;
-    double blkmin = dq.blkmin;
-    double blkmax = dq.blkmax;
+    BlockingExtractor blk = new BlockingExtractor("/home/me/pictures/tmp.jpg");
+    BufferedImage blockingMap = blk.displaySurface;
+    double blkmin = blk.blkmin;
+    double blkmax = blk.blkmax;
 
 ### Error Level Analysis
 
-This is a Java implementation of the Error Level Analysis algorithm. ELA is probably the most well known and widely used tampering detection method, with Web-based implementations offered by [FotoForensics][] and [Forensically][2]
+This is a Java implementation of the Error Level Analysis algorithm. ELA is probably the most well known and widely used tampering detection method, with Web-based implementations offered by [FotoForensics][] and [Forensically][]
 
+The class `ELAExtractor` is located in package `maps.ela` and has a constructor that takes the image file path as a string. It returns a buffered image containing the analysis output, as well as the output's maximum and minimum values.
+
+    ELAExtractor ela = new ELAExtractor("/home/me/pictures/tmp.jpg");
+    BufferedImage elaMap = ela.displaySurface;
+    double elaMin = ela.elaMin;
+    double elaMin = ela.elaMin;
 
 ### Discrete Wavelet High-Frequenct Noise Variance
 
+This is a Java implementation of the algorithm described in:
+* Li, Weihai, Yuan Yuan, and Nenghai Yu. "Passive detection of doctored JPEG image via block artifact grid extraction." Signal Processing 89, no. 9 (2009): 1821-1829.
+
+The class `DWNoiseVarExtractor` is located in package `maps.dwnoisevar` and has a constructor that takes the image file path as a string. It returns a buffered image containing the analysis output, as well as the output's maximum and minimum values.
+
+    DWNoiseVarExtractor dwNoise = new DWNoiseVarExtractor("/home/me/pictures/tmp.jpg");
+    BufferedImage dwNoiseMap = dwNoise.displaySurface;
+    double maxNoiseValue = dwNoise.maxNoiseValue;
+    double maxNoiseValue = dwNoise.maxNoiseValue;
+
 ### Median Filtering Noise Residue
 
+This is a Java implementation of the Median Filtering Noise Residue algorithm featured in the Web-based image forensics service [Forensically]. The class `MedianNoiseExtractor` is located in package `maps.mediannoise` and has a constructor that takes the image file path as a string. It returns a buffered image containing the analysis output, as well as the output's maximum and minimum values.
+
+    MedianNoiseExtractor medianNoise = new MedianNoiseExtractor("/home/me/pictures/tmp.jpg");
+    BufferedImage medianNoiseMap = medianNoise.displaySurface;
+
+## Pulling a report from the database
+
+At any step of the report extraction process, we can pull the report with whatever fields have been completed, using the `getReport` method from `api.ReportManagement`. 
+
+    ForensicReport forensicReport = getReport(hash, "127.0.0.1");
+
+This returns a `ForensicReport` object containing all the completed elements of the report. All metadata and localization fields contain a `boolean` variable named `completed` whose aim is to indicate if the corresponding method has concluded its computations and thus can be displayed.
 
 
   [metadata-extractor]: https://drewnoakes.com/code/exif/
