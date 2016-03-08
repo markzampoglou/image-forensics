@@ -1,6 +1,8 @@
 # image-forensics
 
-An integrated framework for image forensic analysis as a web service. This framework implements a number of well-established image tampering localization algorithms, plus a number of tools for image metadata extraction and visualization, including GPS localization and the display of embedded thumbnail(s). It includes an API for downloading an image from the web, extracting an integrated forensics report for an image, storing it in a MongoDB collection under a unique hash identifier and returning it upon request.
+This is an integrated framework for image forensic analysis. It includes a Java implementation, documented here, and also includes a MATLAB algorithm evaluation framework, including implementations of a large number of algorithms, located in the subdirectory [matlab_toolbox]. The following documentation concerns the Java service, while the Matlab toolbox is documented within the corresponding subdirectory.
+
+The Java framework implements a number of well-established image tampering localization algorithms, plus a number of tools for image metadata extraction and visualization, including GPS localization and the display of embedded thumbnail(s). It includes an API for downloading an image from the web, extracting an integrated forensics report for an image, storing it in a MongoDB collection under a unique hash identifier and returning it upon request.
 
 ## Getting started
 
@@ -143,3 +145,4 @@ This returns a `ForensicReport` object containing all the completed elements of 
   [metadata-extractor]: https://drewnoakes.com/code/exif/
   [FotoForensics]:http://fotoforensics.com/
   [Forensically]:https://29a.ch/photo-forensics/#forensic-magnifier
+  [matlab_toolbox]:https://github.com/MKLab-ITI/image-forensics/tree/master/matlab_toolbox
