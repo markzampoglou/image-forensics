@@ -64,7 +64,7 @@ The class `ThumbnailExtractor` is located in package `meta.thumbnail`. The const
 This is a Java implementation of the algorithm described in:
 * Lin, Zhouchen, Junfeng He, Xiaoou Tang, and Chi-Keung Tang. "Fast, automatic and fine-grained tampered JPEG image detection via DCT coefficient analysis." Pattern Recognition 42, no. 11 (2009): 2492-2501.
 
-The class `DQExtractor` is located in package `maps.dq` and, like all other extractors, has a constructor that takes the image file path as a string. It returns a buffered image containing the analysis output, as well as the outputs maximum and minimum probability values.
+The class `DQExtractor` is located in package `maps.dq` and, like all other extractors, has a constructor that takes the image file path as a string. It returns a buffered image containing the analysis output, as well as the output's maximum and minimum probability values.
 
     DQExtractor dq = new DQExtractor("/home/me/pictures/tmp.jpg");
     BufferedImage dqMap = dq.displaySurface;
@@ -77,7 +77,7 @@ The class `DQExtractor` is located in package `maps.dq` and, like all other extr
 This is a Java implementation of the algorithm described in:
 * Farid, Hany. "Exposing digital forgeries from JPEG ghosts." Information Forensics and Security, IEEE Transactions on 4, no. 1 (2009): 154-160.
 
-The class `GhostExtractor` is located in package `maps.ghost` and returns a buffered image containing the analysis output, as well as the outputs maximum and minimum probability values.
+The class `GhostExtractor` is located in package `maps.ghost` and returns a List of output images, the different JPEG quality levels these images correspond to, and their minimum and maximum values.
 
     GhostExtractor ghostExtractor = new GhostExtractor(sourceFile, maxImageSmallDimension, numThreads);
     List<Integer> qualities = ghostExtractor.ghostQualities;
@@ -87,20 +87,24 @@ The class `GhostExtractor` is located in package `maps.ghost` and returns a buff
     int minQuality = ghostExtractor.qualityMin;
     int maxQuality = ghostExtractor.qualityMax;
     ghostReport.maxQuality = ghostExtractor.qualityMax;
-    List<String> maps = new ArrayList();
-    BufferedImage ghostMap;
-    for (int ghostMapInd=0;ghostMapInd<ghostExtractor.ghostMaps.size();ghostMapInd++) {
-        ghostOutputfile=new File(baseFolder, "GhostOutput" + String.format("%02d", ghostMapInd) + ".png");
-        ghostMap=ghostExtractor.ghostMaps.get(ghostMapInd);
-        ImageIO.write(ghostMap, "png", ghostOutputfile);
-        ghostReport.maps.add(ghostOutputfile.getCanonicalPath());
-    }
-
-
+    List<String> maps = ghostExtractor.ghostMaps;
 
 ### JPEG Blocking Artifact Inconsistencies
 
+This is a Java implementation of the algorithm described in:
+* Li, Weihai, Yuan Yuan, and Nenghai Yu. "Passive detection of doctored JPEG image via block artifact grid extraction." Signal Processing 89, no. 9 (2009): 1821-1829.
+
+The class `BlockingExtractor` is located in package `maps.blocking` and has a constructor that takes the image file path as a string. It returns a buffered image containing the analysis output, as well as the output's maximum and minimum values.
+
+    DQExtractor dq = new DQExtractor("/home/me/pictures/tmp.jpg");
+    BufferedImage blockingMap = dq.displaySurface;
+    double blkmin = dq.blkmin;
+    double blkmax = dq.blkmax;
+
 ### Error Level Analysis
+
+This is a Java implementation of the Error Level Analysis algorithm. ELA is probably the most well known and widely used tampering detection method, with Web-based implementations offered by [FotoForensics][] and [Forensically][2]
+
 
 ### Discrete Wavelet High-Frequenct Noise Variance
 
@@ -109,3 +113,5 @@ The class `GhostExtractor` is located in package `maps.ghost` and returns a buff
 
 
   [metadata-extractor]: https://drewnoakes.com/code/exif/
+  [FotoForensics]:http://fotoforensics.com/
+  [Forensically]:https://29a.ch/photo-forensics/#forensic-magnifier
