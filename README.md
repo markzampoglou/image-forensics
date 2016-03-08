@@ -133,7 +133,7 @@ This is a Java implementation of the Median Filtering Noise Residue algorithm fe
 
 ## Pulling a report from the database
 
-At any step of the report extraction process, we can pull the report with whatever fields have been completed, using the `getReport` method from `api.ReportManagement`. 
+At any step of the report extraction process, we can pull the report with whatever fields have been completed, using the `getReport` method from `api.ReportManagement`
 
     ForensicReport forensicReport = getReport(hash, "127.0.0.1");
 
