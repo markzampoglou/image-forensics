@@ -33,9 +33,8 @@ The framework currently consists of nine distinct operations, organized in an eq
 
 
 
-## Extracting SURF or SIFT features from an image
+### Algorithm 3
 
-This can be done using the classes in the `gr.iti.mklab.visual.extraction` package. `SURFExtractor `and `SIFTExtractor `implement SURF and SIFT extraction respectively and are actually wrappers of the corresponding classes in the [BoofCV][] library that only expose the most important parameters of the extraction process. Here is a simple example on how to extract SURF features from an image:
 
 1.  Numbered list:
 
