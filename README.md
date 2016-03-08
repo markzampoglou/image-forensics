@@ -4,23 +4,27 @@ An integrated framework for image forensic analysis as a web service. This frame
 
 ## Getting Started
 
-The library requires Java 8 and MogoDB installed in order to operate. The main API goes through 
+The library requires Java 8 and MogoDB installed in order to operate. The main API is located in class `main.java.api.ReportManagement` and consists of three methods:
 
-This page contains instructions on how to use the framework to get an image forensics report, plus references and short descriptions of all implemented algorithms.
+* downloadURL
+* createReport
+* getReport
 
-## Getting Started
+The first takes as input a URL, downloads the corresponding image and creates an empty database entry with the corresponding hash. The second takes as input a hash, and populates the corresponding database entry with the analysis results. The third method can be called at any time, takes a hash as input, and returns the contents of the corresponding database entry at the time, in the form of a ForensicReport object.
 
-This page contains instructions on how to use the library for:
 
--   Extracting SURF or SIFT features from an image (RootSIFT and ColorSURF features are also supported)
+## Downloading an image from a URL
 
--   Aggregating a set of local descriptors into a VLAD vector
+The method requires the image URL (can also be a local `file:/`), the path to an output folder where the image will be stored, and the IP of the MongoDB server.
 
--   Applying dimensionality reduction using PCA
+    `String hash = downloadURL("http://some.domain/some_image.jpg", /home/Me/DownloadedPics/, "127.0.0.1")`
 
--   Building and querying an index
+Upon completion, the method returns a string containing the hash of the URL, if the image was downloaded correctly, or the string `"URL_ERROR"` if the URL could not be downloaded. If the process completed successfully, a MongoDB entry is also created, using the Hash as key.
 
--   Applying Product Quantization
+## Building a forensics report
+
+
+
 
 ## Extracting SURF or SIFT features from an image
 
