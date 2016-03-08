@@ -4,7 +4,7 @@ An integrated framework for image forensic analysis as a web service. This frame
 
 ## Getting started
 
-The library requires Java 8 and MogoDB installed in order to operate. The main API is located in class `main.java.api.ReportManagement` and consists of three methods:
+The library requires Java 8 and MogoDB installed in order to operate. The main API is located in class `api.ReportManagement` and consists of three methods:
 
 * downloadURL
 * createReport
@@ -29,18 +29,48 @@ Consecutively, the `createReport` method can be called, in order to populate the
 
 The framework has been written with the aim of being wrapped with a Web service, and thus attention has been paid to maximizing asynchronous operations. To this end, the various operations called by `createReport()` operate asynchronously, with each method updating the corresponding field in the database entry as it completes, without watiting for the other operations to finish.
 
-The framework currently consists of nine distinct operations, organized in an equal number of packages; three of those concern metadata information, while six more concern tampering localization algorithms.
+The framework currently consists of nine distinct operations, organized in an equal number of packages; three of those concern metadata information (package `meta`), while six more concern tampering localization algorithms (package `maps`). All classes have constructors that take a file path pointing to the image file, and store the output in public variable.
+
+## Metadata
+
+### EXIF metadata
+
+The class `MetadataExtractor` is located in package `meta.metadata`. The constructor takes a string as input, containing the full path to the image, and stores the output in a public JsonObject `metadataReport`. The object contains all metadata fields, as extracted and organized by Drew Noakes' [metadata-extractor][] library. 
+
+    `MetadataExtractor metaExtractor = new MetadataExtractor("/home/me/pictures/tmp.jpg");`
+    `JsonObject metadata = metaExtractor.metadataReport;`
+
+### GPS geolocation
+
+The class `GPSExtractor` is located in package `meta.gps`.
+
+    `GPSExtractor gps = new GPSExtractor("/home/me/pictures/tmp.jpg");`
+    `boolean exists = gps.exists;`
+    `double latitude = gps.latitude;`
+    `double longitude = gps.longitude;`
+
+### Thumbnail extraction
+
+The class `ThumbnailExtractor` is located in package `meta.thumbnail`. The constructor takes a string as input, containing the full path to the image, and stores the output in a public `List<BufferedImage>` `thumbnails` and a public `int` `numberOfThumbnails`. If no thumbnails are found, the list is `null` and the number of thubnails equals zero. 
+
+    `ThumbnailExtractor thumbnailExtractor = new ThumbnailExtractor("/home/me/pictures/tmp.jpg");`
+    `List<BufferedImage> thumbnailList = thumbnailExtractor.thumbnails;`
+    `int numberOfThumbnails = thumbnailExtractor.numberOfThumbnails;`
+
+## Image tampering localization
+
+### Double JPEG Quantization
+
+### JPEG Ghosts
+
+### JPEG Blocking Artifact Inconsistencies
+
+### Error Level Analysis
+
+### Discrete Wavelet High-Frequenct Noise Variance
+
+### Median Filtering Noise Residue
 
 
 
-### Algorithm 3
-
-
-1.  Numbered list:
-
-    `code`
-
-
-[Link example][]
-
-  [Link example]: https://code.google.com/p/efficient-java-matrix-library/
+  [metadata-extractor]: https://drewnoakes.com/code/exif/
