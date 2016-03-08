@@ -35,7 +35,7 @@ The framework currently consists of nine distinct operations, organized in an eq
 
 ### EXIF metadata
 
-The class `MetadataExtractor` is located in package `meta.metadata`. The constructor takes a string as input, containing the full path to the image, and stores the output in a public JsonObject `metadataReport`. The object contains all metadata fields, as extracted and organized by Drew Noakes' [metadata-extractor][] library. 
+The class `MetadataExtractor` is located in package `meta.metadata`. The constructor takes a string as input, containing the full path to the image, and stores the output in a public JsonObject `metadataReport.` The object contains all metadata fields, as extracted and organized by Drew Noakes' [metadata-extractor][] library. 
 
     `MetadataExtractor metaExtractor = new MetadataExtractor("/home/me/pictures/tmp.jpg");`
     `JsonObject metadata = metaExtractor.metadataReport;`
