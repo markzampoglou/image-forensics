@@ -3,45 +3,39 @@ Information Technologies Institute, Centre for Research and Technology Hellas
 6th Km Harilaou-Thermis, Thessaloniki 57001, Greece
 
 This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+it under the terms of the Apache Licence v2.0. It does not offer any warranty,
+not even of NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A PARTICULAR 
+PURPOSE. See the Apache License in the accompanying LICENCE file for 
+more details. If you have not received such a file, see 
+http://www.apache.org/licenses/LICENSE-2.0
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-Additional permission under GNU GPL version 3 section 7
+Additional permission under Apache Licence version 2 section 9
 
 If you modify this Program, or any covered work, by linking or combining it 
 with Matlab JPEG Toolbox (or a modified version of that library), 
 containing parts covered by the terms of Matlab JPEG Toolbox License, 
 the licensors of this Program grant you additional permission to convey the 
-resulting work. 
+resulting work.
 
 ***************
 * Description *
 ***************  
 
-this directory contains a Matlab implementation of an
-algorithm used to detect the presence of DCT quantization
-artifacts, as decribed in Ye, Shuiming, Qibin Sun, and Ee-Chien Chang. 
-"Detecting digital image forgeries by measuring inconsistencies of blocking 
-artifact." In Multimedia and Expo, 2007 IEEE International Conference on, 
-pp. 12-15. IEEE, 2007.
+this package includes a Matlab implementation of an algorithm used to detect 
+the presence of aligned double JPEG compression, as decribed in:
 
-If you use the code for academic purposes, you should 
-cite the aforementioned work.
+Ye, Shuiming, Qibin Sun, and Ee-Chien Chang. "Detecting digital image forgeries 
+by measuring inconsistencies of blocking artifact." In Multimedia and Expo, 2007 
+IEEE International Conference on, pp. 12-15. IEEE, 2007.
+
+If you use the code for academic purposes, you should cite the aforementioned 
+work.
 
 A demo script and a sample image are included.
 
 ************
 * Platform *
-************      
+************
 
 Written and tested on Matlab 8.3.0.532 (R2014a) 
 It is likely that it will work on older versions.
@@ -50,8 +44,10 @@ It is likely that it will work on older versions.
 *Environment *   
 **************
 
-Requires Matlab JPEG Toolbox available at: 
-http://www.philsallee.com/jpegtbx/index.html
+Requires Matlab JPEG Toolbox, currently available at: 
+http://lesc.dinfo.unifi.it/sites/default/files/Documenti/Demo/jpeg_toolbox.rar
+Courtesy of the Communications & Signal Processing Laboratory of
+the Università degli Studi di Firenze.
 
 Matlab JPEG Toolbox is released under the following license:
 
@@ -86,35 +82,6 @@ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
 A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON AN "AS IS"
 BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO PROVIDE
 MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS."
-
-
-************************
-*Component Description *
-************************
-
-demo.m: demo script                             
-analyze.m: main API
-GetDCTArtifact.m: detect the presence of DCT artifacts
-extrema.m: Gets the global extrema points from a time series
-demo.jpg: sample image
-demo.png: sample image
-README.txt: this file
-gpl.txt: GPL license
-
-
-***********************
-* Set-up Instructions *  
-***********************
-
-extract all files to a single directory. Add the directory to the Matlab path, 
-or set it as the current Matlab directory
-
-
-********************
-* Run Instructions *
-********************      
-
-run demo.m from Matlab prompt
 
 ***********************
 * Contact Information *

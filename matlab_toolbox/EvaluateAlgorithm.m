@@ -1,5 +1,6 @@
 clear all;
-
+addpath(['.' filesep 'Util' filesep]);
+addpath(['.' filesep 'jpegtbx_1.4' filesep]);
 %The name of the algorithm. Must be the name of a subdirectory in %"Algorithms"
 Options.AlgorithmName='ADQ1';
 %The name of the dataset. Only used for naming the output folders, does not
@@ -44,3 +45,5 @@ title(['Medians difference:' Options.AlgorithmName ' ' Options.DatasetName]);
 Values05=PresentationCurves.KS(3,Index05(PresentationCurves.KS(2,:)>0.05));
 TP_at_05=Values05(end);
 disp(['True Positives at 5% False Positives: ' num2str(TP_at_05*100) '%']);
+rmpath(['.' filesep 'Util' filesep]);
+rmpath(['.' filesep 'jpegtbx_1.4' filesep]);

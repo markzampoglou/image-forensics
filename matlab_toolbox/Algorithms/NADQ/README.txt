@@ -1,6 +1,12 @@
+Notice by Markos Zampoglou, ITI-CERTH, 2016: This is a redistribution of 
+the code provided by the IAPP group in http://lesc.det.unifi.it/en/node/187 
+The code has been modified by replacing "demo.m," adding "analyze.m" and 
+the demo image, and removing the original demo script and images. 
+Furthermore, jpeg_rec.m has been modified to include more complex cases of
+JPEG encodings.
 
 Copyright (C) 2012 Tiziano Bianchi and Alessandro Piva,       
-Dipartimento di Elettronica e Telecomunicazioni - Università di Firenze                        
+Dipartimento di Elettronica e Telecomunicazioni - Universitï¿½ di Firenze                        
 via S. Marta 3 - I-50139 - Firenze, Italy                   
 
 This program is free software: you can redistribute it and/or modify

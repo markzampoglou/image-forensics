@@ -9,6 +9,6 @@ function [OutputMap] = analyze( imPath )
     catch
         im=CleanUpImage(imPath);
     end
-    OutputMap = GetBlockArtifact(im);
+    OutputMap = GetDCTArtifact(im);
 end
 

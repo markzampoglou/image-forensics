@@ -1,6 +1,10 @@
+Notice by Markos Zampoglou, ITI-CERTH, 2016: This is a redistribution of 
+the code provided by the IAPP group in http://lesc.det.unifi.it/en/node/187 
+The code has been modified by replacing "demo.m," adding "analyze.m" and 
+the demo image, and removing the original demo script and images.
 
 Copyright (C) 2011 Tiziano Bianchi, Alessia De Rosa, Alessandro Piva       
-Dipartimento di Elettronica e Telecomunicazioni - Università di Firenze                        
+Dipartimento di Elettronica e Telecomunicazioni - Universitï¿½ di Firenze                        
 via S. Marta 3 - I-50139 - Firenze, Italy                   
 
 This program is free software: you can redistribute it and/or modify
@@ -16,7 +20,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 Additional permission under GNU GPL version 3 section 7
 
 If you modify this Program, or any covered work, by linking or combining it 
@@ -24,7 +27,6 @@ with Matlab JPEG Toolbox (or a modified version of that library),
 containing parts covered by the terms of Matlab JPEG Toolbox License, 
 the licensors of this Program grant you additional permission to convey the 
 resulting work. 
-
 
 ***************
 * Description *

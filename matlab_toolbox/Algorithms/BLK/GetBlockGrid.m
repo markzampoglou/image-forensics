@@ -1,7 +1,19 @@
 function [b, eH, HorzMid, eV, VertMid, BlockDiff] = GetBlockGrid(im)
-    % Code from 2009 - 59 - Passive detection of doctored JPEG image via
-    % block artifact grid extraction 
-    
+% This code is our implementation of the algorithm described in: 
+% Li, Weihai, Yuan Yuan, and Nenghai Yu. "Passive detection of doctored JPEG 
+% image via block artifact grid extraction." Signal Processing 89, no. 9 (2009): 
+% 1821-1829.
+
+% Dr Weihai Li, whli@ustc.edu.cn, has provided us with the original implementation
+% of the code, beginning in block.m. We have used that code as a reference in developing
+% our own version.
+
+% If you use this code, please cite the aforementioned paper and notify both us and 
+% the original author
+
+% Copyright 2016, Dr. Markos Zampoglou, ITI-CERTH
+% markzampoglou@iti.gr
+
     YCbCr=rgb2ycbcr(double(im));
     Y=YCbCr(:,:,1);
     

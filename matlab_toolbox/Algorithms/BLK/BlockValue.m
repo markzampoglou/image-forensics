@@ -1,6 +1,14 @@
 function b = BlockValue( BLOCK_STRUCT )
-    %UNTITLED Summary of this function goes here
-    %   Detailed explanation goes here
+    % Get the per-block feature. This is part of our implementation of the
+    % algorithm as described in Li, Weihai, Yuan Yuan, and 
+    % Nenghai Yu. "Passive detection of doctored JPEG image via block
+    % artifact grid extraction." Signal Processing 89, no. 9 (2009):
+    % 1821-1829.
+    
+    % Copyright (C) 2016 Markos Zampoglou
+    % Information Technologies Institute, Centre for Research and Technology Hellas
+    % 6th Km Harilaou-Thermis, Thessaloniki 57001, Greece
+    
     blockData=BLOCK_STRUCT.data;
     
     Max1=max(sum(blockData(2:7,2:7)));

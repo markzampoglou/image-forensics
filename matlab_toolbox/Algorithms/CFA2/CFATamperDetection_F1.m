@@ -62,7 +62,7 @@ function [F1Map,CFADetected, F1] = CFATamperDetection_F1(im)
     
     Diffs(isnan(Diffs))=0;
     
-    [bbb,val]=min(MeanError);
+    [~,val]=min(MeanError);
     U=sum(abs(Diffs-0.25),1);
     F1=median(U);
     CFADetected=CFAList{val}==2;
@@ -82,20 +82,4 @@ function [ Out ] = eval_block( block_struc )
     Out(:,:,4)=std(reshape(im(:,:,1),1,numel(im(:,:,1))));
     Out(:,:,5)=std(reshape(im(:,:,2),1,numel(im(:,:,2))));
     Out(:,:,6)=std(reshape(im(:,:,3),1,numel(im(:,:,3))));
-end
-
-
-function [ F2 ] = getCFAVar( block_struc )
-    %Wavelet Depth
-    Depth=5;
-    load('nor_dualtree');
-    blockdata=double(block_struc.data);
-    G=blockdata(:,:,1);
-    GNoise=DTWDenoise(G,Depth,nor);
-    G_CFA=boolean(blockdata(:,:,2));
-    GOrig=GNoise(G_CFA);
-    GInterp=GNoise(~G_CFA);
-    var1=var(GOrig);
-    var2=var(GInterp);
-    F2=max([var1/var2 var2/var1]);
 end
