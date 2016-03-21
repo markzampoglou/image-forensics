@@ -55,6 +55,8 @@ public final class DQExtractor {
     }
 
     public DQExtractor(String fileName) throws IOException {
+        //System.out.println(fileName);
+
         String imageFormat = util.Util.getImageFormat(new File(fileName));
         try {
             if (imageFormat.equalsIgnoreCase("JPEG") | imageFormat.equalsIgnoreCase("JPG")) {
@@ -308,7 +310,7 @@ public final class DQExtractor {
 
     public final int[][] getDCTCoeffsFromFile(String FileName) {
 
-        System.out.println(CLibrary.dctLib.testInOut(3));
+        //System.out.println(CLibrary.dctLib.testInOut(3));
 
         IntByReference intFromCByRef;
         int[][] dctCoeffs =null;

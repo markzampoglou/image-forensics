@@ -1,4 +1,12 @@
 function [F1Map,CFADetected, F1] = CFATamperDetection_F1(im)
+    % This is an implementation of the first of the two algorithms
+    % presented in Dirik, Ahmet Emir, and Nasir D. Memon. "Image tamper
+    % detection based on demosaicing artifacts." In ICIP, pp. 1497-1500.
+    % 2009.
+    
+    % Copyright (C) 2016 Markos Zampoglou
+    % Information Technologies Institute, Centre for Research and Technology Hellas
+    % 6th Km Harilaou-Thermis, Thessaloniki 57001, Greece
     
     StdThresh=5;
     Depth=3;
@@ -18,7 +26,7 @@ function [F1Map,CFADetected, F1] = CFATamperDetection_F1(im)
         CFADetected=[0 0 0 0];
         return
     end
-
+    
     MeanError=inf(length(CFAList),1);
     for TestArray=1:length(CFAList)
         
@@ -38,26 +46,18 @@ function [F1Map,CFADetected, F1] = CFATamperDetection_F1(im)
         ProcIm(:,:,1:3)=im;
         ProcIm(:,:,4:6)=double(BilinIm);
         
-        %ProcIm(:,:,4:6)=(im-double(BilinIm)).^2;
-        
         ProcIm=double(ProcIm);
         BlockResult=blockproc(ProcIm,[W1 W1],@eval_block);
         
         Stds=BlockResult(:,:,4:6);
         BlockDiffs=BlockResult(:,:,1:3);
         NonSmooth=Stds>StdThresh;
-
         
         MeanError(TestArray)=mean(mean(mean(BlockDiffs(NonSmooth))));
         BlockDiffs=BlockDiffs./repmat(sum(BlockDiffs,3),[1 1 3]);
         
-        %imagesc(BlockDiffs);
-        %pause;
-        
         Diffs(TestArray,:)=reshape(BlockDiffs(:,:,2),1,numel(BlockDiffs(:,:,2)));
-        
         F1Maps{TestArray}=BlockDiffs(:,:,2);
-
     end
     
     Diffs(isnan(Diffs))=0;
@@ -71,10 +71,7 @@ function [F1Map,CFADetected, F1] = CFATamperDetection_F1(im)
 end
 
 function [ Out ] = eval_block( block_struc )
-    %EVAL_BLOCK Summary of this function goes here
-    %   Detailed explanation goes here
     im=block_struc.data;
-    %Out(:,:,1:3)=mean(mean((double(block_struc.data(:,:,1:3))-double(block_struc.data(:,:,4:6))).^2));
     Out(:,:,1)=mean2((double(block_struc.data(:,:,1))-double(block_struc.data(:,:,4))).^2);
     Out(:,:,2)=mean2((double(block_struc.data(:,:,2))-double(block_struc.data(:,:,5))).^2);
     Out(:,:,3)=mean2((double(block_struc.data(:,:,3))-double(block_struc.data(:,:,6))).^2);

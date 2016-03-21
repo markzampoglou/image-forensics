@@ -520,8 +520,25 @@ public class ReportManagement {
 
     public static void main (String[] args) {
         String OutputFolder = "/home/marzampoglou/Pictures/Reveal/ManipulationOutput/";
-        String Hash1=downloadURL("http://160.40.51.26/projects/Reveal/imgs/example6_big.jpg", OutputFolder, "127.0.0.1");
-        createReport(Hash1, "127.0.0.1", OutputFolder);
+        //String Hash1=downloadURL("http://160.40.51.26/projects/Reveal/imgs/example6_big.jpg", OutputFolder, "127.0.0.1");
+        //createReport(Hash1, "127.0.0.1", OutputFolder);
+        long timer=System.currentTimeMillis();
+        for (int ii=1; ii<2; ii++) {
+            MedianNoiseExtractor countEx;
+            try {
+                countEx = new MedianNoiseExtractor("/media/marzampoglou/3TB_B/ImageForensics/Datasets/WildWebDataset/WildWeb/Connecticut/bush_apologize.jpg");
+                countEx = new MedianNoiseExtractor("/media/marzampoglou/3TB_B/ImageForensics/Datasets/WildWebDataset/WildWeb/OpenSky/e8n0ra.jpg");
+                countEx = new MedianNoiseExtractor("/media/marzampoglou/3TB_B/ImageForensics/Datasets/WildWebDataset/WildWeb/GaysNotAllowed/homophobic_salvation.png");
+                countEx = new MedianNoiseExtractor("/media/marzampoglou/3TB_B/ImageForensics/Datasets/WildWebDataset/WildWeb/SharkStreet/hitportal-ajkuli1.jpg");
+                countEx = new MedianNoiseExtractor("/media/marzampoglou/3TB_B/ImageForensics/Datasets/VIPP/TIFS_SyntheticDATASET/Sp/Class4/Classe4_Q1_080_Q2_100_DSC4774_042.jpg");
+                countEx = new MedianNoiseExtractor("/media/marzampoglou/3TB_B/ImageForensics/Datasets/VIPP/TIFS_RealisticDATASET/Forgery/Forgery_final 2.jpg");
+                countEx = new MedianNoiseExtractor("/media/marzampoglou/3TB_B/ImageForensics/Datasets/CASIA2/Au/Au_ani_00023.jpg");
+                countEx = new MedianNoiseExtractor("/media/marzampoglou/3TB_B/ImageForensics/Datasets/Reveal_Image_Manipulation_Dataset-2015-08-21/Reveal Image Manipulation Dataset/03_Fuji_a/DSCF3065_X-E2_manip+.jpg");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("Average time per image: " + String.valueOf((System.currentTimeMillis() - timer) / 8));
     }
 
     public static String getMeta(String path) {

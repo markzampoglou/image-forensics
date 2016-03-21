@@ -13,7 +13,7 @@ function [ Results ] = OutputFileStatistics( InputStruct )
     Results.MaskMean=mean(ResultMap(Mask));
     Results.OutsideMean=mean(ResultMap(~Mask));
     
-    if isnan(Results.MaskMedian) | isnan(Results.OutsideMedian) | isnan(Results.MaskMean) | isnan(Results.OutsideMean)
+    if isnan(Results.MaskMedian) || isnan(Results.OutsideMedian) || isnan(Results.MaskMean) | isnan(Results.OutsideMean)
         disp('nan');
         pause
     end
@@ -25,13 +25,14 @@ function [ Results ] = OutputFileStatistics( InputStruct )
     HistBinEdges=HistBinEdges(1:end-1);
     Results.MaskHist=histc(ResultMap(Mask),HistBinEdges);
     Results.OutsideHist=histc(ResultMap(~Mask),HistBinEdges);
+    if isempty(Results.MaskHist)
+        Results.MaskHist=1;
+    end
+    if isempty(Results.OutsideHist)
+        Results.OutsideHist=1;
+    end
     Results.MaskHist=Results.MaskHist/sum(Results.MaskHist);
     Results.OutsideHist=Results.OutsideHist/sum(Results.OutsideHist);
     Results.KSStat=max(abs(cumsum(Results.MaskHist(:))-cumsum(Results.OutsideHist(:))));
-    if isempty(Results.MaskHist)
-        Results.MaskHist=1;
-        Results.OutsideHist=1;
-        Results.KSStat=0;
-    end
 end
 

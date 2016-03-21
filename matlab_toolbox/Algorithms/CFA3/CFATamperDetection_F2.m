@@ -1,5 +1,5 @@
 function [F2Map, CFAOut]=CFATamperDetection_F2(im)
-    % Main code provided by:
+    % This code is based on a package provided by:
     % Dr. Ahmet Emir Dirik, PhD
     % edirik@uludag.edu.tr
     % http://edirik.home.uludag.edu.tr/
@@ -8,7 +8,6 @@ function [F2Map, CFAOut]=CFATamperDetection_F2(im)
     % Dr. Markos Zampoglou, PhD
     % markzampoglou@iti.gr
 
-    
     StdThresh=5;
     Depth=3;
     
