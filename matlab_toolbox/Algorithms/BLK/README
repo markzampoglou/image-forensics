@@ -21,12 +21,7 @@ resulting work.
 * Description *
 ***************  
 
-If you use the code for academic purposes, you should 
-cite the aforementioned work.
-
-A demo script and a sample image are included.
-
-this package includes a Matlab implementation of an algorithm used to detect 
+This package includes a Matlab implementation of an algorithm used to detect 
 the presence of discontinuities in JPEG blocking artifacts, as decribed in:
 
 Li, Weihai, Yuan Yuan, and Nenghai Yu. "Passive detection of doctored JPEG 
@@ -49,4 +44,6 @@ It is likely that it will work on older versions.
 * Contact Information *
 ***********************
 
+Dr. Markos Zampoglou
+CERTH-ITI, Thessaloniki, Greece
 markzampoglou@iti.gr
