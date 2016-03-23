@@ -2,6 +2,14 @@ Copyright (C) 2016 Markos Zampoglou
 Information Technologies Institute, Centre for Research and Technology Hellas
 6th Km Harilaou-Thermis, Thessaloniki 57001, Greece
 
+While the code used in this framework (contained in GetBlockGrid.m) was written
+by me for reasons of computational efficiency, the original author has also
+provided their own implementation. It is contained in block.m, and further
+queries should be directed to:
+
+Dr. Weihai Li
+whli@ustc.edu.cn
+
 This program is free software: you can redistribute it and/or modify
 it under the terms of the Apache Licence v2.0. It does not offer any warranty,
 not even of NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A PARTICULAR 
