@@ -1,5 +1,4 @@
-function OutputMap=BenfordDQ(im)
-    % This code implements the algorithm presented in
+function [OutputMap]=BenfordDQ(im)    % This code implements the algorithm presented in
     % Amerini, Irene, Rudy Becarelli, Roberto Caldelli, and Andrea Del
     % Mastio. "Splicing forgeries localization through the use of first
     % digit features." In Information Forensics and Security (WIFS), 2014
@@ -15,6 +14,7 @@ function OutputMap=BenfordDQ(im)
     
     % Get the quality of the JPEG image, in order to select the
     % corresponding SVM model
+    
     Quality=EstimateJPEGQuality(im);
     QualityInd=round((Quality-50)/5+1);
     if QualityInd>10
@@ -23,10 +23,12 @@ function OutputMap=BenfordDQ(im)
         QualityInd=1;
     end
     
-    c1=1; c2=9;
+    Qualities=50:5:95;
+    c1=2; c2=10; %skip the DC term and keep 9 coefficients
     ncomp=1;
     digitBinsToKeep=[2 5 7];
     block=im;
+    qtable = im.quant_tables{im.comp_info(ncomp).quant_tbl_no};
     YCoef=im.coef_arrays{ncomp};
     Step=8;
     BlockSize=64;
@@ -37,6 +39,7 @@ function OutputMap=BenfordDQ(im)
         OutputMap=0;
         return
     end
+    
     for X=1:Step:size(YCoef,1)
         if X+BlockSize-1<=size(YCoef,1)
             StartX=X;
@@ -52,8 +55,9 @@ function OutputMap=BenfordDQ(im)
                 Y=size(YCoef,2);
             end
             block.coef_arrays{ncomp}=YCoef(StartX:StartX+BlockSize-1,StartY:StartY+BlockSize-1,:);
-            Feature=ExtractFeatures(block, c1, c2, ncomp, digitBinsToKeep)/64;
-            [~, Dist] = svmclassify_dist(SVMStruct{QualityInd},Feature);
+            Feature=ExtractFeatures(block, c1, c2, ncomp, digitBinsToKeep);
+            Feature=Feature./64;
+            [Class, Dist] = svmclassify_dist(SVMStruct{QualityInd},Feature);
             OutputMap(ceil((StartX-1)/Step+1),ceil((StartY-1)/Step+1))=Dist;
         end
     end
