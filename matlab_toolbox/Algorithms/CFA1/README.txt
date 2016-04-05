@@ -1,7 +1,9 @@
-Notice by Markos Zampoglou, ITI-CERTH, 2016: This is a redistribution of 
-the code provided by the IAPP group in http://lesc.det.unifi.it/en/node/187 
-The code has been modified by replacing "demo.m," adding "analyze.m" and 
-the demo image, and removing the original demo script and images.
+*******************************************************************************
+* Notice by Markos Zampoglou, ITI-CERTH, 2016: This is a redistribution of    *
+* the code provided by the IAPP group in http://lesc.det.unifi.it/en/node/187 *
+* The code has been modified by replacing "demo.m," adding "analyze.m" and    *
+* the demo image, and removing the original demo script and images.           *
+*******************************************************************************
 
 Copyright (C) 2011 Pasquale Ferrara, Tiziano Bianchi, Alessia De Rosa and Alessandro Piva,       
 Dipartimento di Elettronica e Telecomunicazioni - Universit� di Firenze                        

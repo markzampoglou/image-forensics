@@ -1,4 +1,7 @@
 function estV = GetNoiseMaps_ram( im, filter_type, filter_size, block_rad )
+    % Markos Zampoglou: This is the original version of the code, where all
+    % processing takes place in memory
+    
     im=double(rgb2ycbcr(im));
     im=im(:,:,1);
     

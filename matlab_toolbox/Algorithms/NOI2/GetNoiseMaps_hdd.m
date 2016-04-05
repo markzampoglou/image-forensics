@@ -1,4 +1,8 @@
-function estV = GetNoiseMaps_lowmem( im, filter_type, filter_size, block_rad )
+function estV = GetNoiseMaps_hdd( im, filter_type, filter_size, block_rad )
+    % Markos Zampoglou: This a variant version of the code, which calls
+    % localNoiVarEstimate_hdd, a version in which intermediate data are
+    % stored on disk
+    
     im=double(rgb2ycbcr(im));
     im=im(:,:,1);
     

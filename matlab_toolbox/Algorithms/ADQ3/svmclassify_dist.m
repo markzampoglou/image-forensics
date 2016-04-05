@@ -2,9 +2,9 @@ function [outclass, f] = svmclassify_dist(svmStruct,sample, varargin)
     % This is a modification of the default svmclassify Matlab command. The
     % code has been changed in order to return the distance from the separating
     % hyperplane alongside the class label.
-    
+    %
     % Edited by Markos Zampoglou, 2016, ITI-CERTH, Thessaloniki, Greece
-    
+    %
     %SVMCLASSIFY Classify data using a support vector machine
     %   GROUP = SVMCLASSIFY(SVMSTRUCT, TEST) classifies each row in TEST using
     %   the support vector machine classifier structure SVMSTRUCT created

@@ -2,9 +2,9 @@ function [out,f] = svmdecision(Xnew,svm_struct)
     % This is a modification of the default SVM Matlab classification. The
     % code has been changed in order to return the distance from the
     % separating hyperplane alongside the class label.
-    
+    %
     % Edited by Markos Zampoglou, 2016, ITI-CERTH, Thessaloniki, Greece
-    
+    %
     %SVMDECISION Evaluates the SVM decision function
     
     %   Copyright 2004-2012 The MathWorks, Inc.

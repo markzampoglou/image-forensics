@@ -1,9 +1,21 @@
 function [ BMat ] = GetDCTArtifact(im)
-    %   Code from "2007 Detecting digital image forgeries by
-    %   measuring inconsistencies of blocking artifact"
-    MaxCoeffs=32;% %64;
+    % Copyright (C) 2016 Markos Zampoglou
+    % Information Technologies Institute, Centre for Research and Technology Hellas
+    % 6th Km Harilaou-Thermis, Thessaloniki 57001, Greece
+    %
+    % This code implements the algorithm presented in:
+    % Ye, Shuiming, Qibin Sun, and Ee-Chien Chang. "Detecting digital image
+    % forgeries by measuring inconsistencies of blocking artifact." In
+    % Multimedia and Expo, 2007 IEEE International Conference on, pp.
+    % 12-15. IEEE, 2007.   
+    
+    MaxCoeffs=32;
     coeff = [1 9 2 3 10 17 25 18 11 4 5 12 19 26 33 41 34 27 20 13 6 7 14 21 28 35 42 49 57 50 43 36 29 22 15 8 16 23 30 37 44 51 58 59 52 45 38 31 24 32 39 46 53 60 61 54 47 40 48 55 62 63 56 64];
     
+    % Depending on whether im was created using jpeg_read (and thus is a struct) 
+    % or CleanUpImage(/imread), run a different code block for DCT block
+    % extraction
+        
     if isstruct(im)
         Q=im.quant_tables{1};
         YDCT=im.coef_arrays{1};
@@ -14,7 +26,7 @@ function [ BMat ] = GetDCTArtifact(im)
         YDCT_Block=reshape(YDCT_Block, [8 8 round(imSize(1)*imSize(2)/64)]);
     else
         im=double(im);
-    %Y=rgb2ycbcr(imRaw);
+        %Y=rgb2ycbcr(im);
         Y=0.299*im(:,:,1)+0.587*im(:,:,2)+0.114*im(:,:,3);
         Y=Y(:,:,1);
         Y=Y(1:floor(end/8)*8,1:floor(end/8)*8);

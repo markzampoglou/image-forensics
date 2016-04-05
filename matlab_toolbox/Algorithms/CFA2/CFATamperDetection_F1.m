@@ -3,7 +3,7 @@ function [F1Map,CFADetected, F1] = CFATamperDetection_F1(im)
     % presented in Dirik, Ahmet Emir, and Nasir D. Memon. "Image tamper
     % detection based on demosaicing artifacts." In ICIP, pp. 1497-1500.
     % 2009.
-    
+    %
     % Copyright (C) 2016 Markos Zampoglou
     % Information Technologies Institute, Centre for Research and Technology Hellas
     % 6th Km Harilaou-Thermis, Thessaloniki 57001, Greece
@@ -13,8 +13,8 @@ function [F1Map,CFADetected, F1] = CFATamperDetection_F1(im)
     
     im=double(im(1:round(floor(end/(2^Depth))*(2^Depth)),1:round(floor(end/(2^Depth))*(2^Depth)),:));
     
+    % list of possible CFA arrangements
     SmallCFAList={[2 1;3 2] [2 3;1 2] [3 2;2 1] [1 2;2 3]};
-    LargeCFAList={ [1 2;2 3] [3 2;2 1] [2 1;3 2]  [2 3;1 2] [1 2; 3 1] [1 3;2 1] [2 1;1 3] [3 1;1 2] [3 1;2 3] [3 2;1 3] [1  3;3 2] [2 3;3 1]                  [1 2;1 3] [1 3;1 2] [1 1;2 3] [1 1;3 2] [2 1;3 1] [3 1;2 1] [2 3;1 1] [3 2;1 1] [3 1;3 2] [3 2;3 1] [3 3;1 2] [3 3;2 1] [1 3;2 3] [2 3;1 3] [1 2;3 3] [2 1;3 3]                                                   [2 1;2 3] [2 3;2 1] [2 2;1 3] [2 2;3 1]  [1 2;3 2] [3 2;1 2] [1 3;2 2] [3 1;2 2]};
     
     CFAList=SmallCFAList;
     

@@ -2,7 +2,7 @@ function YDCT = ExtractYDCT( im )
     % Copyright (C) 2016 Markos Zampoglou
     % Information Technologies Institute, Centre for Research and Technology Hellas
     % 6th Km Harilaou-Thermis, Thessaloniki 57001, Greece
-    
+    %
     % Use this function to get the DCT coefficients for files not stored in
     % JPEG format.
     

@@ -3,7 +3,7 @@ Information Technologies Institute, Centre for Research and Technology Hellas
 6th Km Harilaou-Thermis, Thessaloniki 57001, Greece
 
 While the code used in this framework (contained in GetBlockGrid.m) was written
-by me for reasons of computational efficiency, the original author has also
+by us for reasons of computational efficiency, the original author has also
 provided their own implementation. It is contained in block.m, and further
 queries should be directed to:
 
@@ -55,3 +55,6 @@ It is likely that it will work on older versions.
 Dr. Markos Zampoglou
 CERTH-ITI, Thessaloniki, Greece
 markzampoglou@iti.gr
+
+Dr. Weihai Li
+whli@ustc.edu.cn

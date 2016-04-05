@@ -6,11 +6,11 @@ function markp=Mark(bag)
 % Li, Weihai, Yuan Yuan, and Nenghai Yu. "Passive detection of doctored JPEG 
 % image via block artifact grid extraction." Signal Processing 89, no. 9 (2009): 
 % 1821-1829.
-
+%
 % We have written a different implementation using this code as a
 % guide. Without loss of performance, we have significantly reduced running
 % times. Our implementation is in GetBlockGrid.m
-
+%
 % If you use this code please cite the aforementioned paper and notify both us
 % (markzampoglou@iti.gr) and the original author
     

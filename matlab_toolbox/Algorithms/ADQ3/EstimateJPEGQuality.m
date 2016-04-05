@@ -1,8 +1,8 @@
 function [ Quality ] = EstimateJPEGQuality( imIn )
     % This function estimates the quality of a JPEG image that has been
     % loaded using "jpeg_read" from the MATLAB JPEG Toolbox. The algorithm
-    % is taken by http://fotoforensics.com/tutorial-estq.php
-    
+    % is taken from http://fotoforensics.com/tutorial-estq.php
+    %
     % Copyright (C) 2016 Markos Zampoglou
     % Information Technologies Institute, Centre for Research and Technology Hellas
     % 6th Km Harilaou-Thermis, Thessaloniki 57001, Greece

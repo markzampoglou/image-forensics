@@ -1,28 +1,31 @@
 function [ Map ] = GetNoiseMap( im , BlockSize)
-%GETNOISEMAP Summary of this function goes here
-%   Detailed explanation goes here
-YCbCr=double(rgb2ycbcr(im));
-Y=YCbCr(:,:,1);
-
-[cA1,cH,cV,cD] = dwt2(Y,'db8'); %'haar', 'db2'...'db45', 'coif1'..'coif5','sym2'..'sym45', 'bior1.1'..'bior6.8'
-%Tried to isolate noise using complex dual-tree wavelets instead, didn't get it right yet
-%NoiseThresh=1;
-%Depth=3;
-%Denoised=DTWDenoise(Y,NoiseThresh,Depth);
-%cD=Y-Denoised;
-
-cD=cD(1:floor(size(cD,1)/BlockSize)*BlockSize,1:floor(size(cD,2)/BlockSize)*BlockSize);
-Block=zeros(floor(size(cD,1)/BlockSize),floor(size(cD,2)/BlockSize),BlockSize.^2);
-
-for ii=1:BlockSize:size(cD,1)-1
-    for jj=1:BlockSize:size(cD,2)-1
-        blockElements=cD(ii:ii+BlockSize-1,jj:jj+BlockSize-1);
-        Block((ii-1)/BlockSize+1,(jj-1)/BlockSize+1,:)=reshape(blockElements,[1 1 numel(blockElements)]);
+    % Copyright (C) 2016 Markos Zampoglou
+    % Information Technologies Institute, Centre for Research and Technology Hellas
+    % 6th Km Harilaou-Thermis, Thessaloniki 57001, Greece
+    %
+    % This code implements the algorithm presented in:
+    % Mahdian, Babak, and Stanislav Saic. "Using noise inconsistencies for
+    % blind image forensics." Image and Vision Computing 27, no. 10 (2009):
+    % 1497-1503.
+    %
+    % BlockSize: the block size for noise variance estimation. Too small
+    % reduces quality, too large reduces localization accuracy
+    
+    
+    YCbCr=double(rgb2ycbcr(im));
+    Y=YCbCr(:,:,1);
+    
+    [cA1,cH,cV,cD] = dwt2(Y,'db8');
+    
+    cD=cD(1:floor(size(cD,1)/BlockSize)*BlockSize,1:floor(size(cD,2)/BlockSize)*BlockSize);
+    Block=zeros(floor(size(cD,1)/BlockSize),floor(size(cD,2)/BlockSize),BlockSize.^2);
+    
+    for ii=1:BlockSize:size(cD,1)-1
+        for jj=1:BlockSize:size(cD,2)-1
+            blockElements=cD(ii:ii+BlockSize-1,jj:jj+BlockSize-1);
+            Block((ii-1)/BlockSize+1,(jj-1)/BlockSize+1,:)=reshape(blockElements,[1 1 numel(blockElements)]);
+        end
     end
-end
-
-s=median(abs(Block),3)./0.6745;
-
-Map=s;
-
+    
+    Map=median(abs(Block),3)./0.6745;    
 end

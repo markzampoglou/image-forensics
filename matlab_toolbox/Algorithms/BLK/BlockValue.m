@@ -4,7 +4,7 @@ function b = BlockValue( BLOCK_STRUCT )
     % Nenghai Yu. "Passive detection of doctored JPEG image via block
     % artifact grid extraction." Signal Processing 89, no. 9 (2009):
     % 1821-1829.
-    
+    %
     % Copyright (C) 2016 Markos Zampoglou
     % Information Technologies Institute, Centre for Research and Technology Hellas
     % 6th Km Harilaou-Thermis, Thessaloniki 57001, Greece

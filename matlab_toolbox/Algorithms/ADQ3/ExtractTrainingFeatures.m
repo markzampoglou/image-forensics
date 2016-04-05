@@ -1,10 +1,17 @@
 clear all; close all;
+%This script was used to generate the training set contained in
+%TrainingFeature.mat
+%
 %BaseFolder is the path where all the training data are kept. It must
 %include two subfolders, "Single" and "Double". "Single" must contain one
 %subfolder per Quality (i.e. "50","55",..."95"), while Double must contain
 %one subfolder per Quality combination (i.e. ("50_55","50_60",...,"95_90")
 %Inside each subfolder will be a number of 64x64 patches having undergone
 %the corresponding JPEG compression history.
+%
+%The images were generated with CutTrainingImages and
+%CompressTrainingImages as specified by the paper.
+
 BaseFolder='/media/marzampoglou/New_NTFS_Volume/markzampoglou/ImageForensics/Datasets/FirstDigit/jpg/';
 Qualities=50:5:95;
 c1=2; c2=10; %skip the DC term and keep 9 coefficients

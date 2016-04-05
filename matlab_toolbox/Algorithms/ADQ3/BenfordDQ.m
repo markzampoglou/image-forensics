@@ -1,9 +1,10 @@
-function [OutputMap]=BenfordDQ(im)    % This code implements the algorithm presented in
+function [OutputMap]=BenfordDQ(im)   
+    % This code implements the algorithm presented in
     % Amerini, Irene, Rudy Becarelli, Roberto Caldelli, and Andrea Del
     % Mastio. "Splicing forgeries localization through the use of first
     % digit features." In Information Forensics and Security (WIFS), 2014
     % IEEE International Workshop on, pp. 143-148. IEEE, 2014.   
-    
+    %
     % Copyright (C) 2016 Markos Zampoglou
     % Information Technologies Institute, Centre for Research and Technology Hellas
     % 6th Km Harilaou-Thermis, Thessaloniki 57001, Greece
