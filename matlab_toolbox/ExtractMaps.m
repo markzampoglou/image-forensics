@@ -24,6 +24,7 @@ function ExtractMaps( Options )
         % If the .mat file already exists, skip it. This allows for partial
         % batch extraction. Remove if you intend to overwrite existing files
         if ~exist(OutputFile,'file')
+            OutputFile
             Result=analyze(SplicedList{FileInd});
             [~,InputName,~]=fileparts(SplicedList{FileInd});
             %one option is to have one mask per file with the same name and

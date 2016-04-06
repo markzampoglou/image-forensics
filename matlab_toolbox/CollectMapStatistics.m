@@ -15,24 +15,6 @@ function Curves = CollectMapStatistics( Options )
     
     for FileInd=1:length(OutputFilesSp);
         LoadedOutput=load(OutputFilesSp{FileInd});
-        %Our existing outputs do not contain masks. Remove prior to
-        %publication. ***********************************************
-        [~,InputName,~]=fileparts(strrep(OutputFilesSp{FileInd},'.mat',''));
-        BinMaskPath=dir([MasksPath InputName '.*']);
-        if ~isempty(BinMaskPath)
-            BinMask=mean(double(imread([MasksPath BinMaskPath.name])),3)>128;
-        else
-            BinMaskPath=dir([MasksPath '*.png']);
-            if length(BinMaskPath)>1
-                error('Something is wrong with the masks');
-            else
-                BinMask=mean(double(imread([MasksPath BinMaskPath(1).name])),3)>128;
-            end
-        end
-        LoadedOutput.BinMask=BinMask;
-        % End of additional code
-        % ***********************************************************
-        
         ResultsSp(FileInd)=OutputFileStatistics(LoadedOutput);
     end
     save([EvalOutputPath AlgorithmName '_' DatasetName 'Sp.mat'],'ResultsSp');

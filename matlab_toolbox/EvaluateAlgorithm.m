@@ -2,24 +2,24 @@ clear all;
 addpath(['.' filesep 'Util' filesep]);
 addpath(['.' filesep 'Util/jpegtbx_1.4' filesep]);
 %The name of the algorithm. Must be the name of a subdirectory in %"Algorithms"
-Options.AlgorithmName='ADQ1';
+Options.AlgorithmName='NOI3';
 %The name of the dataset. Only used for naming the output folders, does not
 %have to correspond to an existing path.
-Options.DatasetName='Carv';
+Options.DatasetName='Chal';
 
 % Make sure all paths end with path separator! ("/" or "\" depending on your system)
 % Root path of the spliced images (no problem if they are further split into subfolders): 
-Options.SplicedPath='/media/marzampoglou/3TB_B/ImageForensics/Datasets/Carvalho/tifs-database/DSO-1/Sp/';
+Options.SplicedPath='/media/marzampoglou/3TB_B/ImageForensics/Datasets/Challenge/dataset-dist/phase-01/training/fake/';
 % Root path of the authentic images (no problem if they are further split into subfolders):
-Options.AuthenticPath='/media/marzampoglou/3TB_B/ImageForensics/Datasets/Carvalho/tifs-database/DSO-1/Au/';
+Options.AuthenticPath='/media/marzampoglou/3TB_B/ImageForensics/Datasets/Challenge/dataset-dist/phase-01/training/pristine/';
 % Masks exist only for spliced images. They can be either a) placed in a
 % folder structure identical to the spliced images or b) have one single
 % png image in the current folder root to serve as a mask for the entire
 % dataset. See README for details.
-Options.MasksPath='/media/marzampoglou/3TB_B/ImageForensics/Datasets/Masks/Carvalho/tifs-database/DSO-1/Sp/';
+Options.MasksPath='/media/marzampoglou/3TB_B/ImageForensics/Datasets/Masks/Challenge/dataset-dist/phase-01/training/fake/';
 % Subdirectories per dataset and algorithm are created automatically, so
 % "OutputPath" should better be the root path for all outputs
-Options.OutputPath='/media/marzampoglou/3TB_B/ImageForensics/Datasets/TmpOutput/';
+Options.OutputPath='/media/marzampoglou/3TB_A/AlgorithmOutput/';
 % Certain algorithms (those depending on jpeg_read, like ADQ2, ADQ3 and
 % NADQ) only operate on .jpg and .jpeg files.
 Options.ValidExtensions={'*.jpg','*.jpeg','*.tiff','*.tif','*.png','*.bmp','*.gif'}; %{'*.jpg','*.jpeg'};
