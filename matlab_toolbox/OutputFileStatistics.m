@@ -3,7 +3,6 @@ function [ Results ] = OutputFileStatistics( InputStruct )
     Mask=InputStruct.BinMask;
     ResultMap(isnan(ResultMap))=0;
     ResultMap(isinf(ResultMap))=max(ResultMap(~isinf(ResultMap)));
-    size(Mask)
     ResultMap=imresize(ResultMap,size(Mask),'nearest');
     
     %Median under and outside mask
