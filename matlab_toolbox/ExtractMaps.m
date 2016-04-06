@@ -24,14 +24,17 @@ function ExtractMaps( Options )
         % If the .mat file already exists, skip it. This allows for partial
         % batch extraction. Remove if you intend to overwrite existing files
         if ~exist(OutputFile,'file')
-            OutputFile
             Result=analyze(SplicedList{FileInd});
             [~,InputName,~]=fileparts(SplicedList{FileInd});
             %one option is to have one mask per file with the same name and
             %possibly different extension
             BinMaskPath=dir([MasksPath InputName '.*']);
             if ~isempty(BinMaskPath)
-                BinMask=mean(double(imread([MasksPath BinMaskPath.name])),3)>128;
+                Mask=mean(double(imread([MasksPath BinMaskPath.name])),3);
+                MaskMin=min(Mask(:));
+                MaskMax=max(Mask(:));
+                MaskThresh=MaskMin+MaskMax/2;
+                BinMask=Mask>MaskThresh;
             else
                 %the other is to have one mask in the entire folder, corresponding to
                 %the entire dataset (such as the synthetic dataset of Fontani et al.)
@@ -40,7 +43,11 @@ function ExtractMaps( Options )
                 if length(BinMaskPath)>1
                     error('Something is wrong with the masks');
                 else
-                    BinMask=mean(double(CleanUpImage([MasksPath BinMaskPath(1).name])),3)>128;
+                    Mask=mean(double(CleanUpImage([MasksPath BinMaskPath(1).name])),3);
+                    MaskMin=min(Mask(:));
+                    MaskMax=max(Mask(:));
+                    MaskThresh=MaskMin+MaskMax/2;
+                    BinMask=Mask>MaskThresh;
                 end
             end
             [OutputPath,~,~]=fileparts(OutputFile);
