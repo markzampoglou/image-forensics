@@ -2,7 +2,7 @@ clear all;
 addpath(['.' filesep 'Util' filesep]);
 addpath(['.' filesep 'Util/jpegtbx_1.4' filesep]);
 %The name of the algorithm. Must be the name of a subdirectory in %"Algorithms"
-Options.AlgorithmName='NOI3';
+Options.AlgorithmName='BLK';
 %The name of the dataset. Only used for naming the output folders, does not
 %have to correspond to an existing path.
 Options.DatasetName='Chal';

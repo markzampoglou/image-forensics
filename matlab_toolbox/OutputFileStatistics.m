@@ -14,7 +14,11 @@ function [ Results ] = OutputFileStatistics( InputStruct )
     Results.OutsideMean=mean(ResultMap(~Mask));
     
     if isnan(Results.MaskMedian) || isnan(Results.OutsideMedian) || isnan(Results.MaskMean) | isnan(Results.OutsideMean)
-        disp('nan');
+        disp('NaN found. Possibly the ground truth mask is uniform.');
+        figure(1);
+        imagesc(ResultMap);
+        figure(2);
+        imagesc(Mask);
         pause
     end
     

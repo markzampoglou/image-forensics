@@ -18,7 +18,7 @@ function Curves = CollectMapStatistics( Options )
         ResultsSp(FileInd)=OutputFileStatistics(LoadedOutput);
     end
     save([EvalOutputPath AlgorithmName '_' DatasetName 'Sp.mat'],'ResultsSp');
-    
+
     for FileInd=1:length(OutputFilesAu);
         LoadedOutput=load(OutputFilesAu{FileInd});
         ResultsAu(FileInd)=OutputFileStatistics(LoadedOutput);

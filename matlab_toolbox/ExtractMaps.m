@@ -40,7 +40,7 @@ function ExtractMaps( Options )
                 if length(BinMaskPath)>1
                     error('Something is wrong with the masks');
                 else
-                    BinMask=mean(double(imread([MasksPath BinMaskPath(1).name])),3)>128;
+                    BinMask=mean(double(CleanUpImage([MasksPath BinMaskPath(1).name])),3)>128;
                 end
             end
             [OutputPath,~,~]=fileparts(OutputFile);
@@ -51,7 +51,7 @@ function ExtractMaps( Options )
     
     % the ground truth mask for positive examples is taken from the root,
     % currently the square used in Fontani et al.
-    BinMask=mean(double(imread('PositivesMask.png')),3)>128;
+    BinMask=mean(double(CleanUpImage('PositivesMask.png')),3)>128;
     for FileInd=1:length(AuthenticList)
         OutputFile=[strrep(AuthenticList{FileInd},AuthenticPath,AuthenticOutputPath) '.mat'];
         % If the .mat file already exists, skip it. This allows for partial
