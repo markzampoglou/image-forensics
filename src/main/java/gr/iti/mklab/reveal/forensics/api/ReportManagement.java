@@ -359,7 +359,7 @@ public class ReportManagement {
     
    
     public static ForensicReportBase64 getBase64(String urlHash, String mongoHostIP) throws UnknownHostException{
-    	System.out.println("INto getBase64");
+    	System.out.println("Create base64 for hash " + urlHash);
         MongoClient mongoclient = new MongoClient(mongoHostIP, 27017);
         Morphia morphia = new Morphia();
         morphia.map(ForensicReport.class).map(dqReport.class);
@@ -367,9 +367,8 @@ public class ReportManagement {
         ds.ensureCaps();
         ForensicReportBase64 reportBase64 = new ForensicReportBase64();
         ForensicReport report = ds.get(ForensicReport.class, urlHash);
-        System.out.println("report open " + report);
-        if (report!=null) {
-        	  System.out.println("report open NOT NULL");
+     
+        if (report!=null) {        	      	
 	        if (report.displayImage!=null){
 	        	 System.out.println("Display exist");
 	        	byte[] displayImageInByte;
@@ -381,9 +380,10 @@ public class ReportManagement {
 	    			displayImagebuffer.flush();
 	    			displayImageInByte = displayImagebuffer.toByteArray();
 	    			displayImagebuffer.close();
+	    			
 	    			byte[] dataScale = null;
 	    				try {	    					
-	    					dataScale = scale(displayImageInByte, 500, 0);
+	    					dataScale = scale(displayImageInByte, 500, 500);
 	    					String displayImageBase64String = Base64.getEncoder().encodeToString(dataScale);
 	    	    			reportBase64.displayImageBase64 = "data:image/jpeg;base64," + displayImageBase64String;	    	    		
 	    				} catch (ApplicationException e) {
@@ -392,7 +392,7 @@ public class ReportManagement {
 	    					System.out.println("Scalling exception");
 	    					String displayImageBase64String = Base64.getEncoder().encodeToString(displayImageInByte);
 	    	    			reportBase64.displayImageBase64 = "data:image/jpeg;base64," + displayImageBase64String;	    					
-	    				}		    			
+	    				}		    		
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -412,7 +412,7 @@ public class ReportManagement {
 						thumbbuffer.close();
 						 byte[] thumbScale = null;
 		    				try {
-		    					thumbScale = scale(thumbInByte, 500, 0);
+		    					thumbScale = scale(thumbInByte, 500, 500);
 		    					String thumbBase64String = Base64.getEncoder().encodeToString(thumbScale);
 				    			reportBase64.thumbBase64.add("data:image/jpeg;base64," + thumbBase64String);
 		    				} catch (ApplicationException e) {
@@ -440,7 +440,7 @@ public class ReportManagement {
 		    			dqbuffer.close();
 		    			 byte[] dqScale = null;
 		    				try {
-		    					dqScale = scale(dqInByte, 130, 0);
+		    					dqScale = scale(dqInByte, 130, 130);
 		    					String dqBase64String = Base64.getEncoder().encodeToString(dqScale);
 				    			reportBase64.dqBase64 = "data:image/jpeg;base64," + dqBase64String;
 		    				} catch (ApplicationException e) {
@@ -468,7 +468,7 @@ public class ReportManagement {
 	    			dwNoisebuffer.close();
 	    			 byte[] dwNoiseScale = null;
 	    				try {
-	    					dwNoiseScale = scale(dwNoiseInByte, 130, 0);
+	    					dwNoiseScale = scale(dwNoiseInByte, 130, 130);
 	    					String dwNoiseBase64String = Base64.getEncoder().encodeToString(dwNoiseScale);
 	    	    			reportBase64.dwNoiseBase64 = "data:image/jpeg;base64," + dwNoiseBase64String;
 	    				} catch (ApplicationException e) {
@@ -495,7 +495,7 @@ public class ReportManagement {
 	    			elabuffer.close();
 	    			 byte[] elaScale = null;
 	    				try {
-	    					elaScale = scale(elaInByte, 130, 0);
+	    					elaScale = scale(elaInByte, 130, 130);
 	    					String elaBase64String = Base64.getEncoder().encodeToString(elaScale);
 	    	    			reportBase64.elaBase64 = "data:image/jpeg;base64," + elaBase64String;
 	    				} catch (ApplicationException e) {
@@ -522,7 +522,7 @@ public class ReportManagement {
 	    			blockingbuffer.close();
 	    			byte[] blockingScale = null;
     				try {
-    					blockingScale = scale(blockingInByte, 130, 0);
+    					blockingScale = scale(blockingInByte, 130, 130);
     					String blockingBase64String = Base64.getEncoder().encodeToString(blockingScale);
     	    			reportBase64.blockingBase64 = "data:image/jpeg;base64," + blockingBase64String;
     				} catch (ApplicationException e) {
@@ -549,7 +549,7 @@ public class ReportManagement {
 	    			medianNoisebuffer.close();
 	    			byte[] medianNoiseScale = null;
 	    			try {
-	    				medianNoiseScale = scale(medianNoiseInByte, 130, 0);
+	    				medianNoiseScale = scale(medianNoiseInByte, 130, 130);
 	    				String medianNoiseBase64String = Base64.getEncoder().encodeToString(medianNoiseScale);
 		    			reportBase64.medianNoiseBase64 = "data:image/jpeg;base64," + medianNoiseBase64String;
     				} catch (ApplicationException e) {
@@ -578,7 +578,7 @@ public class ReportManagement {
 			    			ghostbuffer.close();
 			    			byte[] ghostScale = null;
 			    			try {
-			    				ghostScale = scale(ghostInByte, 130, 0);
+			    				ghostScale = scale(ghostInByte, 130, 130);
 			    				String ghostBase64String = Base64.getEncoder().encodeToString(ghostScale);
 				    			reportBase64.ghostBase64.add("data:image/jpeg;base64," + ghostBase64String);
 		    				} catch (ApplicationException e) {
@@ -594,6 +594,8 @@ public class ReportManagement {
 					e.printStackTrace();
 				}			
 	        }
+        }else{
+        	System.out.println("report is empty");
         }
         mongoclient.close();
         return reportBase64;
@@ -601,23 +603,42 @@ public class ReportManagement {
     
     public static byte[] scale(byte[] fileData, int width, int height) throws ApplicationException {
     	ByteArrayInputStream in = new ByteArrayInputStream(fileData);
+    	byte[] imagedata = null;
     	try {
+    		
     		BufferedImage img = ImageIO.read(in);
-    		if(height == 0) {
-    			height = (width * img.getHeight())/ img.getWidth(); 
+    		
+    		if (img.getHeight() > img.getWidth()){
+    			if (img.getHeight() > height){
+    				width = (height * img.getWidth())/ img.getHeight();
+    				Image scaledImage = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+    	    		BufferedImage imageBuff = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+    	    		imageBuff.getGraphics().drawImage(scaledImage, 0, 0, new Color(0,0,0), null);
+
+    	    		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+    	    		ImageIO.write(imageBuff, "jpg", buffer);   
+    	    		imagedata =  buffer.toByteArray();
+    			}else {
+    				imagedata = fileData;
+    			}
+    		}else{
+    			if (img.getWidth() > width){
+    				height = (width * img.getHeight())/ img.getWidth(); 
+    				
+    				Image scaledImage = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+    	    		BufferedImage imageBuff = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+    	    		imageBuff.getGraphics().drawImage(scaledImage, 0, 0, new Color(0,0,0), null);
+
+    	    		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+    	    		ImageIO.write(imageBuff, "jpg", buffer);
+    	    		imagedata =  buffer.toByteArray();
+    			}else{
+    				imagedata = fileData;
+    			}
     		}
-    		if(width == 0) {
-    			width = (height * img.getWidth())/ img.getHeight();
-    		}
-    		Image scaledImage = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-    		BufferedImage imageBuff = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-    		imageBuff.getGraphics().drawImage(scaledImage, 0, 0, new Color(0,0,0), null);
-
-    		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-
-    		ImageIO.write(imageBuff, "jpg", buffer);
-
-    		return buffer.toByteArray();
+    		return imagedata; 
     	} catch (IOException e) {
     		throw new ApplicationException("IOException in scale", null);
     	}

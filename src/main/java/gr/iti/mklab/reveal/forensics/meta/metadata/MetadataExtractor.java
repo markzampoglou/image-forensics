@@ -24,6 +24,7 @@ public class MetadataExtractor {
     private JsonObject getMetadata(String FileName) throws IOException, ImageProcessingException {
         com.drew.metadata.Metadata metadata = ImageMetadataReader.readMetadata(new File(FileName));
         JsonObject jsonObject;
+
 /*
         JsonObject JSONChild;
         jsonObject=new JsonObject();
@@ -44,16 +45,39 @@ public class MetadataExtractor {
         JsonArray jsonTagArray;
         JsonObject jsonTagChild;
 
+        boolean runningExifIFD0;
+        boolean foundExifIFD0=false;
+        boolean foundCopyright=false;
+
         jsonObject.addProperty("name", "metadataArray");
         for (Directory directory : metadata.getDirectories()) {
             jsonChild = new JsonObject();
             jsonChild.addProperty("name", directory.getName());
+            if (directory.getName().equalsIgnoreCase("Exif IFD0")) {
+                runningExifIFD0 = true;
+                foundExifIFD0=true;
+                System.out.println("IFD0 found");
+            } else
+            {
+                runningExifIFD0 = false;
+            }
+
             jsonTagArray=new JsonArray();
             for (Tag tag : directory.getTags()) {
                 jsonTagChild =new JsonObject();
                 jsonTagChild.addProperty("name", tag.getTagName());
                 jsonTagChild.addProperty("value", tag.getDescription());
                 jsonTagArray.add(jsonTagChild);
+                if (tag.getTagName().equalsIgnoreCase("Copyright")){
+                    foundCopyright=true;
+                }
+            }
+            if (runningExifIFD0 & !foundCopyright) {
+                jsonTagChild =new JsonObject();
+                jsonTagChild.addProperty("name", "Copyright");
+                jsonTagChild.addProperty("value", "None found.");
+                jsonTagArray.add(jsonTagChild);
+                System.out.println("Copyright added manually");
             }
             if (directory.getTagCount()==0){
                 jsonTagChild =new JsonObject();
@@ -61,6 +85,18 @@ public class MetadataExtractor {
                 jsonTagChild.addProperty("value", "This category exists but is empty.");
                 jsonTagArray.add(jsonTagChild);
             }
+            jsonChild.add("values", jsonTagArray);
+            jsonDirArray.add(jsonChild);
+        }
+        if (!foundExifIFD0) {
+            System.out.println("IFD0 not found, added manually");
+            jsonChild = new JsonObject();
+            jsonChild.addProperty("name", "Exif IFD0");
+            jsonTagArray=new JsonArray();
+            jsonTagChild =new JsonObject();
+            jsonTagChild.addProperty("name", "Copyright");
+            jsonTagChild.addProperty("value", "None found.");
+            jsonTagArray.add(jsonTagChild);
             jsonChild.add("values", jsonTagArray);
             jsonDirArray.add(jsonChild);
         }
