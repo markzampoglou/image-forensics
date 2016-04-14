@@ -1,0 +1,1137 @@
+{ "swagger": 2.0,
+    "info": {
+        "description": "Reveal web service",
+        "version": "1.0.0",
+        "title": "Reveal",
+        "termsOfService": "http://revealproject.eu/",
+        "contact": {
+            "name": "kandreadou@iti.gr"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        }
+    },
+    "host": "127.0.0.1:8080/reveal",
+    "basePath": "/mmapi",
+    "paths": {
+        "/crawls/add": {
+            "get": {
+                "tags": [
+                    "crawls"
+                ],
+                "summary": "Adds a crawl request",
+                "description": "",
+                "operationId": "crawl",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "text",
+                        "description": "json text",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/CrawlRequest"
+                        }
+                    },
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/crawls/{id}/stop": {
+            "get": {
+                "tags": [
+                    "crawls"
+                ],
+                "summary": "Stops the specified crawl",
+                "description": "",
+                "operationId": "crawl",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "The crawl request id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/CrawlRequest"
+                        }
+                    },
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/crawls/{id}/kill": {
+            "get": {
+                "tags": [
+                    "crawls"
+                ],
+                "summary": "Kills the specified crawl",
+                "description": "",
+                "operationId": "crawl",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "The crawl request id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/CrawlRequest"
+                        }
+                    },
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/crawls/{id}/delete": {
+            "get": {
+                "tags": [
+                    "crawls"
+                ],
+                "summary": "Deletes the specified crawl and all related data",
+                "description": "",
+                "operationId": "crawl",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "The crawl request id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/CrawlRequest"
+                        }
+                    },
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/crawls/{id}/status": {
+            "get": {
+                "tags": [
+                    "crawls"
+                ],
+                "summary": "Gets the status of the specified crawl",
+                "description": "",
+                "operationId": "crawl",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "The crawl request id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/CrawlRequest"
+                        }
+                    },
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/crawls/status": {
+            "get": {
+                "tags": [
+                    "crawls"
+                ],
+                "summary": "Gets the crawler status",
+                "description": "",
+                "operationId": "crawl",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/CrawlRequest"
+                        }
+                    },
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/media/{collection}": {
+            "get": {
+                "tags": [
+                    "media"
+                ],
+                "summary": "Get media items by count, offset and type",
+                "description": "",
+                "operationId": "getMedia",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "type",
+                        "description": "The type, image, video or nothing (for all)",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "count",
+                        "description": "The number of items",
+                        "defaultValue": "10",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "offset",
+                        "description": "The offset",
+                        "defaultValue": "0",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "path",
+                        "name": "collection",
+                        "description": "The collection name",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/media/{collection}/{id}": {
+            "get": {
+                "tags": [
+                    "media"
+                ],
+                "summary": "Find media by id",
+                "description": "",
+                "operationId": "getMediaItemById",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "ID of media item that needs to be fetched",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "collection",
+                        "description": "The collection name",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": "Media not found"
+                    },
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/MediaItem"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID supplied"
+                    }
+                }
+            }
+        },
+        "/media/{collection}/search": {
+            "get": {
+                "tags": [
+                    "media"
+                ],
+                "summary": "Search for items",
+                "description": "",
+                "operationId": "search",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "collection",
+                        "description": "The collection name",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "user",
+                        "description": "The user name",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "count",
+                        "description": "The number of clusters",
+                        "defaultValue": "10",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "offset",
+                        "description": "The offset",
+                        "defaultValue": "0",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "w",
+                        "description": "Minimum item width",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "in": "query",
+                        "name": "h",
+                        "description": "Minimum item height",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "in": "query",
+                        "name": "date",
+                        "description": "The minimum date",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "in": "query",
+                        "name": "type",
+                        "description": "The type, image, video or nothing (for all)",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "query",
+                        "description": "A text query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "sources",
+                        "description": "The desired sources, has to be a comma delimited string of social network strings, e.g. YouTube,Flickr",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/Image"
+                        }
+                    },
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/media/{collection}/similar": {
+            "get": {
+                "tags": [
+                    "media"
+                ],
+                "summary": "Get similar items",
+                "description": "",
+                "operationId": "similar",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "collection",
+                        "description": "The collection name",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "count",
+                        "description": "The number of items",
+                        "defaultValue": "50",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "offset",
+                        "description": "The offset",
+                        "defaultValue": "0",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "threshold",
+                        "defaultValue": "0.6",
+                        "description": "The similarity threshold",
+                        "required": false,
+                        "type": "double"
+                    },
+                    {
+                        "in": "query",
+                        "name": "imageurl",
+                        "description": "The image url",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/MediaItem"
+                        }
+                    },
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/media/{collection}/cluster": {
+            "get": {
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "Cluster the members of the specified collection",
+                "description": "",
+                "operationId": "clusterCollection",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "collection",
+                        "description": "The collection name",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "eps",
+                        "description": "The eps for the DBSCAN clustering algorithm",
+                        "defaultValue": "1.2",
+                        "required": true,
+                        "type": "double"
+                    },
+                    {
+                        "in": "query",
+                        "name": "minpoints",
+                        "description": "The minimum number of points required to form a dense region",
+                        "defaultValue": "2",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "in": "query",
+                        "name": "count",
+                        "description": "The number of items to cluster",
+                        "defaultValue": "1000",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": "Media not found"
+                    },
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/MediaItem"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID supplied"
+                    }
+                }
+            }
+        },
+        "/clusters/{collection}": {
+            "get": {
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "Get clusters",
+                "description": "",
+                "operationId": "getClusters",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "collection",
+                        "description": "The collection name",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "count",
+                        "description": "The number of items",
+                        "defaultValue": "50",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "offset",
+                        "description": "The offset",
+                        "defaultValue": "0",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": "Media not found"
+                    },
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/MediaItem"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID supplied"
+                    }
+                }
+            }
+        },
+        "/clusters/{collection}/{id}": {
+            "get": {
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "Get cluster with specified id",
+                "description": "",
+                "operationId": "getCluster",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "collection",
+                        "description": "The collection name",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "The cluster id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "count",
+                        "description": "The number of items",
+                        "defaultValue": "50",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "offset",
+                        "description": "The offset",
+                        "defaultValue": "0",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": "Media not found"
+                    },
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/MediaItem"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID supplied"
+                    }
+                }
+            }
+        },
+		"/media/{collection}/summarize": {
+            "get": {
+                "tags": [
+                    "summarize"
+                ],
+                "summary": "Summarize the members of the specified collection",
+                "description": "",
+                "operationId": "summarizationForCollection",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "collection",
+                        "description": "The collection name",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "similarityCuttof",
+                        "description": "The similarityCuttof for the creation of images graph",
+                        "defaultValue": "0.2",
+                        "required": false,
+                        "type": "double"
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": "Summarization failed"
+                    },
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/SummaryResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID supplied"
+                    }
+                }
+            }
+        },
+         "/summary/{collection}": {
+            "get": {
+                "tags": [
+                    "summary"
+                ],
+                "summary": "Get summary",
+                "description": "",
+                "operationId": "getSummary",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "collection",
+                        "description": "The collection name",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "count",
+                        "description": "The number of items in the summary",
+                        "defaultValue": "50",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": "Summary not found"
+                    },
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/SummaryResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID supplied"
+                    }
+                }
+            }
+        },
+        "/media/verificationreport/addurl":{
+            "get": {
+                "tags": [
+                    "verification v2"
+                ],
+                "summary": "Downloads a url, adds an empty verification entry to MongoDB and returns the hash key",
+                "description": "",
+                "operationId": "manipulationReport",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "url",
+                        "description": "The image url",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/media/verificationreport/generatereport":{
+            "get": {
+                "tags": [
+                    "verification v2"
+                ],
+                "summary": "Accepts a hash key corresponding to a downloaded unprocessed MongoDB entry and initiates forensic processing",
+                "description": "",
+                "operationId": "manipulationReport",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "hash",
+                        "description": "The hash corresponding to the URL",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/media/verificationreport/getreport":{
+            "get": {
+                "tags": [
+                    "verification v2"
+                ],
+                "summary": "Accepts a hash key corresponding to a downloaded unprocessed MongoDB entry and returns the (partial, complete or null) corresponding report",
+                "description": "",
+                "operationId": "manipulationReport",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "hash",
+                        "description": "The hash corresponding to the URL",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/media/verify": {
+            "get": {
+                "tags": [
+                    "verification"
+                ],
+                "summary": "Produces a manipulation report",
+                "description": "",
+                "operationId": "manipulationReport",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "url",
+                        "description": "The image url",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/media/verify/ghost": {
+            "get": {
+                "tags": [
+                    "verification"
+                ],
+                "summary": "Produces a ghost analysis report",
+                "description": "",
+                "operationId": "ghostAnalysis",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "url",
+                        "description": "The image url",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/media/verify/dq": {
+            "get": {
+                "tags": [
+                    "verification"
+                ],
+                "summary": "Produces a dq analysis",
+                "description": "",
+                "operationId": "getDQreport",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "url",
+                        "description": "The image url",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/media/verify/noisemahdian": {
+            "get": {
+                "tags": [
+                    "verification"
+                ],
+                "summary": "Produces a noise mahdian analysis",
+                "description": "",
+                "operationId": "noiseMahdianReport",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "url",
+                        "description": "The image url",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/media/{collection}/extract": {
+            "get": {
+                "tags": [
+                    "entities"
+                ],
+                "summary": "Extracts and ranks entities from the specified collection",
+                "description": "",
+                "operationId": "entitiesExtraction",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "collection",
+                        "description": "The collection name",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/media/{collection}/entities": {
+            "get": {
+                "tags": [
+                    "entities"
+                ],
+                "summary": "Gets the ranked entities for the specified collection",
+                "description": "",
+                "operationId": "getEntities",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "collection",
+                        "description": "The collection name",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/media/{collection}/relations": {
+            "get": {
+                "tags": [
+                    "relations"
+                ],
+                "summary": "Gets the relations among named entities for the specified collection",
+                "description": "",
+                "operationId": "getRelations",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "collection",
+                        "description": "The collection name",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "MediaItem": {
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "uid": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "publicationTime": {
+                    "type": "integer"
+                },
+                "clusterId": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": "integer"
+                },
+                "height": {
+                    "type": "integer"
+                }
+            }
+        },
+        "MediaCluster": {
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "members": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "item": {
+                    "type": "MediaItem"
+                }
+            }
+        },
+        "CrawlRequest": {
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "NamedEntity": {
+            "token": {
+                "type": "string"
+            },
+            "type": {
+                "type": "string"
+            }
+        },
+        "SummaryResponse": {
+        	"status": {
+        		"type": "string"
+        	}
+        }
+    }
+}

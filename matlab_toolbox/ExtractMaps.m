@@ -15,7 +15,6 @@ function ExtractMaps( Options )
         SplicedList=[SplicedList;getAllFiles(SplicedPath,ValidExtensions{Ext},true)];
         AuthenticList=[AuthenticList;getAllFiles(AuthenticPath,ValidExtensions{Ext},true)];
     end
-    
     warning('off','MATLAB:MKDIR:DirectoryExists');
     
     addpath(['.' filesep 'Algorithms' filesep AlgorithmName]);
