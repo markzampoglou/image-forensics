@@ -12,11 +12,19 @@ import java.util.List;
 public class ForensicReportBase64 {
 
 	public String displayImageBase64 = "";
+	public int widthdisplayImage;
 	public List<String> thumbBase64 = new ArrayList();
+	public List<Integer> widththumb = new ArrayList();
 	public String dqBase64="";
+	public int widthdq;
     public String dwNoiseBase64 ="";
+    public int widthdwNoise;
     public List<String> ghostBase64 = new ArrayList();
+    public List<Integer> widthghost = new ArrayList();
     public String elaBase64 ="";
+    public int widthela;
     public String blockingBase64 ="";
-    public String medianNoiseBase64 = "";   
+    public int widthblocking;
+    public String medianNoiseBase64 = "";
+    public int widthmedianNoise;
 }
