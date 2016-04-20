@@ -43,6 +43,11 @@ import gr.iti.mklab.reveal.forensics.maps.blocking.BlockingExtractor;
 import gr.iti.mklab.reveal.forensics.util.ArtificialImages;
 import javax.imageio.ImageIO;
 
+// Logger to suppress MongoDB message flood
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+
 /**
  * Created by marzampoglou on 11/19/15.
  */
@@ -54,6 +59,12 @@ public class ReportManagement {
     
     private static String url;
 
+    // Suppress MongoDB logging
+    static Logger root = (Logger) LoggerFactory
+            .getLogger(Logger.ROOT_LOGGER_NAME);
+    static {
+        root.setLevel(Level.WARN);
+    }
         
     public static String downloadURL(String urlIn, String folderOut, String mongoHostIP) throws IOException {
     	System.out.println("downloadURL");
