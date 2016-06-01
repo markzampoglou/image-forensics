@@ -70,8 +70,8 @@ public class ReportManagement {
     	System.out.println("downloadURL");
     	String imgHash = null;
     	byte[] data = null;
-    	byte[] dataScale = null;
         MongoClient mongoclient = new MongoClient(mongoHostIP, 27017);
+       // System.out.println("mongoHostIP :: " + mongoHostIP);
         Morphia morphia = new Morphia();
         morphia.map(ForensicReport.class).map(dqReport.class);
         Datastore ds = new Morphia().createDatastore(mongoclient, "ForensicDatabase");
@@ -110,19 +110,19 @@ public class ReportManagement {
 				}
 	        
 		        String baseFolder = folderOut + imgHash + "/";
-		        ForensicReport report = ds.get(ForensicReport.class, imgHash);
+		        ForensicReport report = ds.get(ForensicReport.class, imgHash);		       
 		        // check if hash exist
 		        if (report != null) {
-		            System.out.println("Exists");            
-		        }else{        	
+		            System.out.println("Exists");    
+		        }else{  		        	
 		        	// if hash does not exist in database, then download the image
 		        	 report = new ForensicReport();
 		             report.id = imgHash;            
 		             try {
-			             File writeFolder=new File(baseFolder);
+			             File writeFolder=new File(baseFolder);			           
 			             if (!writeFolder.exists())
 			                 writeFolder.mkdirs();	             
-			             	File imageFile = new File (baseFolder,"Raw");
+			             	File imageFile = new File (baseFolder,"Raw");			             	
 			             	OutputStream outputStream = new FileOutputStream(imageFile);
 			             	        		             	             
 			             	byteOutputStream.writeTo(outputStream);
@@ -135,21 +135,18 @@ public class ReportManagement {
 			                report.sourceURL = urlIn;
 			                report.status = "Downloaded";
 			                ds.save(report);
-			            } catch (Exception e) {
-			                //e.printStackTrace();
-			                System.out.println("ERROR: The requested URL does not respond or does not exist. Exiting.");
-			                //ds.delete(ForensicReport.class, urlHash);
+			            } catch (Exception e) {			               
+			                System.out.println("ERROR: The requested URL does not respond or does not exist. Exiting.");			               
 			                return "URL_ERROR";
 			            }
 		        } 
 	     } catch (Exception e) {
-	        //e.printStackTrace();
-	        System.out.println("ERROR: The requested URL does not respond or does not exist. Exiting.");
-	        //ds.delete(ForensicReport.class, urlHash);
+	        System.out.println("ERROR1: The requested URL does not respond or does not exist. Exiting.");
 	        return "URL_ERROR";
 	    }
         return imgHash;
-    }
+    }    
+    
     
     public static String createReport(String urlHash, String mongoHostIP, String folderOut, int maxGhostImageSmallDimension, int numGhostThreads, long computationTimeoutLimit) throws UnknownHostException {
         return reportCalculation(urlHash, mongoHostIP, folderOut, maxGhostImageSmallDimension, numGhostThreads, computationTimeoutLimit);
@@ -197,7 +194,6 @@ public class ReportManagement {
             File elaOutputfile = new File(baseFolder,"ELAOutput.png");
             File blkOutputfile = new File(baseFolder,"BLKOutput.png");
             File medianNoiseOutputFile = new File(baseFolder, "MedianNoiseOutput.png");
-            Long startTimeAll=System.currentTimeMillis();
             try {
             if (ImageIO.read(new File(report.sourceImage)).getColorModel().hasAlpha()) {
             	System.out.println("If image has an alpha channel, then assume transparent PNG -No point in processing it");
@@ -380,8 +376,7 @@ public class ReportManagement {
         ForensicReport report = ds.get(ForensicReport.class, urlHash);
      
         if (report!=null) {        	      	
-	        if (report.displayImage!=null){
-	        	 System.out.println("Display exist");
+	        if (report.displayImage!=null){	        	
 	        	byte[] displayImageInByte;
 				BufferedImage displayImage;
 				try {
@@ -677,25 +672,7 @@ public class ReportManagement {
     	}
     }
 
-        
-    static String buildImgHash(String urlIn) throws Throwable{
-    	
-    	File input = new File(url);    	
-        BufferedImage buffImg = ImageIO.read(input);		        
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ImageIO.write(buffImg, "jpg", outputStream); 
-        byte[] data = outputStream.toByteArray();
    
-        System.out.println("Start MD5 Digest");
-        MessageDigest md = MessageDigest.getInstance("MD5");
-        md.update(data);
-        byte[] hash = md.digest();
-        String imgHash = String.format("%032x", new java.math.BigInteger(1, hash));
-    	
-    	return imgHash;   	
-    }
-
-    
     private static class DQThread implements Callable {
         String sourceFile ="";
         File outputFile =null;
@@ -718,8 +695,8 @@ public class ReportManagement {
             DQExtractor dqDetector;
             dqDetector = new DQExtractor(sourceFile);
             ImageIO.write(dqDetector.displaySurface, "png", outputFile);            
-            ByteArrayOutputStream dqBase64bytes = new ByteArrayOutputStream();
-            ImageIO.write(dqDetector.displaySurface, "png", dqBase64bytes);
+            ByteArrayOutputStream dqbytes = new ByteArrayOutputStream();
+            ImageIO.write(dqDetector.displaySurface, "png", dqbytes);
             dqReport.map = outputFile.getCanonicalPath();
             dqReport.maxValue = dqDetector.maxProbValue;
             dqReport.minvalue = dqDetector.minProbValue;
@@ -750,8 +727,8 @@ public class ReportManagement {
             DWNoiseVarExtractor noiseExtractor;
             noiseExtractor = new DWNoiseVarExtractor(sourceFile);
             ImageIO.write(noiseExtractor.displaySurface, "png", outputFile);
-            ByteArrayOutputStream noiseBase64bytes = new ByteArrayOutputStream();
-            ImageIO.write(noiseExtractor.displaySurface, "png", noiseBase64bytes);
+            ByteArrayOutputStream noisebytes = new ByteArrayOutputStream();
+            ImageIO.write(noiseExtractor.displaySurface, "png", noisebytes);
            
             dwNoiseReport.map = outputFile.getCanonicalPath();
             dwNoiseReport.maxvalue = noiseExtractor.maxNoiseValue;
@@ -794,9 +771,9 @@ public class ReportManagement {
                 ghostOutputfile=new File(baseFolder, "GhostOutput" + String.format("%02d", ghostMapInd) + ".png");
                 ghostMap=ghostExtractor.ghostMaps.get(ghostMapInd);
                 ImageIO.write(ghostMap, "png", ghostOutputfile);
-                ByteArrayOutputStream ghostBase64bytes = new ByteArrayOutputStream();
-                ImageIO.write(ghostMap, "png", ghostBase64bytes);
-                imageInByte = ghostBase64bytes.toByteArray();
+                ByteArrayOutputStream ghostbytes = new ByteArrayOutputStream();
+                ImageIO.write(ghostMap, "png", ghostbytes);
+                imageInByte = ghostbytes.toByteArray();
              
                 ghostReport.maps.add(ghostOutputfile.getCanonicalPath());
                 ghostReport.differences = ghostExtractor.allDifferences;
@@ -833,8 +810,8 @@ public class ReportManagement {
             ELAExtractor elaExtractor;
             elaExtractor = new ELAExtractor(sourceFile);
             ImageIO.write(elaExtractor.displaySurface, "png", outputFile);
-            ByteArrayOutputStream elaBase64bytes = new ByteArrayOutputStream();
-            ImageIO.write(elaExtractor.displaySurface, "png", elaBase64bytes);
+            ByteArrayOutputStream elabytes = new ByteArrayOutputStream();
+            ImageIO.write(elaExtractor.displaySurface, "png", elabytes);
               
             elaReport.map = outputFile.getCanonicalPath();
             elaReport.maxValue = elaExtractor.elaMax;
@@ -866,8 +843,8 @@ public class ReportManagement {
             BlockingExtractor blockingExtractor;
             blockingExtractor = new BlockingExtractor(sourceFile);
             ImageIO.write(blockingExtractor.displaySurface, "png", outputFile);
-            ByteArrayOutputStream blockBase64bytes = new ByteArrayOutputStream();
-            ImageIO.write(blockingExtractor.displaySurface, "png", blockBase64bytes);
+            ByteArrayOutputStream blockbytes = new ByteArrayOutputStream();
+            ImageIO.write(blockingExtractor.displaySurface, "png", blockbytes);
                   
             blockingReport.map = outputFile.getCanonicalPath();
             blockingReport.maxValue = blockingExtractor.blkmax;
@@ -899,8 +876,8 @@ public class ReportManagement {
             MedianNoiseExtractor medianNoiseExtractor;
             medianNoiseExtractor = new MedianNoiseExtractor(sourceFile);
             ImageIO.write(medianNoiseExtractor.displaySurface, "png", outputFile);
-            ByteArrayOutputStream dqBase64bytes = new ByteArrayOutputStream();
-            ImageIO.write(medianNoiseExtractor.displaySurface, "png", dqBase64bytes);       
+            ByteArrayOutputStream medianNoisebytes = new ByteArrayOutputStream();
+            ImageIO.write(medianNoiseExtractor.displaySurface, "png", medianNoisebytes);       
         
             medianNoiseReport.map = outputFile.getCanonicalPath();
             medianNoiseReport.completed=true;
@@ -919,8 +896,7 @@ public class ReportManagement {
        // String OutputFolder = "/home/marzampoglou/Pictures/Reveal/ManipulationOutput/";
        // String Hash1=downloadURL("http://160.40.51.26/projects/Reveal/imgs/example6_big.jpg", OutputFolder, "127.0.0.1");
         String OutputFolder = "D:\\Reveal\\image-forensics-local-data\\ManipulationOutput\\";
-      //  String Hash1=downloadURL(url, OutputFolder, "127.0.0.1");
-        //olga
+       //  String Hash1=downloadURL(url, OutputFolder, "127.0.0.1");
         //System.out.println("OutputFolder " + OutputFolder);
         //System.out.println("Hash1 " + Hash1);
         //createReport(Hash1, "127.0.0.1", OutputFolder);

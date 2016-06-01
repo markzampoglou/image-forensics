@@ -9,14 +9,14 @@
 	<name>forensics</name>
 	<properties>
 		<spring.version>4.1.0.RELEASE</spring.version>
-		<mongo.host>160.40.51.20</mongo.host>
+		<!-- <mongo.host>160.40.51.20</mongo.host> -->
 	</properties>
 	<dependencies>
 		 <dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>18.0</version>
-		</dependency>  
+		</dependency>  	
 		<dependency>
                 <groupId>org.mongodb.morphia</groupId>
                 <artifactId>morphia</artifactId>
@@ -169,7 +169,7 @@
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
-				<!--filtering>true</filtering-->
+				<!-- <filtering>true</filtering> -->
 			</resource>
 		</resources>
 	</build>

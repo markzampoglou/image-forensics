@@ -5,6 +5,7 @@ import gr.iti.mklab.reveal.forensics.api.ForensicReportBase64;
 import gr.iti.mklab.reveal.forensics.api.ReportManagement;
 
 import gr.iti.mklab.reveal.util.Configuration;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +17,8 @@ import javax.annotation.PreDestroy;
 public class RevealController {
 
       public RevealController() throws Exception {
-        Configuration.load(getClass().getResourceAsStream("/remote.properties"));
-        //MorphiaManager.setup(Configuration.MONGO_HOST);
+        Configuration.load(getClass().getResourceAsStream("/docker.properties"));
+       // MorphiaManager.setup(Configuration.MONGO_HOST);
     }
 
     @PreDestroy
