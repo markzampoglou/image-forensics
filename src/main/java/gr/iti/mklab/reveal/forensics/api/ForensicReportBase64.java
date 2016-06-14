@@ -27,4 +27,8 @@ public class ForensicReportBase64 {
     public int widthblocking;
     public String medianNoiseBase64 = "";
     public int widthmedianNoise;
+    public String gridsBase64 ="";
+    public int widthgrids;
+    public String gridsInversedBase64 = "";
+    public int widthgridsInversed;
 }

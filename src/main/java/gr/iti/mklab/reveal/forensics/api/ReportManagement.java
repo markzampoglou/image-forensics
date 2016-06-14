@@ -39,6 +39,8 @@ import gr.iti.mklab.reveal.forensics.maps.dq.DQExtractor;
 import gr.iti.mklab.reveal.forensics.maps.mediannoise.MedianNoiseExtractor;
 import gr.iti.mklab.reveal.forensics.maps.ela.ELAExtractor;
 import gr.iti.mklab.reveal.forensics.maps.ghost.GhostExtractor;
+import gr.iti.mklab.reveal.forensics.maps.grids.GridsExtractor;
+import gr.iti.mklab.reveal.forensics.maps.gridsInversed.GridsInversedExtractor;
 import gr.iti.mklab.reveal.forensics.maps.blocking.BlockingExtractor;
 import gr.iti.mklab.reveal.forensics.util.ArtificialImages;
 import javax.imageio.ImageIO;
@@ -187,13 +189,17 @@ public class ReportManagement {
             BlockingReport blockingReport=new BlockingReport();
             MedianNoiseReport medianNoiseReport=new MedianNoiseReport();
             GPSReport gpsReport = new GPSReport();
-
+            GridsReport gridsReport=new GridsReport();
+            GridsInversedReport gridsInversedReport=new GridsInversedReport();
+            
             File dqOutputfile = new File(baseFolder,"DQOutput.png");
             File dwNoiseOutputfile = new File(baseFolder,"DWNoiseOutput.png");
             File ghostOutputfile;
             File elaOutputfile = new File(baseFolder,"ELAOutput.png");
             File blkOutputfile = new File(baseFolder,"BLKOutput.png");
             File medianNoiseOutputFile = new File(baseFolder, "MedianNoiseOutput.png");
+            File gridsOutputFile = new File(baseFolder, "GridsOutput.png");
+            File gridsInversedOutputFile = new File(baseFolder, "GridsInversedOutput.png");
             try {
             if (ImageIO.read(new File(report.sourceImage)).getColorModel().hasAlpha()) {
             	System.out.println("If image has an alpha channel, then assume transparent PNG -No point in processing it");
@@ -233,11 +239,21 @@ public class ReportManagement {
                 medianNoiseReport.map =medianNoiseOutputFile.getCanonicalPath();
                 System.out.println(" medianNoiseOutputFile.getCanonicalPath() :: " +  medianNoiseOutputFile.getCanonicalPath());
                 medianNoiseReport.completed=true;
-                report.medianNoiseReport =medianNoiseReport;
+                report.medianNoiseReport =medianNoiseReport;                
+                ImageIO.write(transparentPNGNotAccepted, "png", gridsOutputFile);
+                gridsReport.map =gridsOutputFile.getCanonicalPath();
+                System.out.println(" gridsOutputFile.getCanonicalPath() :: " +  gridsOutputFile.getCanonicalPath());
+                gridsReport.completed=true;
+                report.gridsReport =gridsReport;
+                ImageIO.write(transparentPNGNotAccepted, "png", gridsInversedOutputFile);
+                gridsInversedReport.map =gridsInversedOutputFile.getCanonicalPath();
+                System.out.println(" gridsInversedOutputFile.getCanonicalPath() :: " +  gridsInversedOutputFile.getCanonicalPath());
+                gridsInversedReport.completed=true;
+                report.gridsInversedReport =gridsInversedReport;
                 ds.save(report);
             } else {
             	
-                Boolean dqSaved =false, noiseDWSaved=false, ghostSaved=false, elaSaved =false, blkSaved =false, medianNoiseSaved =false;
+                Boolean dqSaved =false, noiseDWSaved=false, ghostSaved=false, elaSaved =false, blkSaved =false, medianNoiseSaved =false, gridsSaved = false, gridsInversedSaved = false;
                 DQThread dqThread = new DQThread(report.sourceImage, dqOutputfile);
                 Future dqFuture = threadpool.submit(dqThread);
                 noiseDWThread noiseDWThread = new noiseDWThread(report.sourceImage, dwNoiseOutputfile);
@@ -249,7 +265,11 @@ public class ReportManagement {
                 BLKThread blkThread = new BLKThread(report.sourceImage, blkOutputfile);
                 Future blkFuture = threadpool.submit(blkThread);
                 MedianNoiseThread medianNoiseThread = new MedianNoiseThread(report.sourceImage,medianNoiseOutputFile);
-                Future medianNoiseFuture = threadpool.submit(medianNoiseThread);
+                Future medianNoiseFuture = threadpool.submit(medianNoiseThread);                
+                GridsThread gridsThread = new GridsThread(report.sourceImage,gridsOutputFile);
+                Future gridsFuture = threadpool.submit(gridsThread);
+                GridsInversedThread gridsInversedThread = new GridsInversedThread(report.sourceImage,gridsInversedOutputFile);
+                Future gridsInversedFuture = threadpool.submit(gridsInversedThread);
                 
                 Long startTime=System.currentTimeMillis();
                 MetadataExtractor metaExtractor;
@@ -281,7 +301,13 @@ public class ReportManagement {
                 report.thumbnailReport =thumbnail;
                 ds.save(report);
 
-                while (!dqFuture.isDone() | !noiseDWFuture.isDone() | !ghostFuture.isDone() | !elaFuture.isDone() | !blkFuture.isDone() | !medianNoiseFuture.isDone()) {
+                while (!dqFuture.isDone() | !noiseDWFuture.isDone() | 
+                			!ghostFuture.isDone() | 
+                			!elaFuture.isDone() | 
+                			!blkFuture.isDone() | 
+                			!medianNoiseFuture.isDone() |
+                			!gridsFuture.isDone() |
+                			!gridsInversedFuture.isDone()){
                     Thread.sleep(100); //sleep for 1 millisecond before checking again
                     if (dqFuture.isDone() & !dqSaved){
                         report.dqReport =(dqReport) dqFuture.get();
@@ -319,6 +345,18 @@ public class ReportManagement {
                         ds.save(report);
                         System.out.println("Median Noise Done");                        
                     }
+                    if (gridsFuture.isDone() & !gridsSaved){
+                        report.gridsReport =(GridsReport) gridsFuture.get();
+                        gridsSaved =true;
+                        ds.save(report);
+                        System.out.println("GridsReport Done");                       
+                    }
+                    if (gridsInversedFuture.isDone() & !gridsInversedSaved){
+                        report.gridsInversedReport =(GridsInversedReport) gridsInversedFuture.get();
+                        gridsInversedSaved =true;
+                        ds.save(report);
+                        System.out.println("GridsInversedReport Done");                       
+                    }
                     if ((System.currentTimeMillis()-startTime) > computationTimeoutLimit){
                     	System.out.println("Computation timed out");
                         outMessage="TIMEDOUT";
@@ -329,6 +367,8 @@ public class ReportManagement {
                         blkFuture.cancel(true);
                         medianNoiseFuture.cancel(true);
                         elaFuture.cancel(true);   
+                        gridsFuture.cancel(true);
+                        gridsInversedFuture.cancel(true);
                         break;
                     }
                 }
@@ -615,6 +655,69 @@ public class ReportManagement {
 					e.printStackTrace();
 				}			
 	        }
+	        
+	        if (report.gridsReport.completed){      		
+	    		byte[] gridsInByte;
+				BufferedImage gridsImage;
+				String gridsBase64String;
+				try {
+					gridsImage = ImageIO.read(new File(report.gridsReport.map));				
+	    			ByteArrayOutputStream gridsbuffer = new ByteArrayOutputStream();
+	    			ImageIO.write(gridsImage, "png", gridsbuffer);
+	    			gridsbuffer.flush();
+	    			gridsInByte = gridsbuffer.toByteArray();
+	    			gridsbuffer.close();
+	    			ScalingReport gridsScale = new ScalingReport();
+    				try {
+    					gridsScale = scale(gridsInByte, 130, 130);
+    					gridsBase64String = Base64.getEncoder().encodeToString(gridsScale.scaledByte);
+    	    			reportBase64.gridsBase64 = "data:image/jpeg;base64," + gridsBase64String;
+    	    			reportBase64.widthgrids = gridsScale.width;
+    				} catch (ApplicationException e) {
+    					// TODO Auto-generated catch block
+    					e.printStackTrace();
+    					System.out.println("Scalling exception");
+    					gridsBase64String = Base64.getEncoder().encodeToString(gridsInByte);
+    	    			reportBase64.gridsBase64 = "data:image/jpeg;base64," + gridsBase64String;
+    	    			reportBase64.widthgrids = gridsImage.getWidth();
+    				}	    			
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}			
+	        }
+	        
+	        if (report.gridsInversedReport.completed){      		
+	    		byte[] gridsInversedInByte;
+				BufferedImage gridsInversedImage;
+				String gridsInversedBase64String;
+				try {
+					gridsInversedImage = ImageIO.read(new File(report.gridsInversedReport.map));				
+	    			ByteArrayOutputStream gridsInversedbuffer = new ByteArrayOutputStream();
+	    			ImageIO.write(gridsInversedImage, "png", gridsInversedbuffer);
+	    			gridsInversedbuffer.flush();
+	    			gridsInversedInByte = gridsInversedbuffer.toByteArray();
+	    			gridsInversedbuffer.close();
+	    			ScalingReport gridsInversedScale = new ScalingReport();
+    				try {
+    					gridsInversedScale = scale(gridsInversedInByte, 130, 130);
+    					gridsInversedBase64String = Base64.getEncoder().encodeToString(gridsInversedScale.scaledByte);
+    	    			reportBase64.gridsInversedBase64 = "data:image/jpeg;base64," + gridsInversedBase64String;
+    	    			reportBase64.widthgridsInversed = gridsInversedScale.width;
+    				} catch (ApplicationException e) {
+    					// TODO Auto-generated catch block
+    					e.printStackTrace();
+    					System.out.println("Scalling exception");
+    					gridsInversedBase64String = Base64.getEncoder().encodeToString(gridsInversedInByte);
+    	    			reportBase64.gridsInversedBase64 = "data:image/jpeg;base64," + gridsInversedBase64String;
+    	    			reportBase64.widthgridsInversed = gridsInversedImage.getWidth();
+    				}	    			
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}			
+	        }
+	        
         }else{
         	System.out.println("report is empty");
         }
@@ -882,6 +985,72 @@ public class ReportManagement {
             medianNoiseReport.map = outputFile.getCanonicalPath();
             medianNoiseReport.completed=true;
             return medianNoiseReport;
+        }
+    }
+    
+    private static class GridsThread implements Callable {
+        String sourceFile ="";
+        File outputFile =null;
+        public GridsThread(String sourceFile,File outputFile){
+            this.sourceFile =sourceFile;
+            this.outputFile = outputFile;
+        }
+        @Override
+        public GridsReport call() {
+        	GridsReport output=null;
+            try {
+                output= gridsCalculation();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return output;
+        }
+        public GridsReport gridsCalculation() throws IOException {
+        	GridsReport gridsReport=new GridsReport();
+        	GridsExtractor gridsExtractor;
+        	gridsExtractor = new GridsExtractor(sourceFile);
+            ImageIO.write(gridsExtractor.displaySurface, "png", outputFile);
+            ByteArrayOutputStream gridsbytes = new ByteArrayOutputStream();
+            ImageIO.write(gridsExtractor.displaySurface, "png", gridsbytes);
+                  
+            gridsReport.map = outputFile.getCanonicalPath();
+            gridsReport.maxValue = gridsExtractor.gridsmax;
+            gridsReport.minValue = gridsExtractor.gridsmin;
+            gridsReport.completed=true;
+            return gridsReport;
+        }
+    }
+    
+    private static class GridsInversedThread implements Callable {
+        String sourceFile ="";
+        File outputFile =null;
+        public GridsInversedThread(String sourceFile,File outputFile){
+            this.sourceFile =sourceFile;
+            this.outputFile = outputFile;
+        }
+        @Override
+        public GridsInversedReport call() {
+        	GridsInversedReport output=null;
+            try {
+                output= gridsInversedCalculation();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return output;
+        }
+        public GridsInversedReport gridsInversedCalculation() throws IOException {
+        	GridsInversedReport gridsInversedReport=new GridsInversedReport();
+        	GridsInversedExtractor gridsInversedExtractor;
+        	gridsInversedExtractor = new GridsInversedExtractor(sourceFile);
+            ImageIO.write(gridsInversedExtractor.displaySurface, "png", outputFile);
+            ByteArrayOutputStream gridsInversedbytes = new ByteArrayOutputStream();
+            ImageIO.write(gridsInversedExtractor.displaySurface, "png", gridsInversedbytes);
+                  
+            gridsInversedReport.map = outputFile.getCanonicalPath();
+            gridsInversedReport.maxValue = gridsInversedExtractor.gridsInversedmax;
+            gridsInversedReport.minValue = gridsInversedExtractor.gridsInversedmin;
+            gridsInversedReport.completed=true;
+            return gridsInversedReport;
         }
     }
 

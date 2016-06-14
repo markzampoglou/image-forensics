@@ -34,4 +34,8 @@ public class ForensicReport {
     MedianNoiseReport medianNoiseReport =new MedianNoiseReport();
     public @Embedded
     GPSReport gpsReport =new GPSReport();	
+    public @Embedded
+    GridsReport gridsReport =new GridsReport();
+    public @Embedded
+    GridsInversedReport gridsInversedReport =new GridsInversedReport();
 }

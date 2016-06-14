@@ -17,7 +17,7 @@ import javax.annotation.PreDestroy;
 public class RevealController {
 
       public RevealController() throws Exception {
-        Configuration.load(getClass().getResourceAsStream("/docker.properties"));
+        Configuration.load(getClass().getResourceAsStream("/remote.properties"));
        // MorphiaManager.setup(Configuration.MONGO_HOST);
     }
 
@@ -73,6 +73,10 @@ public class RevealController {
                 Report.displayImage=Report.displayImage.replace(Configuration.MANIPULATION_REPORT_PATH,Configuration.HTTP_HOST + "images/");
             if (Report.dwNoiseReport.completed)
                 Report.dwNoiseReport.map=Report.dwNoiseReport.map.replace(Configuration.MANIPULATION_REPORT_PATH,Configuration.HTTP_HOST + "images/");
+            if (Report.gridsReport.completed)
+                Report.gridsReport.map=Report.gridsReport.map.replace(Configuration.MANIPULATION_REPORT_PATH,Configuration.HTTP_HOST + "images/");
+            if (Report.gridsInversedReport.completed)
+                Report.gridsInversedReport.map=Report.gridsInversedReport.map.replace(Configuration.MANIPULATION_REPORT_PATH,Configuration.HTTP_HOST + "images/");
             if (Report.ghostReport.completed) {
                 for (int GhostInd = 0; GhostInd < Report.ghostReport.maps.size(); GhostInd++) {
                     Report.ghostReport.maps.set(GhostInd, Report.ghostReport.maps.get(GhostInd).replace(Configuration.MANIPULATION_REPORT_PATH, Configuration.HTTP_HOST + "images/"));
