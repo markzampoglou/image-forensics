@@ -108,10 +108,15 @@ public class GridsExtractor {
         int[][] blockDiff=Util.get2DArraySum(horzMid, vertMid);
         float[][] blk= blockProcess(blockDiff);
         double[][] normBLK=Util.normalizeIm(blk);
+        for (int ii=1;ii<normBLK.length;ii++){
+            for (int jj=1;jj<normBLK[0].length;jj++){
+                normBLK[ii][jj]=normBLK[ii][jj]*normBLK[ii][jj]*normBLK[ii][jj]*normBLK[ii][jj];
+            }
+        }
         displaySurface = Util.visualizeWithJet(normBLK);
         gridsmax =Util.maxDouble2DArray(blk);
         gridsmin =Util.minDouble2DArray(blk);
-        }
+    }
 
     private float[][] blockProcess(int[][] ImIn){
         float[][] outArray= new float[(int)Math.ceil((ImIn.length-1)/8)][(int)Math.ceil((ImIn[0].length-1)/8)];
