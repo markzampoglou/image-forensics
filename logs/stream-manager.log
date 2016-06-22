@@ -1,5 +1,0 @@
-2016-01-29 14:48:09 INFO  cluster:71 - Cluster created with settings {hosts=[127.0.0.1:27017], mode=SINGLE, requiredClusterType=UNKNOWN, serverSelectionTimeout='30000 ms', maxWaitQueueSize=500}
-2016-01-29 14:48:09 INFO  connection:71 - Opened connection [connectionId{localValue:1, serverValue:1}] to 127.0.0.1:27017
-2016-01-29 14:48:09 INFO  cluster:71 - Monitor thread successfully connected to server with description ServerDescription{address=127.0.0.1:27017, type=STANDALONE, state=CONNECTED, ok=true, version=ServerVersion{versionList=[2, 4, 9]}, minWireVersion=0, maxWireVersion=0, electionId=null, maxDocumentSize=16777216, roundTripTimeNanos=427883}
-2016-01-29 14:48:09 INFO  connection:71 - Opened connection [connectionId{localValue:2, serverValue:2}] to 127.0.0.1:27017
-2016-01-29 14:48:09 INFO  connection:71 - Closed connection [connectionId{localValue:2, serverValue:2}] to 127.0.0.1:27017 because the pool has been closed.
