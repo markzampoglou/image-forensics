@@ -1054,21 +1054,21 @@ public class ReportManagement {
         }
     }
 
-    public static void main (String[] args) throws UnknownHostException {
+    public static void main (String[] args) throws IOException {
     	
     	if (args.length == 1){			
 			url = args[0];					
 		}else{
 			System.out.println("Wrong number of arguments");
-			url ="http://multimedia.iti.gr:8080/CERTH_BIN/TEST_IMAGES/7.jpg";
+			url ="http://160.40.50.109:8080/example6_big.jpg";
 		}
        // String OutputFolder = "/home/marzampoglou/Pictures/Reveal/ManipulationOutput/";
        // String Hash1=downloadURL("http://160.40.51.26/projects/Reveal/imgs/example6_big.jpg", OutputFolder, "127.0.0.1");
-        String OutputFolder = "D:\\Reveal\\image-forensics-local-data\\ManipulationOutput\\";
-       //  String Hash1=downloadURL(url, OutputFolder, "127.0.0.1");
+       // String OutputFolder = "D:\\Reveal\\image-forensics-local-data\\ManipulationOutput\\";
+        // String Hash1=downloadURL(url, OutputFolder, "127.0.0.1");
         //System.out.println("OutputFolder " + OutputFolder);
         //System.out.println("Hash1 " + Hash1);
-        //createReport(Hash1, "127.0.0.1", OutputFolder);
+     //  createReport(Hash1, "127.0.0.1", OutputFolder);
     }
 
     public static String getMeta(String path) {

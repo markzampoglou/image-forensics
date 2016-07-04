@@ -17,9 +17,13 @@ import javax.imageio.ImageWriter;
 // import javax.imageio.stream.ImageOutputStream;
 import javax.imageio.stream.MemoryCacheImageOutputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.DoubleStream;
+
 import javax.imageio.IIOImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -29,6 +33,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.OptionalDouble;
+
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
@@ -399,6 +405,34 @@ public class Util {
         }
         return imOut;
     }
+    
+    public static double[][] normalizeIm(double[][] imIn) {
+        // Normalize single-channel image pixel values to [0, 1]
+        int imWidth = imIn.length;
+        int imHeight = imIn[0].length;
+        double imOut[][] = new double[imWidth][imHeight];
+        double min = Double.MAX_VALUE;
+        double max = -Double.MAX_VALUE;
+        double colMin, colMax;
+        for (double[] imInRow : imIn) {
+            List b = Arrays.asList(ArrayUtils.toObject(imInRow));
+            colMin = (double) Collections.min(b);
+            if (colMin < min) {
+                min = colMin;
+            }
+            colMax = (double) Collections.max(b);
+            if (colMax > max) {
+                max = colMax;
+            }
+        }
+        double spread = max - min;
+        for (int ii = 0; ii < imWidth; ii++) {
+            for (int jj = 0; jj < imHeight; jj++) {
+                imOut[ii][jj] = (imIn[ii][jj] - min) / spread;
+            }
+        }
+        return imOut;
+    }
 
     public static BufferedImage visualizeWithJet(double[][] inputGrayImage) {
         // Take a [0,1] single-channel image and return a Jet visualization
@@ -482,6 +516,20 @@ public class Util {
         }
         return min;
     }
+    
+    public static double minDouble2DArray(double[][] arrayIn) {
+        // Calculate the minimum value of a 2D float array
+    	double min = Double.MAX_VALUE;
+    	double colMin;
+        for (double[] arrayInRow : arrayIn) {
+            List b = Arrays.asList(ArrayUtils.toObject(arrayInRow));
+            colMin = (double) Collections.min(b);
+            if (colMin < min) {
+                min = colMin;
+            }
+        }
+        return min;
+    }
 
     public static float maxDouble2DArray(float[][] arrayIn) {
         // Calculate the maximum value of a 2D float array
@@ -490,6 +538,20 @@ public class Util {
         for (float[] arrayInRow : arrayIn) {
             List b = Arrays.asList(ArrayUtils.toObject(arrayInRow));
             colMax = (float) Collections.max(b);
+            if (colMax > max) {
+                max = colMax;
+            }
+        }
+        return max;
+    }
+    
+    public static double maxDouble2DArray(double[][] arrayIn) {
+        // Calculate the maximum value of a 2D float array
+    	double max = -Double.MAX_VALUE;
+        double colMax;
+        for (double[] arrayInRow : arrayIn) {
+            List b = Arrays.asList(ArrayUtils.toObject(arrayInRow));
+            colMax = (double) Collections.max(b);
             if (colMax > max) {
                 max = colMax;
             }
@@ -591,4 +653,160 @@ public class Util {
         }
         return out;
     }
+    
+    /*
+     * olga
+     * 
+     */
+    public static int getRowTotalInt(int[][] array, int row) {
+        int total = 0;
+        for (int col = 0; col < array[row].length; col++) {
+            total += array[row][col];
+        }
+        return total;
+    }
+    
+    public static int getColumnTotalInt(int[][] array, int col) {
+        int total = 0;
+        for (int row = 0; row < array.length; row++) {
+            total += array[row][col];
+        }
+        return total;
+    }    
+    
+    public static double getRowTotal(double[][] array, int row) {
+        double total = 0;
+        for (int col = 0; col < array[row].length; col++) {
+            total += array[row][col];
+        }
+        return total;
+    }
+
+    public static double getColumnTotal(double[][] array, int col) {
+        double total = 0;
+        for (int row = 0; row < array.length; row++) {
+            total += array[row][col];
+        }
+        return total;
+    }
+    
+    public static double getTotal(double[][] array) {
+        double total = 0;
+
+        for (int row = 0; row < array.length; row++) {
+            for (int col = 0; col < array[row].length; col++) {
+                total += array[row][col];
+            }
+        }
+        return total;
+    }
+
+    public static double getAverage(double[][] array) {
+        return getTotal(array) / getElementCount(array);
+    }
+    
+    public static double getHighestInRow(double[][] array, int row) {
+        double highest = array[row][0];
+
+        for (int col = 1; col < array[row].length; col++) {
+            if (array[row][col] > highest) {
+                highest = array[row][col];
+            }
+        }
+        return highest;
+    }
+
+    public static double getLowestInRow(double[][] array, int row) {
+        double lowest = array[row][0];
+
+        for (int col = 1; col < array[row].length; col++) {
+            if (array[row][col] < lowest) {
+                lowest = array[row][col];
+            }
+        }
+        return lowest;
+    }
+
+    public static int getElementCount(double[][] array) {
+        int count = 0;
+
+        for (int row = 0; row < array.length; row++) {
+            count += array[row].length;
+        }
+        return count;
+    }
+    
+    /**
+     * Calculate histogram
+     */
+    
+    public static int[] createhistogram(double[] zmat, int bins) throws IOException{
+    	
+    	  OptionalDouble max = DoubleStream.of(zmat).max();
+    	  OptionalDouble min = DoubleStream.of(zmat).min();
+    	  int[] result = new int[bins];
+    	  double binSize = (max.getAsDouble() - min.getAsDouble())/bins;
+    	  
+    	  for (double d : zmat) {
+    	    int bin = (int) ((d - min.getAsDouble()) / binSize);
+    	    if (bin < 0) { /* this data is smaller than min */ System.out.println("this data point is smaller than min " + d);}
+    	    else if (bin >= bins) { /* this data point is bigger than max */
+    	    	result[bin-1] += 1;    	
+    	    	}
+    	    else {
+    	      result[bin] += 1;
+    	    }
+    	  }
+    	
+    	  return result;
+    }    
+    
+    public static double[] normalize(int[] hist, int scale){
+    	double[] histnorm = new double[hist.length];
+    	int count = 0;
+    	 for (double d : hist) {    		 
+    		 histnorm[count] = d/scale;
+    		 count = count + 1;
+    	 }    	
+    	return histnorm;   	
+    }
+    
+    /**
+     * Convert RGB [0..256] byte values and place them into a YCbCr [0..256]
+     * byte array.
+     */
+    public static double[] RGBtoYCbCr(int r, int g, int b) {
+        double Y, Cb, Cr;
+			          
+        	Y =  0.0627451  + 0.256788 * r + 0.5041294 * g + 0.09790588 * b; // 16/255
+           	Cb = 0.50196    - 0.148f * r   - 0.291f * g    + 0.439f * b; // 128/255
+        	Cr = 0.50196    + 0.439f * r   - 0.368f * g    - 0.071f * b;       	
+        return new double[] {Y, Cb, Cr};
+    }  
+    
+    public static double getMean(double[] data)
+    {
+    	int size = data.length;
+        double sum = 0.0;
+        for(double a : data)
+            sum += a;
+        return sum/size;
+    }
+
+    public static double getStdDev(double[] data)
+    {
+        return Math.sqrt(getVariance(data));
+    }
+    
+    public static double getVariance(double[] data)
+    {
+    	int size = data.length;
+        double mean = getMean(data);
+        double temp = 0;
+        for(double a :data)
+            temp += (mean-a)*(mean-a);
+        return temp/(size -1);
+    }
+    
+    
 }

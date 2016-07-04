@@ -103,19 +103,12 @@ public class GridsInversedExtractor {
                 horzMid[ii][jj-16] = step8.get(3);
             }
         }
-        int[][] blockDiff = Util.get2DArraySum(horzMid, vertMid);
-        float[][] blk = blockProcess(blockDiff);
-        double[][] normBLK = Util.normalizeIm(blk);
-
-        for (int ii=1;ii<normBLK.length;ii++){
-            for (int jj=1;jj<normBLK[0].length;jj++){
-                normBLK[ii][jj]=1-normBLK[ii][jj];
-            }
-        }
-
+        int[][] blockDiff=Util.get2DArraySum(horzMid, vertMid);
+        float[][] blk= blockProcess(blockDiff);
+        double[][] normBLK=Util.normalizeIm(blk);
         displaySurface = Util.visualizeWithJet(normBLK);
-        gridsInversedmax = Util.maxDouble2DArray(blk);
-        gridsInversedmin = Util.minDouble2DArray(blk);
+        gridsInversedmax =Util.maxDouble2DArray(blk);
+        gridsInversedmin =Util.minDouble2DArray(blk);
         }
 
     private float[][] blockProcess(int[][] ImIn){
