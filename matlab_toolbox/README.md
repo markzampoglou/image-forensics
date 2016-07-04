@@ -4,6 +4,19 @@
 
 This is a MATLAB framework for the evaluation of image tampering localization algorithms. It contains a number of implemented algorithms, and basic utility functions for evaluating the implemented algorithms against any image dataset. While currently the framework only includes splicing localization algorithms, it could easily be extended with algorithms localizing other forms of tampering, such as copy-moving.
 
+## Citation
+
+The corresponding publication is currently under review. For now, if you use any part of the framework, please cite the following paper:
+
+    @inproceedings{zamp16,
+      author = "Markos Zampoglou and Symeon Papadopoulos and Yiannis Kompatsiaris and Ruben Bouwmeester and Jochen Spangenberg",
+      booktitle = "Social Media In the NewsRoom, {#SMNews16@CWSM}, Tenth International AAAI Conference on Web and Social Media workshops",
+      Title = "Web and Social Media Image Forensics for News Professionals",
+      Year = "2016",
+    }
+
+For all algorithm implementations you use in your work, you should also cite the corresponding original paper. References can be found in each algorithm's README.txt file.
+
 ## Getting started
 
 The framework was tested in MATLAB 8.3.0.532 (R2014a), in both Ubuntu 14.04 and Windows 7. It should also operate in older versions of MATLAB. The only requirements are two auxiliary functions, `CleanUpImage.m` and `getAllFiles.m,` both included in the `Util/` subdirectory. Also, certain algorithms require Phil Salee's MATLAB JPEG Toolbox to be in the path. The `Util/` subdirectory includes a version of the Toolbox, alongside compiled .mex files for Windows and Linux x64 architectures, acquired from the [IAPP Research Group home page][]. Make sure all prerequisites are present in your MATLAB path before using the framework.

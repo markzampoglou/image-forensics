@@ -1,8 +1,21 @@
 # image-forensics
 
-This is an integrated framework for image forensic analysis. It includes a Java implementation, documented here, and also includes a MATLAB algorithm evaluation framework, including implementations of a large number of algorithms, located in the subdirectory [matlab_toolbox]. The following documentation concerns the Java service, while the Matlab toolbox is documented within the corresponding subdirectory.
+This is an integrated framework for image forensic analysis. It includes a Java implementation, documented here, and also includes a Matlab algorithm evaluation framework, including implementations of a large number of algorithms, located in the subdirectory [matlab_toolbox]. The following documentation concerns the Java service, while the Matlab toolbox is documented within the corresponding subdirectory.
 
 The Java framework implements a number of well-established image tampering localization algorithms, plus a number of tools for image metadata extraction and visualization, including GPS localization and the display of embedded thumbnail(s). It includes an API for downloading an image from the web, extracting an integrated forensics report for an image, storing it in a MongoDB collection under a unique hash identifier and returning it upon request.
+
+## Citation
+
+Please cite the following paper in your publications if you use the Java implementations:
+
+    @inproceedings{zamp16,
+      author = "Markos Zampoglou and Symeon Papadopoulos and Yiannis Kompatsiaris and Ruben Bouwmeester and Jochen Spangenberg",
+      booktitle = "Social Media In the NewsRoom, {#SMNews16@CWSM}, Tenth International AAAI Conference on Web and Social Media workshops",
+      Title = "Web and Social Media Image Forensics for News Professionals",
+      Year = "2016",
+    }
+
+If you use the Matlab implementations, see the Readme file in [matlab_toolbox].
 
 ## Getting started
 

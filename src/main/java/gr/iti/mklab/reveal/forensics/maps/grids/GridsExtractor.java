@@ -28,26 +28,42 @@ import java.util.stream.Stream;
  */
 public class GridsExtractor {
 
-    public BufferedImage displaySurface = null;
-    public double gridsmin;
-    public double gridsmax;
+    public static BufferedImage displaySurfaceG = null;
+    public static BufferedImage displaySurfaceGI = null;
+    public static double gridsminG;
+    public static double gridsmaxG;
+    public static double gridsminGI;
+    public static double gridsmaxGI;
     
     // Number of grids
-    public static int sgrid = 3;
+    //public static int sgrid = 3;
+    public static int vgaThres = 307200;
+    
     // number of bins 
     public static int bins = 40;
     // Number of blocks 
     public static int nblocks = 8;
-
     // This threshold is used to remove extremely strong edges:
     // block edges are definitely going to be weak
     int diffThresh =50;
     // Accumulator size. Larger may overcome small splices, smaller may not
     // aggregate enough.
     int accuSize =33;
+    
+    public static int sgrid = 1;
 
     public GridsExtractor(String fileName) throws IOException {
     	getGrids(fileName);
+    }
+    
+    public static int calcGrid(int vga){
+    	  int sgrids = 2;
+    	  if (vga >= vgaThres){
+          	sgrids = 3;
+          } else if ((2d/3d) * vgaThres <= vga){
+          	sgrids = 3;
+          } 
+		return sgrids;   	
     }
     
     private void getGrids(String fileName) throws IOException {
@@ -56,7 +72,10 @@ public class GridsExtractor {
         origImage = ImageIO.read(new File(fileName));        
      
         int ImW = origImage.getWidth();
-        int ImH = origImage.getHeight();        
+        int ImH = origImage.getHeight();  
+        
+        int vga = ImW * ImH;
+        sgrid = calcGrid(vga);
 
         Color tmpColor;
         int[][][] rgbValues = new int[3][ImW][ImH];
@@ -149,23 +168,72 @@ public class GridsExtractor {
 	                      MeanContent2[i][j]= sum_mean2 / (double) (temp_count); 
 	             	}		
 	        }
+	        
+	        
+	   // Calculate bg - different between grids and inversed grids
+	     	int bg_gridsInv = 0;
+	    		
+	    	PossiblePoints posPointss, posPoints1;
+		    	int p1, p2;
+		    	double conf;
+	    	
+	    		
+	    		for (int f=0; f < 16; f++){			    		
+	    			posPointss = PossiblePointslist.get(f);
+		    		p1 = posPointss.getApoint1();
+		    		p2 = posPointss.getApoint2();
+			    		if ((p1 == 3) && (p2 == 3)){
+			    			bg_gridsInv = f;
+			    		}
+		    	}				    	
+	    		
+	    		for (int f=0; f < 16; f++){	
+	    			if (bg_gridsInv == 0){
+			    		double max = 0;
+			    		for (int ff=0; ff < 16; ff++){
+				    		posPoints1 = PossiblePointslist.get(ff);
+			    			conf = posPoints1.getConfScore(); 			    			
+			    			if (conf > max){
+			    				max = conf;
+			    				bg_gridsInv = ff;
+			    			}				    		
+			    		}		
+	    			}	   		
+	    		}
+	    	
     
-       Object[] scores_pick_variables_temp =  scores_pick_variables(inblock, sgrid, blk_idx, blk_idy, PossiblePointslist, kx, ky);  
+       Object[] scores_pick_variables_temp =  scores_pick_variables(inblock, sgrid, blk_idx, blk_idy, PossiblePointslist, kx, ky, bg_gridsInv);  
  
        double MeanInSpace[][][] =  new double[16][kx][ky];
-       double[][] diff_Mean_Best_scale =  new double[kx][ky];    
+       double[][] diff_Mean_Best_scale_grids =  new double[kx][ky];    
+       double[][] diff_Mean_Best_scale_gridsInv =  new double[kx][ky]; 
        
        MeanInSpace = (double[][][]) scores_pick_variables_temp[0]; 
-       diff_Mean_Best_scale = (double[][]) scores_pick_variables_temp[1]; 
+       diff_Mean_Best_scale_grids = (double[][]) scores_pick_variables_temp[1]; 
+       diff_Mean_Best_scale_gridsInv = (double[][]) scores_pick_variables_temp[2]; 
        
-       double[][] result = characterizeblocks(MeanContent2, MeanStrongEdge, hsbValues, blk_idx,blk_idy, MeanInSpace, diff_Mean_Best_scale, PossiblePointslist,kx,ky);      
-       double[][] final_result = RescaleToImageResult(result, kx, ky,  ImW, ImH);
-       double[][] resultNorm =  Util.normalizeIm(final_result);
-       double[][] matCW = rotate(resultNorm, ImW, ImH);
+       Object[] result = characterizeblocks(MeanContent2, MeanStrongEdge, hsbValues, blk_idx,blk_idy, MeanInSpace, diff_Mean_Best_scale_grids, diff_Mean_Best_scale_gridsInv, PossiblePointslist,kx,ky);
+       
+       double[][] gridsResChar = new double[kx][ky];
+       double[][] gridsInversedResChar = new double[kx][ky];
+       gridsResChar = (double[][]) result[0];
+       gridsInversedResChar = (double[][]) result[1];
+       
+       double[][] gridsResCharScaled = RescaleToImageResult(gridsResChar, kx, ky,  ImW, ImH);
+       double[][] gridsInversedResCharScaled = RescaleToImageResult(gridsInversedResChar, kx, ky,  ImW, ImH);
+       
+       double[][] gridsResCharNorm =  Util.normalizeIm(gridsResCharScaled);
+       double[][] gridsInversedResCharNorm =  Util.normalizeIm(gridsInversedResCharScaled);
+       
+       double[][] gridsResCharCW = rotate(gridsResCharNorm, ImW, ImH);
+       double[][] gridsInversedResCharCW = rotate(gridsInversedResCharNorm, ImW, ImH);
     
-       displaySurface = Util.visualizeWithJet(matCW);
-       gridsmax =Util.maxDouble2DArray(resultNorm);
-       gridsmin =Util.minDouble2DArray(resultNorm);
+       displaySurfaceG = Util.visualizeWithJet(gridsResCharCW);
+       displaySurfaceGI = Util.visualizeWithJet(gridsInversedResCharCW);
+       gridsmaxG =Util.maxDouble2DArray(gridsResCharNorm);
+       gridsminG =Util.minDouble2DArray(gridsResCharNorm);
+       gridsmaxGI =Util.maxDouble2DArray(gridsInversedResCharNorm);
+       gridsminGI =Util.minDouble2DArray(gridsInversedResCharNorm);
               
   }
     
@@ -175,8 +243,7 @@ public class GridsExtractor {
 		 double[][] result =  new double[ImH][ImW];
 		 int a,b;
 		 double[][] final_result_temp =  final_result.clone();
-	
-		int nn = 0, mm = 0;
+	     int nn = 0, mm = 0;
 		 for (int x=0; x < kx; x++){
 				for (int y=0; y < ky; y++){	
 					 a=(x)*(sgrid*8);
@@ -228,7 +295,7 @@ public class GridsExtractor {
     }
     
 	 
-    public static double[][] characterizeblocks(double[][] MeanContent2, double[][] MeanStrongEdge, double[][][] hsbValues, int blk_idx, int blk_idy, double[][][] MeanInSpace, double[][] diff_Mean_Best_scale, List<PossiblePoints> PossiblePointslist, int kx, int ky) throws IOException{
+    public static Object[] characterizeblocks(double[][] MeanContent2, double[][] MeanStrongEdge, double[][][] hsbValues, int blk_idx, int blk_idy, double[][][] MeanInSpace, double[][] diff_Mean_Best_scale_grids, double[][] diff_Mean_Best_scale_gridsInv, List<PossiblePoints> PossiblePointslist, int kx, int ky) throws IOException{
     	
     	int xlength = (int) Math.ceil(blk_idx/sgrid);
     	int ylength = (int) Math.ceil(blk_idy/sgrid);
@@ -466,62 +533,98 @@ public class GridsExtractor {
 			    	}
 		
 			    	
-			    	double[][] diff_Mean_Best_scale_temp = diff_Mean_Best_scale.clone();
-			    	double [][] imageF = new double[kx][ky];
-			    	double meandiff = Util.getAverage(diff_Mean_Best_scale);
-			    	System.out.println("mean diff " + meandiff);
+			    	double[][] diff_Mean_Best_scale_temp_grids = diff_Mean_Best_scale_grids.clone();
+			    	double[][] diff_Mean_Best_scale_temp_gridsInv = diff_Mean_Best_scale_gridsInv.clone();
+			    	double [][] imageFgrids = new double[kx][ky];
+			    	double [][] imageFgridsInv = new double[kx][ky];
+			    	double meandiff = Util.getAverage(diff_Mean_Best_scale_grids);
+			    	
 			    	int row = (int) blk_idx / sgrid;
 			    	int col = (int) blk_idy /sgrid;
+			    	
+			    	// 
+			    	boolean gridsalg = true;
+			    	boolean gridsInvalg = true;
 			    
 			    	for (int i = 0; i < row; i++){
 			    		for (int j = 0; j < col; j++){	
-			    			if (filtered[i][j] == 1)
-			    				diff_Mean_Best_scale_temp[i][j] = 0;			    			
-			    			if ((diff_Mean_Best_scale_temp[i][j] < meandiff) &&  homb == 1)
-			    				diff_Mean_Best_scale_temp[i][j] = 0;
-			    				    			
-			    			if ((i == 0) || (i == row - 1) || (j == 0) || (j == col -1)){
-			    					imageF[i][j] = diff_Mean_Best_scale_temp[i][j] * (bestgrid[i][j]);
-			    			}else{
-			    					imageF[i][j] = diff_Mean_Best_scale_temp[i][j] * (1 - bestgrid[i][j]);
+			    			
+			    			
+			    			
+			    			if (gridsalg){
+			    				
+				    				if (filtered[i][j] == 1)
+				    					diff_Mean_Best_scale_temp_grids[i][j] = 0;			    			
+					    			if ((diff_Mean_Best_scale_temp_grids[i][j] < meandiff) &&  homb == 1)					    				
+					    				diff_Mean_Best_scale_temp_grids[i][j] = 0;
+					    			
+					    			if ((i == 0) || (i == row - 1) || (j == 0) || (j == col -1)){
+					    				imageFgrids[i][j] = diff_Mean_Best_scale_temp_grids[i][j] * (bestgrid[i][j]);
+					    			}else{
+					    				imageFgrids[i][j] = diff_Mean_Best_scale_temp_grids[i][j] * (1 - bestgrid[i][j]);
+					    			}
+			    			}
+			    			if (gridsInvalg){
+			    					imageFgridsInv[i][j] = diff_Mean_Best_scale_temp_gridsInv[i][j] * (1 - bestgrid[i][j]);
 			    			}
 			    		}
 			    	}
 			  			   
-			    	double[][] E = new double[imageF.length][imageF[0].length];
-					E = filter5d(imageF, H);
+			    	// GRIDS
+			    	double[][] E_grids = new double[imageFgrids.length][imageFgrids[0].length];
+			    	E_grids = filter5d(imageFgrids, H);
+					// GRIDS Inversed
+					double[][] E_gridsInv = new double[imageFgridsInv.length][imageFgridsInv[0].length];
+					E_gridsInv = filter5d(imageFgridsInv, H);
 					
 					int counta = 0;				
-					double[] unintresting = new double[touse];
-					Arrays.fill(unintresting,  0); 
+					double[] unintresting_grids = new double[touse];
+					Arrays.fill(unintresting_grids,  0); 
+					
+					double[] unintresting_gridsInv = new double[touse];
+					Arrays.fill(unintresting_gridsInv,  0); 
 					
 					for (int i=0;i<kx;i++){
 		    			for (int j=0;j<ky;j++){	
 		    				if (notuse[i][j] == 0){
-		    					unintresting[counta] = E[i][j];
+		    					unintresting_grids[counta] = E_grids[i][j];
+		    					unintresting_gridsInv[counta] = E_gridsInv[i][j];
 		    					counta = counta + 1;
 		    				}		    				
 		    			}
 		    		}				
 				
-					double meanuninteresting = Util.getMean(unintresting);					
+					double meanuninteresting_grids = Util.getMean(unintresting_grids);	
+					double meanuninteresting_gridsInv = Util.getMean(unintresting_gridsInv);	
 					for (int i=0;i<kx;i++){
 		    			for (int j=0;j<ky;j++){			    				
 		    				if ((notuse[i][j] == 2) || (filtered[i][j] == 1)) 
 		    					filtered[i][j] = 0;
 		    				
-		    				if ((notuse[i][j] == 1) || (imageF[i][j] < meanuninteresting)) 
-		    						imageF[i][j] = meanuninteresting;
+		    				if (gridsalg){
+				    				if ((notuse[i][j] == 1) || (imageFgrids[i][j] < meanuninteresting_grids)) 
+				    					imageFgrids[i][j] = meanuninteresting_grids;
+				    				
+				    				if ((filtered[i][j] == 1) && (imageFgrids[i][j] < meanuninteresting_grids) || (notuse[i][j] == 3) && (filtered[i][j] == 1))
+				    					imageFgrids[i][j] = meanuninteresting_grids;
+				    				}
 		    				
-		    				if ((filtered[i][j] == 1) && (imageF[i][j] < meanuninteresting) || (notuse[i][j] == 3) && (filtered[i][j] == 1))
-									imageF[i][j] = meanuninteresting;		    				
+		    				if (gridsInvalg){
+			    					if ((notuse[i][j] == 1) || (imageFgridsInv[i][j] > meanuninteresting_gridsInv)) 
+			    						imageFgridsInv[i][j] = meanuninteresting_gridsInv;
+				    				
+				    				if ((filtered[i][j] == 1) && (imageFgridsInv[i][j] > meanuninteresting_gridsInv) || (notuse[i][j] == 3) && (filtered[i][j] == 1))
+				    					imageFgridsInv[i][j] = meanuninteresting_gridsInv;		    				
+		    				}
 		    			}
 					}					
 					
-					double[][] Eresult = new double[imageF.length][imageF[0].length];					
-					Eresult = filter5dSymmetric(imageF, H);		
+					double[][] Eresult_grids = new double[imageFgrids.length][imageFgrids[0].length];					
+					Eresult_grids = filter5dSymmetric(imageFgrids, H);	
+					double[][] Eresult_gridsInv = new double[imageFgridsInv.length][imageFgridsInv[0].length];					
+					Eresult_gridsInv = filter5dSymmetric(imageFgridsInv, H);
     	
-    	return Eresult;    	
+    	return new Object[]{Eresult_grids, Eresult_gridsInv};    	
     }
     
     
@@ -652,7 +755,7 @@ public class GridsExtractor {
     
 
 	
-    public static Object[] scores_pick_variables( Object[] inblock, int sgridvalue, int blk_idx, int blk_idy, List<PossiblePoints> PossiblePointslist, int kx, int ky) throws IOException{
+    public static Object[] scores_pick_variables( Object[] inblock, int sgridvalue, int blk_idx, int blk_idy, List<PossiblePoints> PossiblePointslist, int kx, int ky, int bg_gridsInv) throws IOException{
     	
     	 double[][][][] BlockScoreALL_temp = new double[nblocks][nblocks][blk_idx][blk_idy];
     	 BlockScoreALL_temp = (double[][][][]) inblock[2];
@@ -706,20 +809,32 @@ public class GridsExtractor {
 	    			MeanOfAllGrids[i][j] = Util.getMean(odd);
 	    	}
 		}
+    	
+    	
 		
 		double[][] BestGrid = new double[kx][ky];
-		double[][] diff_Mean_Best = new double[kx][ky];
+		double[][] BestGridInv = new double[kx][ky];
+		double[][] diff_Mean_Best_grids = new double[kx][ky];
+		double[][] diff_Mean_Best_gridsInv = new double[kx][ky];
+		
+		
 		for (int i=0;i<kx;i++){
 			for (int j=0;j<ky;j++){	
 				BestGrid[i][j] = MeanInSpace[15][i][j];
-				diff_Mean_Best[i][j]= MeanOfAllGrids[i][j] - BestGrid[i][j];
+				diff_Mean_Best_grids[i][j]= MeanOfAllGrids[i][j] - BestGrid[i][j];
+				
+				BestGridInv[i][j] = MeanInSpace[bg_gridsInv][i][j];
+				diff_Mean_Best_gridsInv[i][j]= MeanOfAllGrids[i][j] - BestGridInv[i][j];
 			}
 		}
 		
 		double[][] diff_Mean_Best_scale =  new double[kx][ky];		
-		diff_Mean_Best_scale = Util.normalizeIm(diff_Mean_Best);
+		diff_Mean_Best_scale = Util.normalizeIm(diff_Mean_Best_grids);
+		
+		double[][] diff_Mean_Best_scale_gridsInv =  new double[kx][ky];		
+		diff_Mean_Best_scale_gridsInv = Util.normalizeIm(diff_Mean_Best_gridsInv);
 	
-		return new Object[]{MeanInSpace, diff_Mean_Best_scale};    	
+		return new Object[]{MeanInSpace, diff_Mean_Best_scale, diff_Mean_Best_scale_gridsInv};    	
     }
    
      public static List<PossiblePoints> predictPossiblePoints(double[][] kscores, int[][] KscoresC, double[][] Kpre) throws IOException{
@@ -917,20 +1032,20 @@ public class GridsExtractor {
     
     public static void main (String [] args)
             throws Exception {	
-    	 String fileName = "D:/Reveal/Grids/forOlga/010543abfbd0db1e9aa1b24604336e0c.png";    	
+    	 String fileName = "D:/Reveal/Grids/InvforOlga/example9_big.jpg";    	
     	 Long startTime=System.currentTimeMillis();
-    	 String root_path = "D:/Reveal/Grids/forOlga/fake/";
-    	 String filename = root_path + "fakeimg.txt";
-    	 Path file = Paths.get(filename);
-    	 Stream<String> lines = Files.lines( file, StandardCharsets.UTF_8 );	
-    	 int counter = 0;
-         for( String line : (Iterable<String>) lines::iterator )
-         {	
-        	 counter = counter + 1;
-        	 System.out.println("Image : " + line + " " + counter);
-        	 //getGrids(root_path + line);
+    	// String root_path = "D:/Reveal/Grids/forOlga/fake/";
+    	// String filename = root_path + "fakeimg.txt";
+    	// Path file = Paths.get(filename);
+    	// Stream<String> lines = Files.lines( file, StandardCharsets.UTF_8 );	
+    	// int counter = 0;
+        // for( String line : (Iterable<String>) lines::iterator )
+        // {	
+        	// counter = counter + 1;
+        //	 System.out.println("Image : " + line + " " + counter);
+        	// getGrids(fileName);
         	 
-         }
+        // }
     	 Long endTime=System.currentTimeMillis();
     	 System.out.println("Time elapsed:: " + (endTime - startTime));
     }

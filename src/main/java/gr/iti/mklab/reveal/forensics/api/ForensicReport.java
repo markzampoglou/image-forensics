@@ -35,7 +35,7 @@ public class ForensicReport {
     public @Embedded
     GPSReport gpsReport =new GPSReport();	
     public @Embedded
-    GridsReport gridsReport =new GridsReport();
+    GridsNormalReport gridsReport =new GridsNormalReport();
     public @Embedded
     GridsInversedReport gridsInversedReport =new GridsInversedReport();
 }

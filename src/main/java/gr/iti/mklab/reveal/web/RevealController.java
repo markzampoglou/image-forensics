@@ -16,15 +16,15 @@ import javax.annotation.PreDestroy;
 @RequestMapping("/mmapi")
 public class RevealController {
 
-      public RevealController() throws Exception {
+    public RevealController() throws Exception {
         Configuration.load(getClass().getResourceAsStream("/remote.properties"));
-       // MorphiaManager.setup(Configuration.MONGO_HOST);
+        // MorphiaManager.setup(Configuration.MONGO_HOST);
     }
 
     @PreDestroy
     public void cleanUp() throws Exception {
         System.out.println("Spring Container destroy");
-      //  MorphiaManager.tearDown();
+        //  MorphiaManager.tearDown();
     }
 
     ////////////////////////////////////////////////////////
@@ -65,23 +65,25 @@ public class RevealController {
             System.out.println("Request for forensic report received, hash=" + hash + ".");
             ForensicReport Report=ReportManagement.getReport(hash, Configuration.MONGO_HOST);
             if (Report!=null) {
-            if (Report.elaReport.completed)
-                Report.elaReport.map=Report.elaReport.map.replace(Configuration.MANIPULATION_REPORT_PATH, Configuration.HTTP_HOST + "images/");
-            if (Report.dqReport.completed)
-                Report.dqReport.map=Report.dqReport.map.replace(Configuration.MANIPULATION_REPORT_PATH,Configuration.HTTP_HOST + "images/");
-            if (Report.displayImage!=null)
-                Report.displayImage=Report.displayImage.replace(Configuration.MANIPULATION_REPORT_PATH,Configuration.HTTP_HOST + "images/");
-            if (Report.dwNoiseReport.completed)
-                Report.dwNoiseReport.map=Report.dwNoiseReport.map.replace(Configuration.MANIPULATION_REPORT_PATH,Configuration.HTTP_HOST + "images/");
-            if (Report.gridsReport.completed)
-                Report.gridsReport.map=Report.gridsReport.map.replace(Configuration.MANIPULATION_REPORT_PATH,Configuration.HTTP_HOST + "images/");
-            if (Report.gridsInversedReport.completed)
-                Report.gridsInversedReport.map=Report.gridsInversedReport.map.replace(Configuration.MANIPULATION_REPORT_PATH,Configuration.HTTP_HOST + "images/");
-            if (Report.ghostReport.completed) {
-                for (int GhostInd = 0; GhostInd < Report.ghostReport.maps.size(); GhostInd++) {
-                    Report.ghostReport.maps.set(GhostInd, Report.ghostReport.maps.get(GhostInd).replace(Configuration.MANIPULATION_REPORT_PATH, Configuration.HTTP_HOST + "images/"));
+                if (Report.elaReport.completed)
+                    Report.elaReport.map=Report.elaReport.map.replace(Configuration.MANIPULATION_REPORT_PATH, Configuration.HTTP_HOST + "images/");
+                if (Report.dqReport.completed)
+                    Report.dqReport.map=Report.dqReport.map.replace(Configuration.MANIPULATION_REPORT_PATH,Configuration.HTTP_HOST + "images/");
+                if (Report.displayImage!=null)
+                    Report.displayImage=Report.displayImage.replace(Configuration.MANIPULATION_REPORT_PATH,Configuration.HTTP_HOST + "images/");
+                if (Report.dwNoiseReport.completed)
+                    Report.dwNoiseReport.map=Report.dwNoiseReport.map.replace(Configuration.MANIPULATION_REPORT_PATH,Configuration.HTTP_HOST + "images/");
+                if (Report.gridsReport.completed){
+                    Report.gridsReport.map=Report.gridsReport.map.replace(Configuration.MANIPULATION_REPORT_PATH,Configuration.HTTP_HOST + "images/");
                 }
-            }
+                if (Report.gridsInversedReport.completed){
+                    Report.gridsInversedReport.map=Report.gridsInversedReport.map.replace(Configuration.MANIPULATION_REPORT_PATH,Configuration.HTTP_HOST + "images/");
+                }
+                if (Report.ghostReport.completed) {
+                    for (int GhostInd = 0; GhostInd < Report.ghostReport.maps.size(); GhostInd++) {
+                        Report.ghostReport.maps.set(GhostInd, Report.ghostReport.maps.get(GhostInd).replace(Configuration.MANIPULATION_REPORT_PATH, Configuration.HTTP_HOST + "images/"));
+                    }
+                }
                 if (Report.thumbnailReport.numberOfThumbnails>0) {
                     for (int ThumbInd = 0; ThumbInd < Report.thumbnailReport.thumbnailList.size(); ThumbInd++) {
                         Report.thumbnailReport.thumbnailList.set(ThumbInd, Report.thumbnailReport.thumbnailList.get(ThumbInd).replace(Configuration.MANIPULATION_REPORT_PATH, Configuration.HTTP_HOST + "images/"));
@@ -99,15 +101,15 @@ public class RevealController {
             throw new RevealException((ex.getMessage()), ex);
         }
     }
-    
-    
+
+
     @RequestMapping(value = "/media/verificationreport/getreportbase64", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public ForensicReportBase64 returnReportBase64(@RequestParam(value = "hash", required = true) String hash) throws RevealException {
         try {
-            System.out.println("Request for base64 forensic report received, hash=" + hash + ".");            
+            System.out.println("Request for base64 forensic report received, hash=" + hash + ".");
             ForensicReportBase64 Report=ReportManagement.getBase64(hash, Configuration.MONGO_HOST);
-          
+
             return Report;
         } catch (Exception ex) {
             throw new RevealException((ex.getMessage()), ex);
@@ -115,7 +117,7 @@ public class RevealController {
     }
 
 
-    
+
     ////////////////////////////////////////////////////////
     ///////// EXCEPTION HANDLING ///////////////////////////
     ///////////////////////////////////////////////////////
