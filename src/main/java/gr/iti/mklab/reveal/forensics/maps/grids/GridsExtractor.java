@@ -11,16 +11,11 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Stream;
 
 
 /**
@@ -56,7 +51,7 @@ public class GridsExtractor {
     	getGrids(fileName);
     }
     
-    public static int calcGrid(int vga){
+    public  int calcGrid(int vga){
     	  int sgrids = 2;
     	  if (vga >= vgaThres){
           	sgrids = 3;
@@ -138,8 +133,7 @@ public class GridsExtractor {
             public int compare(PossiblePoints u1, PossiblePoints u2) {
               return Double.valueOf(u1.fit).compareTo(Double.valueOf(u2.fit));
             }
-          });        
-    
+          });   
         
          Object[] AvgOutput = MainTrain.extract(origImage, blk_idx, blk_idy);
          double[][] meanContent = (double[][]) AvgOutput[0];
@@ -321,8 +315,8 @@ public class GridsExtractor {
 						 }							 
 					}					 
 				}
-			}		
-			
+			}				
+	
 			int counter_uniform = 0;
 			for (int j=0;j<ky;j++){	
 					for (int i=0;i<kx;i++){
@@ -331,7 +325,7 @@ public class GridsExtractor {
 				}				
 			}
 			
-			double std = Util.getStdDev(uniformAll);						
+			double std = Util.getStdDev(uniformAll);	
 			double H[][] = new double[][]{
 				{0.0400, 0.0400, 0.0400, 0.0400, 0.0400},
 				{0.0400, 0.0400, 0.0400, 0.0400, 0.0400},
@@ -341,7 +335,10 @@ public class GridsExtractor {
 			};
 			
 			double[][] filtered = new double[uniform.length][uniform[0].length];
-			filtered = filter5d(uniform, H);			
+			filtered = filter5d(uniform, H);
+			
+			
+			
 			double meanv = Util.getAverage(filtered);		   		
 	    	PossiblePoints posPoints, posPoints1;
 	    	double[][] MeanInSpaceTemp = new double[kx][ky]; 
@@ -423,15 +420,16 @@ public class GridsExtractor {
 			    		for (int i=0;i<filtered.length;i++){
 			    			for (int j=0;j<filtered[0].length;j++){	
 			    				
-			    				if ((( meanv + std)/2d) > filtered[i][j]){
+			    				if (( meanv + (std/2d)) > filtered[i][j]){
 			    					filtered[i][j] = 0;
 			    				}else{
 			    					filtered[i][j] = homb;
 			    				}
 			    			}
 			    		}
-			    	}			  		    	
-			    	double[][] hom = new double[kx][ky];
+			    	}	
+			    	
+			       	double[][] hom = new double[kx][ky];
 			    	double[][] MeanStrongEdge2 = new double[kx][ky];
 			    	double[][] V_im2 = new double[kx][ky];
 			    	double[][] V_imOver = new double[kx][ky];
@@ -863,6 +861,7 @@ public class GridsExtractor {
     	    		temp_fit = Kpre[r][c] - Kpre[r + 4][c + 4];;
     	       		temp_meanfit = (temp_fit + temp_kscores) / 2 ;
     	       		PossiblePoints temp = new PossiblePoints(r, c , r + 4, c + 4, temp_kscores, temp_fit, temp_meanfit);
+    	       		//System.out.println(temp);
     	        	listPossiblePoints.add(temp);   	    		
     	    	}else{
     	    		temp_fit = Kpre[r + 4][c + 4] - Kpre[r][c];
@@ -995,7 +994,7 @@ public class GridsExtractor {
 			    	// crete histograms of zmat
 			    	 int[] hist1 = Util.createhistogram(zmat1, bins);
 			    	 int[] hist2 = Util.createhistogram(zmat2, bins); 
-			    			    	    	
+			    	 
 			         int scale = counter;
 			         double[] hist1norm = Util.normalize(hist1, scale);
 			    	 double[] hist2norm = Util.normalize(hist2, scale);
@@ -1025,27 +1024,24 @@ public class GridsExtractor {
     	}     
 		return new Object[]{Kscores, KscoresC, BlockScoreALL};  
  }
-     
- 
-    
-    
+  
     
     public static void main (String [] args)
             throws Exception {	
-    	 String fileName = "D:/Reveal/Grids/InvforOlga/example9_big.jpg";    	
+    	 //String fileName = "D:/Reveal/Grids/InvforOlga/example16_big.jpg";    	
     	 Long startTime=System.currentTimeMillis();
-    	// String root_path = "D:/Reveal/Grids/forOlga/fake/";
-    	// String filename = root_path + "fakeimg.txt";
-    	// Path file = Paths.get(filename);
-    	// Stream<String> lines = Files.lines( file, StandardCharsets.UTF_8 );	
-    	// int counter = 0;
-        // for( String line : (Iterable<String>) lines::iterator )
-        // {	
-        	// counter = counter + 1;
-        //	 System.out.println("Image : " + line + " " + counter);
-        	// getGrids(fileName);
+    /*	 String root_path = "D:/Reveal/Grids/EvalExample/";
+    	 String filename = root_path + "example.txt";
+    	 Path file = Paths.get(filename);
+    	 Stream<String> lines = Files.lines( file, StandardCharsets.UTF_8 );	
+    	 int counter = 0;
+         for( String line : (Iterable<String>) lines::iterator )
+         {	
+        	 counter = counter + 1;
+        	 System.out.println("Image : " + line + " " + counter);
+        	 getGrids(root_path + line);
         	 
-        // }
+         }*/
     	 Long endTime=System.currentTimeMillis();
     	 System.out.println("Time elapsed:: " + (endTime - startTime));
     }
