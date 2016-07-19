@@ -170,12 +170,15 @@ public class ReportManagement {
 
 
         if (report == null) {
+            mongoclient.close();
             return "HASHNOTFOUND";
         }
         if (report.status.equalsIgnoreCase("Processing")) {
+            mongoclient.close();
             return "ALREADYPROCESSING";
         }
         if (report.status.equalsIgnoreCase("Done")) {
+            mongoclient.close();
             return "PROCESSINGALREADYCOMPLETE";
         }
         System.out.println("start processing");
