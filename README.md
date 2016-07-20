@@ -11,8 +11,8 @@ Please cite the following paper in your publications if you use the Java impleme
     @inproceedings{zamp16,
       author = "Markos Zampoglou and Symeon Papadopoulos and Yiannis Kompatsiaris and Ruben Bouwmeester and Jochen Spangenberg",
       booktitle = "Social Media In the NewsRoom, {#SMNews16@CWSM}, Tenth International AAAI Conference on Web and Social Media workshops",
-      Title = "Web and Social Media Image Forensics for News Professionals",
-      Year = "2016",
+      title = "Web and Social Media Image Forensics for News Professionals",
+      year = "2016",
     }
 
 If you use the Matlab implementations, see the Readme file in [matlab_toolbox].
