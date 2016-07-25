@@ -6,7 +6,7 @@ This is a MATLAB framework for the evaluation of image tampering localization al
 
 ## Citation
 
-The corresponding publication has just been accepted. When published, the fields below will be updated accordingly:
+The paper describing the framework and evaluations has just been accepted for publication. Please cite it for all uses of the code.  When published, the citation will be updated accordingly:
 
     @inproceedings{zampAcc,
       author = "Markos Zampoglou and Symeon Papadopoulos and Yiannis Kompatsiaris",
@@ -15,7 +15,7 @@ The corresponding publication has just been accepted. When published, the fields
       pages= "Accepted for publication",
     }
 
-Please cite the paper above for all uses of the code. For each algorithm implementation you use in your work, you should also cite the corresponding original paper. References can be found in each algorithm's README.txt file.
+For each algorithm implementation you use in your work, you should also cite the corresponding original paper. References can be found in each algorithm's README.txt file.
 
 ## Getting started
 
