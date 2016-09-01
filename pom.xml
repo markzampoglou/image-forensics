@@ -139,7 +139,7 @@
 			<groupId>org.imgscalr</groupId>
 			<artifactId>imgscalr-lib</artifactId>
 			<version>4.2</version>
-		</dependency>		
+		</dependency>
 	</dependencies>
 	<repositories>
 			<repository>
