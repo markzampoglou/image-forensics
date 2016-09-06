@@ -17,7 +17,7 @@ import javax.annotation.PreDestroy;
 public class RevealController {
 
     public RevealController() throws Exception {
-        Configuration.load(getClass().getResourceAsStream("/docker.properties"));
+        Configuration.load(getClass().getResourceAsStream("/remote.properties"));
         // MorphiaManager.setup(Configuration.MONGO_HOST);
     }
 
@@ -38,7 +38,6 @@ public class RevealController {
         try {
             System.out.println("Received new URL. Downloading...");
             String URL=ReportManagement.downloadURL(url, Configuration.MANIPULATION_REPORT_PATH, Configuration.MONGO_HOST);
-            System.out.println("Downloaded.");
             return URL;
         } catch (Exception ex) {
             throw new RevealException((ex.getMessage()), ex);

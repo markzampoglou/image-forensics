@@ -138,12 +138,13 @@ public class ReportManagement {
                 report.status = "Downloaded";
                 ds.save(report);
             } catch (Exception e) {
-                System.out.println("ERROR: The requested URL does not respond or does not exist. Exiting.");
+                e.printStackTrace();
                 mongoclient.close();
                 return "URL_ERROR";
             }
         }
         mongoclient.close();
+        System.out.println("Downloaded.");
         return imgHash;
     }
 
