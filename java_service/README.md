@@ -1,4 +1,4 @@
-# image-forensics
+# A Java Webservice for image forensic analysis
 
 This is a Java implementation of a Web Service for image forensic analysis. It contains a number of well-established image tampering localization algorithms, plus a number of tools for image metadata extraction and visualization, including GPS localization and the display of embedded thumbnail(s). It includes an API for downloading an image from the web, extracting an integrated forensics report for an image, storing it in a MongoDB collection under a unique hash identifier and returning it upon request.
 
