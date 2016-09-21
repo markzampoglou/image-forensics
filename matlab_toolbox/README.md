@@ -43,7 +43,7 @@ The algorithm to be evaluated must have a MATLAB implementation placed in `Algor
   * One is that a different mask exists for each tampered image. In that case, the mask must have a filename identical to the tampered image, and a `.png` extension, regardless of the extension of the original image. If the tampered images are organized in subdirectories, then the mask files should follow an identical subdirectory structure. 
   * The other is that a single mask will exist for the entire dataset. Such is the case with some artificial datasets, such as the one used in [this paper]. In this case, there should be a single .png image at the root of a directory with no other subdirectories or files beside it.
 
-In all cases, to get the binary map the .png images are loaded by matlab, the three chanels are averaged, and then the image is thresholded at pixel value 128.
+In all cases, to get the binary map the .png images are loaded by matlab, the three chanels are averaged, and then the image is thresholded at pixel value (Max-Min)/2.
 
 ### Setting the options
 
