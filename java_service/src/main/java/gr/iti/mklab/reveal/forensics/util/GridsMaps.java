@@ -10,19 +10,15 @@ import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 /**
- * 
- * 
- * @author olgapapa
- *
- */
+  * @author olgapapa
+  * Create Masks
+  */
 
 public class GridsMaps {
 	int j = 0;
 
 	
-	public int[][][] getPmasks() throws NumberFormatException, IOException {
-		
-		
+	public int[][][] getPmasks() throws NumberFormatException, IOException {		
 		int[][][] pmask = new int[59][10][10];
 		
 			for (int k=0;k<59; k++){
@@ -52,8 +48,7 @@ public class GridsMaps {
 		return mmask;
 	}
 	
-	public int[] getMaskWhite() {
-		
+	public int[] getMaskWhite() {		
 		int[] maskwhite = new int[]{10, 30, 50, 70, 90, 20, 40, 60, 80, 12, 30, 50, 70, 88, 15, 28, 45, 64, 79, 85, 12, 30, 50, 70, 88, 20, 40, 60, 80, 10, 30, 50, 70, 90, 20, 40, 60, 80, 12, 30, 50, 70, 88, 15, 21, 36, 55, 72, 85, 12, 30, 50, 70, 88, 20, 40, 60, 80};    		
 		return maskwhite;
 	}    	

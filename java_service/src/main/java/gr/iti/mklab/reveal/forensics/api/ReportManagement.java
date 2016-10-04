@@ -53,10 +53,13 @@ import ch.qos.logback.classic.Logger;
  * Created by marzampoglou on 11/19/15.
  */
 public class ReportManagement {
-    static int numberOfThreads =7; //DQ, Noise, Ghost, ELA, Metadata, BLK, MedianNoise
-    static long computationTimeoutLimit =60000;
-    static int maxGhostImageSmallDimension =768;
-    static int numGhostThreads=5;
+
+    // these values are used as default when calling createReport(String urlHash, String mongoHostIP, String folderOut)
+    // instead of the full call where the parameters are drawn from the properties files.
+    static int numGhostThreads = 4;
+    static int numberOfThreads = 8;
+    static int maxGhostImageSmallDimension = 768;
+    static int computationTimeoutLimit = 900000;
 
     private static String url;
 
@@ -149,15 +152,15 @@ public class ReportManagement {
     }
 
 
-    public static String createReport(String urlHash, String mongoHostIP, String folderOut, int maxGhostImageSmallDimension, int numGhostThreads, long computationTimeoutLimit) throws UnknownHostException {
-        return reportCalculation(urlHash, mongoHostIP, folderOut, maxGhostImageSmallDimension, numGhostThreads, computationTimeoutLimit);
+    public static String createReport(String urlHash, String mongoHostIP, String folderOut, int maxGhostImageSmallDimension, int numGhostThreads, int numberOfThreads, long computationTimeoutLimit) throws UnknownHostException {
+        return reportCalculation(urlHash, mongoHostIP, folderOut, maxGhostImageSmallDimension, numGhostThreads, numberOfThreads, computationTimeoutLimit);
     }
 
     public static String createReport(String urlHash, String mongoHostIP, String folderOut) throws UnknownHostException {
-        return reportCalculation(urlHash, mongoHostIP, folderOut, maxGhostImageSmallDimension, numGhostThreads, computationTimeoutLimit);
+        return reportCalculation(urlHash, mongoHostIP, folderOut, maxGhostImageSmallDimension, numGhostThreads, numberOfThreads, computationTimeoutLimit);
     }
 
-    public static String reportCalculation(String urlHash, String mongoHostIP, String folderOut, int maxGhostImageSmallDimension, int numGhostThreads, long computationTimeoutLimit) throws UnknownHostException{
+    public static String reportCalculation(String urlHash, String mongoHostIP, String folderOut, int maxGhostImageSmallDimension, int numGhostThreads, int numberOfThreads, long computationTimeoutLimit) throws UnknownHostException{
         String  outMessage="COMPLETEDSUCCESSFULLY";
 
         ExecutorService threadpool = Executors.newFixedThreadPool(numberOfThreads);

@@ -56,7 +56,6 @@ public class GhostCalculationThread implements Callable<GhostCalculationResult>{
             scaleFactor=1;
         }
 
-
         BufferedImage recompressedImage = Util.recompressImage(imIn, quality);
         //int[][][] RecompressedByteImage = Util.getRGBArray(recompressedImage);
         //float[][][] resizedImageDifference = Util.getImageDifference(OrigByteImage, RecompressedByteImage);
@@ -67,9 +66,9 @@ public class GhostCalculationThread implements Callable<GhostCalculationResult>{
         if (filterSize<2){filterSize=2;}
         float[][][] smooth = Util.meanFilterThreeChannelImage(resizedImageDifference, filterSize);
         float[][] grayDifference = Util.convertToSingleChannel(smooth);
-        float ghostMin = Util.minDouble2DArray(grayDifference);
-        float ghostMax = Util.maxDouble2DArray(grayDifference);
-        float ghostMean = Util.SingleChannelMean(grayDifference);
+        //float ghostMin = Util.minDouble2DArray(grayDifference);
+        //float ghostMax = Util.maxDouble2DArray(grayDifference);
+        //float ghostMean = Util.SingleChannelMean(grayDifference);
         //JetImageDifference=Util.visualizeWithJet(Util.normalizeIm(MeanDifference));
         //JetImageDifference=(BufferedImage) JetImageDifference.getScaledInstance(newWidth,newHeight, Image.SCALE_FAST);
 

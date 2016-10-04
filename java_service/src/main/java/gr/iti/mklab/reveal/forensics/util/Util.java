@@ -8,6 +8,7 @@ package gr.iti.mklab.reveal.forensics.util;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -127,6 +128,28 @@ public class Util {
         }
         return outputMap;
     }
+    
+    public static double[][][] getImageDifferenceD(BufferedImage image1, BufferedImage image2) {
+        Color tmpColor1, tmpColor2;
+        int width = image1.getWidth();
+        int height = image1.getHeight();
+        double red_temp, green_temp, blue_temp;
+        
+        double[][][] outputMap=new double[3][width][height];
+        for (int ii = 0; ii < width; ii++) {
+            for (int jj = 0; jj < height; jj++) {
+                tmpColor1 = new Color(image1.getRGB(ii, jj));
+                tmpColor2 = new Color(image2.getRGB(ii, jj));
+                red_temp = tmpColor1.getRed() - tmpColor2.getRed(); 
+                green_temp = tmpColor1.getGreen() - tmpColor2.getGreen();
+                blue_temp = tmpColor1.getBlue() - tmpColor2.getBlue();
+                outputMap[0][ii][jj] = (double) (red_temp) * (red_temp);               
+                outputMap[1][ii][jj] = (double) (green_temp) * (green_temp);
+                outputMap[2][ii][jj] = (double) (blue_temp) * (blue_temp);     
+            }
+        }
+        return outputMap;
+    } 
 
     public static float[][][] getResizedImageDifference(BufferedImage image1, BufferedImage image2, int newWidth, int newHeight){
         // Calculate the subsampled difference between two buffered images
@@ -274,60 +297,50 @@ public class Util {
     }
 
     public static int[][] medianFilterSingleChannelVert(int[][] imIn, int filterSize) {
-        // Median filter a 2D double array across columns
-        // filterSize should be odd
-        int offset = (filterSize - 1) / 2;
-        int imWidth = imIn.length;
-        int imHeight = imIn[0].length;
-        int[][] filteredImage = new int[imWidth][imHeight - 2 * offset];
-        ArrayList<Integer> neighborhood;
-        ArrayList<Integer> sortedNeighborhood;
-        for (int ii = 0; ii < imWidth; ii++) {
-            neighborhood = new ArrayList<>();
-            for (int N_jj=0; N_jj<2*offset+1;N_jj++) {
-                neighborhood.add(imIn[ii][N_jj]);
-            }
-            sortedNeighborhood=new ArrayList<>(neighborhood);
-            Collections.sort(sortedNeighborhood);
-            filteredImage[ii][0] = sortedNeighborhood.get(offset + 1);
-            for (int jj = offset+1; jj <= imHeight - filterSize+offset; jj++) {
-                neighborhood.remove(0);
-                neighborhood.add(imIn[ii][jj + offset]);
-                sortedNeighborhood=new ArrayList<>(neighborhood);
-                Collections.sort(sortedNeighborhood);
-                filteredImage[ii][jj-offset] = sortedNeighborhood.get(offset + 1);
-            }
-        }
-        return filteredImage;
-    }
+      	 // Median filter a 2D double array across columns
+          // filterSize should be odd
+           int offset = (filterSize - 1) / 2;
+           int imWidth = imIn.length;
+           int imHeight = imIn[0].length;        
+           int[][] filteredImage = new int[imWidth][imHeight - 2 * offset];
+           int counter = 0;
+           for (int jj = 0; jj < imWidth; jj++) {
+              	for (int ii = 0; ii < imHeight - 2 * offset; ii++){
+             		counter = 0;
+             		int[] temp_array = new int[filterSize];
+           		for (int kk = ii; kk < (ii + filterSize); kk++){
+           			temp_array[counter] = imIn[jj][kk];        			
+           			counter = counter + 1;        			
+           		}      
+           		Arrays.sort(temp_array);
+           		filteredImage[jj][ii] = temp_array[offset + 1];           		
+           	}
+           }   	
+           return filteredImage;
+      }
 
-    public static int[][] medianFilterSingleChannelHorz(int[][] imIn, int FilterSize) {
-        // Median filter a 2D double array across rows
-        // FilterSize should be odd
-        int offset = (FilterSize - 1) / 2;
-        int imWidth = imIn.length;
-        int imHeight = imIn[0].length;
-        int[][] filteredImage = new int[imWidth - 2 * offset][imHeight];
-        ArrayList<Integer> neighborhood;
-        ArrayList<Integer> sortedNeighborhood;
-        for (int jj = 0; jj < imHeight; jj++) {
-            neighborhood = new ArrayList<>();
-            for (int N_ii=0; N_ii<2*offset+1;N_ii++) {
-                neighborhood.add(imIn[N_ii][jj]);
-            }
-            sortedNeighborhood=new ArrayList<>(neighborhood);
-            Collections.sort(sortedNeighborhood);
-            filteredImage[0][jj] = sortedNeighborhood.get(offset + 1);
-            for (int ii = offset+1; ii <= imWidth - FilterSize+offset; ii++) {
-                neighborhood.remove(0);
-                neighborhood.add(imIn[ii + offset][jj]);
-                sortedNeighborhood=new ArrayList<>(neighborhood);
-                Collections.sort(sortedNeighborhood);
-                filteredImage[ii-offset][jj] = sortedNeighborhood.get(offset+1);
-            }
-        }
-        return filteredImage;
-    }
+	public static int[][] medianFilterSingleChannelHorz(int[][] imIn, int FilterSize) {
+	        // Median filter a 2D double array across rows
+	        // FilterSize should be odd   	
+	        int offset = (FilterSize - 1) / 2;
+	        int imWidth = imIn.length;
+	        int imHeight = imIn[0].length;        
+	        int[][] filteredImage = new int[imWidth - 2 * offset][imHeight];
+	        int counter = 0;
+	        for (int jj = 0; jj < imHeight; jj++) {
+	           	for (int ii = 0; ii < imWidth - 2 * offset; ii++){
+	          		counter = 0;
+	          		int[] temp_array = new int[FilterSize];
+	        		for (int kk = ii; kk < (ii + FilterSize); kk++){
+	        			temp_array[counter] = imIn[kk][jj];        			
+	        			counter = counter + 1;        			
+	        		}      
+	        		Arrays.sort(temp_array);
+	        		filteredImage[ii][jj] = temp_array[offset + 1];        		
+	        	}
+	        }   	
+	        return filteredImage;
+	    }
 
     public static float[][][] meanFilterThreeChannelImage(float[][][] ImIn, int meanFilterSize) {
         // Apply mean filtering to each image channel separately
@@ -387,7 +400,7 @@ public class Util {
         double max = -Double.MAX_VALUE;
         double colMin, colMax;
         for (float[] imInRow : imIn) {
-            List b = Arrays.asList(ArrayUtils.toObject(imInRow));
+            List<Float> b = Arrays.asList(ArrayUtils.toObject(imInRow));
             colMin = (float) Collections.min(b);
             if (colMin < min) {
                 min = colMin;
@@ -415,7 +428,7 @@ public class Util {
         double max = -Double.MAX_VALUE;
         double colMin, colMax;
         for (double[] imInRow : imIn) {
-            List b = Arrays.asList(ArrayUtils.toObject(imInRow));
+        	List<Double> b = Arrays.asList(ArrayUtils.toObject(imInRow));
             colMin = (double) Collections.min(b);
             if (colMin < min) {
                 min = colMin;
@@ -574,6 +587,21 @@ public class Util {
         }
         return min;
     }
+    
+    public static double minDouble3DArrayD(double[][][] arrayIn) {
+        // Calculate the minimum value of a 3D float array
+        double min = Double.MIN_VALUE;
+        double colMin;
+        for (double[][] twoDInRow : arrayIn) {
+        		colMin = Arrays.stream(twoDInRow)
+              	    .flatMapToDouble(a -> Arrays.stream(a))
+              	    .min().getAsDouble();
+        	 if (colMin < min) {
+                  min = colMin;
+              }
+        }
+        return min;
+    }
 
     public static double maxDouble3DArray(float[][][] arrayIn) {
         // Calculate the maximum value of a 3D float array
@@ -587,6 +615,22 @@ public class Util {
                     max = colMax;
                 }
             }
+        }
+        return max;
+    }
+    
+    public static double maxDouble3DArrayD(double[][][] arrayIn) {
+        // Calculate the maximum value of a 3D float array
+        double max = -Double.MAX_VALUE;
+        double colMax;
+        for (double[][] twoDInRow : arrayIn) {
+        	colMax = Arrays.stream(twoDInRow)
+                  	    .flatMapToDouble(a -> Arrays.stream(a))
+                  	    .max()
+                  	    .getAsDouble();
+                if (colMax > max) {
+                    max = colMax;
+                }
         }
         return max;
     }
@@ -654,8 +698,8 @@ public class Util {
         return out;
     }
     
-    /*
-     * olga
+    /**
+     *  author olgapapa 
      * 
      */
     public static int getRowTotalInt(int[][] array, int row) {
@@ -806,6 +850,17 @@ public class Util {
         for(double a :data)
             temp += (mean-a)*(mean-a);
         return temp/(size -1);
+    }
+    
+    public static BufferedImage scaleImage(BufferedImage image, int width, int height) {
+        assert (width > 0 && height > 0);
+        // create image of new size
+        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics g = img.getGraphics();
+        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+      //  ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.drawImage(image, 0, 0, img.getWidth(), img.getHeight(), null);
+        return img;
     }
     
     

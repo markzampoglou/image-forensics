@@ -14,6 +14,7 @@ import boofcv.core.image.ConvertBufferedImage;
 import boofcv.core.image.ConvertImage;
 import boofcv.struct.image.ImageFloat32;
 import boofcv.struct.image.ImageUInt16;
+import gr.iti.mklab.reveal.forensics.util.Util;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -27,7 +28,9 @@ import java.io.IOException;
 public class MedianNoiseExtractor {
 
     BufferedImage inputImage = null;
-    public BufferedImage displaySurface = null;
+    public BufferedImage displaySurface = null, displaySurface_temp = null;
+    public int sc_width = 600;
+    public int sc_height = 600;
 
     public MedianNoiseExtractor(String fileName) throws IOException {
         inputImage = ImageIO.read(new File(fileName));
@@ -42,51 +45,28 @@ public class MedianNoiseExtractor {
         //Temporarily commented out to compile
         ImageFloat32 test = new ImageFloat32(inputImage.getWidth(), inputImage.getHeight());
         ImageFloat32 medianFiltered=BlurImageOps.median(original, test, 1);
-
         ImageFloat32 noise=new ImageFloat32(inputImage.getWidth(), inputImage.getHeight());
         GPixelMath.diffAbs(original, medianFiltered, noise);
-        //GPixelMath.multiply(noise, 5, noise);
-
-        int histogram[] = new int[65536];
-        int maxInd=0;
-        int transform[] = new int[65536];
-        ImageUInt16 noiseUInt16 = new ImageUInt16(inputImage.getWidth(), inputImage.getHeight());
         ImageUInt16 normNoiseUInt16 = new ImageUInt16(inputImage.getWidth(), inputImage.getHeight());
         GPixelMath.multiply(noise, 10, noise);
-
-
-        ConvertImage.convert(noise, normNoiseUInt16);
-
-        /*ImageStatistics.histogram(noiseUInt16, histogram);
-        for (int ii=0;ii<histogram.length;ii++){
-            if (histogram[ii]!=0) maxInd=ii;
-        }
-
-        float Ratio=65535/maxInd;
-
-        for (int ii=0;ii<transform.length;ii++){
-            transform[ii]=Math.round(ii*Ratio);
-            if (transform[ii]>65535) transform[ii]=65535;
-        }
-
-
-        //EnhanceImageOps.equalize(histogram, transform);
-        //EnhanceImageOps.equalizeLocal(noiseUInt16, 16, normNoiseUInt16, histogram, transform);
-
-        EnhanceImageOps.applyTransform(noiseUInt16, transform, normNoiseUInt16);
-        */
-      /*  for (int ii=0;ii<transform.length;ii++){
-            System.out.print(histogram[ii] + " ");
-        }
-        System.out.println();
-        for (int ii=0;ii<transform.length;ii++){
-            System.out.print(transform[ii] + " ");
-        }
-        */
-
-        displaySurface =new BufferedImage(inputImage.getWidth(), inputImage.getHeight(),BufferedImage.TYPE_INT_RGB);
-        ConvertBufferedImage.convertTo(normNoiseUInt16, displaySurface);
-
-        //ImageIO.write(Output, "PNG", new File("/home/marzampoglou/Output.png"));
+        ConvertImage.convert(noise, normNoiseUInt16);     
+        displaySurface_temp =new BufferedImage(inputImage.getWidth(), inputImage.getHeight(),BufferedImage.TYPE_INT_RGB);
+        ConvertBufferedImage.convertTo(normNoiseUInt16, displaySurface_temp);
+        
+        if (displaySurface_temp.getHeight() > displaySurface_temp.getWidth()){
+			if (displaySurface_temp.getHeight() > sc_height){
+				sc_width = (sc_height * displaySurface_temp.getWidth())/ displaySurface_temp.getHeight();
+				displaySurface = Util.scaleImage(displaySurface_temp, sc_width, sc_height);
+			}else{
+				displaySurface = displaySurface_temp;
+			}
+		}else{
+			if (displaySurface_temp.getWidth() > sc_width){
+				sc_height = (sc_width * displaySurface_temp.getHeight())/ displaySurface_temp.getWidth(); 
+				displaySurface = Util.scaleImage(displaySurface_temp, sc_width, sc_height);				
+			}else{
+				displaySurface = displaySurface_temp;
+			}
+		}
     }
 }

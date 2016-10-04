@@ -22,21 +22,23 @@ import javax.imageio.ImageIO;
  */
 public class GhostExtractor {
 
-    public List<BufferedImage> ghostMaps = new ArrayList();
-    public List<Integer> ghostQualities = new ArrayList();
-    public List<Float> ghostMin = new ArrayList();
-    public List<Float> ghostMax = new ArrayList();
+    public List<BufferedImage> ghostMaps = new ArrayList<BufferedImage>();
+    public List<Integer> ghostQualities = new ArrayList<Integer>();
+    public List<Float> ghostMin = new ArrayList<Float>();
+    public List<Float> ghostMax = new ArrayList<Float>();
 
-    public List<Float> allDifferences = new ArrayList();
+    public List<Float> allDifferences = new ArrayList<Float>();
+    public BufferedImage displaySurface_temp = null, displaySurface = null;
 
     public int qualityMin = 65;
     public int qualityMax = 100;
+    public int sc_width = 600;
+    public int sc_height = 600;
 
-    public List<BufferedImage> allGhostMaps = new ArrayList();
-    public List<Integer> allGhostQualities = new ArrayList();
-    public List<Float> allGhostMin = new ArrayList();
-    public List<Float> allGhostMax = new ArrayList();
-
+    public List<BufferedImage> allGhostMaps = new ArrayList<BufferedImage>();
+    public List<Integer> allGhostQualities = new ArrayList<Integer>();
+    public List<Float> allGhostMin = new ArrayList<Float>();
+    public List<Float> allGhostMax = new ArrayList<Float>();
 
     private int maxImageSmallDimension =768;
     private int numThreads=4;
@@ -51,50 +53,26 @@ public class GhostExtractor {
         getJPEGGhost(fileName);
     }
 
-
-
     private void getJPEGGhost(String fileName) throws IOException {
         BufferedImage origImage;
         origImage = ImageIO.read(new File(fileName));
         int[][][] origByteImage = Util.getRGBArray(origImage);
-        BufferedImage recompressedImage;
-        int[][][] recompressedByteImage = null;
-        float[][][] imageDifference;
-        float[][][] smooth;
-        List<float[][]> differenceMaps = new ArrayList();
+        List<float[][]> differenceMaps = new ArrayList<float[][]>();
         float differences[] = new float[qualityMax - qualityMin + 1];
         List<Integer> localMinima;
-        BufferedImage jetImageDifference;
-        
-        float[][] meanDifference;
-
-        int newHeight, newWidth;
-        float scaleFactor;
-
-        int imageHeight=origImage.getHeight();
-        int imageWidth=origImage.getWidth();
-
-
+     
         GhostThreadManager calculator = new GhostThreadManager(numThreads, maxImageSmallDimension, origImage, origByteImage);
         int submittedCounter = 0;
         int completedCounter = 0;
         int failedCounter = 0;
-
-        long start=System.currentTimeMillis();
-
         int totalGhosts= qualityMax - qualityMin +1;
         int currentQuality= qualityMin;
-
-
         GhostCalculationResult tmpGhostOutput;
         int tmpInd;
         float[][] tmpDifference;
-
-
-
+        
         while (true) {
             // if there are more task to submit and the downloader can accept more tasks then submit
-
             while (submittedCounter < totalGhosts && calculator.canAcceptMoreTasks()) {
                 calculator.submitGhostTask(currentQuality);
                 //System.out.println("Added :" + String.valueOf(currentQuality));
@@ -106,7 +84,6 @@ public class GhostExtractor {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
             // if are submitted tasks that are pending completion ,try to consume
             if (completedCounter + failedCounter < submittedCounter) {
                 //System.out.println("Pending tasks exist");
@@ -139,11 +116,8 @@ public class GhostExtractor {
                 //System.out.println("done");
                 break;
             }
-
         }
-
-        //System.out.println(System.currentTimeMillis()-start);
-
+        
         /********************************************************************************************
         /*
         /*This code normalizes images by the pixel mean across different qualities, as suggested
@@ -180,14 +154,37 @@ public class GhostExtractor {
         localMinima = Util.getArrayLocalMinima(differences);
         localMinima.add(differences.length - 1); //Always add the difference from the 100% image
 
-
         for (Integer localMinimum : localMinima) {
+          	displaySurface_temp = Util.visualizeWithJet(Util.normalizeIm(differenceMaps.get(localMinimum)));
+          	if (displaySurface_temp.getHeight() > displaySurface_temp.getWidth()){
+    			if (displaySurface_temp.getHeight() > sc_height){
+    				sc_width = (sc_height * displaySurface_temp.getWidth())/ displaySurface_temp.getHeight();
+    				displaySurface = Util.scaleImage(displaySurface_temp, sc_width, sc_height);
+    			}else{
+    				displaySurface = displaySurface_temp;
+    			}
+    		}else{
+    			if (displaySurface_temp.getWidth() > sc_width){
+    				sc_height = (sc_width * displaySurface_temp.getHeight())/ displaySurface_temp.getWidth(); 
+    				displaySurface = Util.scaleImage(displaySurface_temp, sc_width, sc_height);				
+    			}else{
+    				displaySurface = displaySurface_temp;
+    			}
+    		}
+            ghostMaps.add(displaySurface);
+            ghostMin.add(allGhostMin.get(localMinimum));
+            ghostMax.add(allGhostMax.get(localMinimum));
+            ghostQualities.add(localMinimum + qualityMin);
+            allDifferences.add(differences[localMinimum]);
+        }        
+        
+      /*  for (Integer localMinimum : localMinima) {
             ghostMaps.add(Util.visualizeWithJet(Util.normalizeIm(differenceMaps.get(localMinimum))));
             ghostMin.add(allGhostMin.get(localMinimum));
             ghostMax.add(allGhostMax.get(localMinimum));
             ghostQualities.add(localMinimum + qualityMin);
             allDifferences.add(differences[localMinimum]);
-        }
+        }*/
 
 
         /*
@@ -200,8 +197,5 @@ public class GhostExtractor {
             allDifferences.add(differences[GhostInd]);
         }
         */
-        //BufferedImage OutputImage = Util.getBufferedIm(smooth);
-
-
     }
 }

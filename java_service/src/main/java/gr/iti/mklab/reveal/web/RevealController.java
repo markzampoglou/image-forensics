@@ -49,7 +49,7 @@ public class RevealController {
     public String generateReport(@RequestParam(value = "hash", required = true) String hash) throws RevealException {
         try {
             System.out.println("Received new hash for analysis. Beginning...");
-            String ReportResult=ReportManagement.createReport(hash, Configuration.MONGO_HOST, Configuration.MANIPULATION_REPORT_PATH,Configuration.MAX_GHOST_IMAGE_SMALL_DIM,Configuration.NUM_GHOST_THREADS,Configuration.FORENSIC_PROCESS_TIMEOUT);
+            String ReportResult=ReportManagement.createReport(hash, Configuration.MONGO_HOST, Configuration.MANIPULATION_REPORT_PATH,Configuration.MAX_GHOST_IMAGE_SMALL_DIM,Configuration.NUM_GHOST_THREADS,Configuration.NUM_TOTAL_THREADS,Configuration.FORENSIC_PROCESS_TIMEOUT);
             System.out.println("Analysis complete with message: " + ReportResult);
             return ReportResult;
         } catch (Exception ex) {

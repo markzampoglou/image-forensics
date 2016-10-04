@@ -79,19 +79,8 @@ public class DWT {
 
         //original code replaced with ojalgo implementation -up to 4-fold speed increase
         
-        int row1 = 0, row2 = 0, col1 = 0, col2 = 0;
+       // int row1 = 0, row2 = 0, col1 = 0, col2 = 0;
         double[][] QMF = makeQMFMatrix(subLength, H, G);
-
-
-
-
-        double[] QMFElements = new double[QMF.length*QMF[0].length];
-        for (int ii=0; ii<QMF.length; ii++){
-            for (int jj=0; jj<QMF[0].length; jj++){
-                QMFElements[ii*QMF[0].length+jj]=QMF[ii][jj];
-            }
-        }
-
 
         final Factory<PrimitiveMatrix> QMFFactory = PrimitiveMatrix.FACTORY;
         final Builder<PrimitiveMatrix> QMFBuilder = QMFFactory.getBuilder(QMF.length, QMF[0].length);
@@ -101,54 +90,28 @@ public class DWT {
             }
         }
         final BasicMatrix QMFBM = QMFBuilder.build();
-
-
-
         for (int i = 0; i < iterations; i++) {
-            begin = System.currentTimeMillis();
             subLength = n / (int) (Math.pow(2, i));
-            timer1 += System.currentTimeMillis() - begin;
-            begin = System.currentTimeMillis();
-            timer2 += System.currentTimeMillis() - begin;
-            begin = System.currentTimeMillis();
             double[] subResult = new double[subLength];
-            timer3 += System.currentTimeMillis() - begin;
-            begin = System.currentTimeMillis();
-
             subResult = subCopy(dWT, subResult, subLength);
-
-            //EJMLSubResult.setData(subResult);
-
             final Factory<PrimitiveMatrix> subResultFactory = PrimitiveMatrix.FACTORY;
             final Builder<PrimitiveMatrix> subResultBuilder = subResultFactory.getBuilder(1, subResult.length);
             for (int jj = 0; jj < subResult.length; jj++) {
                 subResultBuilder.set(0, jj, subResult[jj]);
             }
 
-
-
             final BasicMatrix subResultBM = subResultBuilder.build();
-            timer4 += System.currentTimeMillis() - begin;
-            begin = System.currentTimeMillis();
-
             final BasicMatrix tempBM = QMFBM.multiplyLeft(subResultBM);
-            timer5 += System.currentTimeMillis() - begin;
-            begin = System.currentTimeMillis();
-
             double[] temp = new double[QMF.length];//MatrixOps.multiply(QMF, subResult);
             for (int jj = 0; jj < tempBM.count(); jj++) {
                 temp[jj] = (double) tempBM.get(jj);
             }
-
-
             dWT = subCopy(temp, dWT, subLength);
-            timer6 += System.currentTimeMillis() - begin;
-            row1 = QMF.length;
-            col1 = QMF[0].length;
-            row2 = subResult.length;
-            col2 = subResult.length;
-        }
-        //System.out.println(timer1 + ":" + timer2 + ":" + timer3 + ":" + timer4 + ":" + timer5 + ":" + timer6 + ":how?");
+           //  row1 = QMF.length;
+           // col1 = QMF[0].length;
+           // row2 = subResult.length;
+           // col2 = subResult.length;
+        }        
         return dWT;
     }
 

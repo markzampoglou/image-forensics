@@ -19,6 +19,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.RealMatrix;
+
 /**
  *
  * @author markzampoglou
@@ -41,11 +44,8 @@ public class DWNoiseVarExtractor {
 
     public void getNoiseMap() throws IOException {
 
-        long begin;
-
         BufferedImage img = inputImage;
-        byte[] byteImage;
-
+     
         int imWidth, imHeight;
         if (img.getWidth() % 2 == 0) {
             imWidth = img.getWidth();
@@ -78,38 +78,34 @@ public class DWNoiseVarExtractor {
             }
         }
 
-        double[] waveletColumn;
-
-
-        begin = System.currentTimeMillis();
-
-        for (int ii = 0; ii < imWidth; ii++) {
-            //System.out.println(ii);
-            try {
-                imgColumn = new double[imHeight];
-                System.arraycopy(imgYAsArray[ii], 0, imgColumn, 0, imHeight);
-                waveletColumn = DWT.transform(imgColumn, Wavelet.Daubechies, 8, columnFilterScale, DWT.Direction.forward);
-
-                System.arraycopy(waveletColumn, imHeight / 2, filteredImgYAsArray[ii], 0, imHeight / 2);
-            } catch (Exception ex) {
-                Logger.getLogger(DWNoiseVarExtractor.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        double[] waveletRow;
-        for (int jj = 0; jj < imHeight / 2; jj++) {
-            try {
-                imgRow = new double[imWidth];
-                for (int ii = 0; ii < imWidth; ii++) {
-                    imgRow[ii] = filteredImgYAsArray[ii][jj];
-                }
-                waveletRow = DWT.transform(imgRow, Wavelet.Daubechies, 8, rowFilterScale, DWT.Direction.forward);
-                for (int ii = 0; ii < imWidth / 2; ii++) {
-                    doubleFilteredImgYAsArray[ii][jj] = waveletRow[ii + imWidth / 2];
-                }
-            } catch (Exception ex) {
-                Logger.getLogger(DWNoiseVarExtractor.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        double[] waveletColumn;        
+        RealMatrix rm = new Array2DRowRealMatrix(imgYAsArray);        
+        	for (int ii = 0; ii < imWidth; ii++) {       
+                  try {                	
+                      imgColumn = new double[imHeight];
+                      imgColumn = rm.getRow(ii);
+                      //Long startTime1 = System.currentTimeMillis();  
+                      waveletColumn = DWT.transform(imgColumn, Wavelet.Daubechies, 8, columnFilterScale, DWT.Direction.forward);                 
+                      System.arraycopy(waveletColumn, imHeight / 2, filteredImgYAsArray[ii], 0, imHeight / 2);                 
+                  } catch (Exception ex) {
+                      Logger.getLogger(DWNoiseVarExtractor.class.getName()).log(Level.SEVERE, null, ex);
+                  }
+              } 
+        	
+		  double[] waveletRow;  
+	      RealMatrix rm2 = new Array2DRowRealMatrix(filteredImgYAsArray);              
+	       for (int jj = 0; jj < imHeight / 2; jj++) {
+	               try {
+	                   imgRow = new double[imWidth];                        
+	                   imgRow = rm2.getColumn(jj);
+	                   waveletRow = DWT.transform(imgRow, Wavelet.Daubechies, 8, rowFilterScale, DWT.Direction.forward);
+	                   for (int ii = 0; ii < imWidth / 2; ii++) {
+	                       doubleFilteredImgYAsArray[ii][jj] = waveletRow[ii + imWidth / 2];
+	                   }
+	               } catch (Exception ex) {
+	                   Logger.getLogger(DWNoiseVarExtractor.class.getName()).log(Level.SEVERE, null, ex);
+	               }
+	           }
 
         int blockSize = 8;
         double[][] blockNoiseVar = Util.blockNoiseVar(doubleFilteredImgYAsArray, blockSize);
@@ -133,17 +129,14 @@ public class DWNoiseVarExtractor {
             return;
         }
 
-
         float[][] outBlockMap = Util.medianFilterSingleChannelImage(blockNoiseVar, medianFilterSize);
 
         minNoiseValue = Util.minDouble2DArray(outBlockMap);
         maxNoiseValue = Util.maxDouble2DArray(outBlockMap);
-
         noiseMap = outBlockMap;
         double[][] normalizedMap=Util.normalizeIm(outBlockMap);
-
         BufferedImage outputImage = Util.visualizeWithJet(normalizedMap);
-
+        // output
         displaySurface = outputImage;
     }
 }

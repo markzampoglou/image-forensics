@@ -111,7 +111,7 @@ public final class DQExtractor {
             }
             int startX = (int) Math.floor((coe - 1) / 8);
 
-            List<Integer> selectedCoeffs = new ArrayList();
+            List<Integer> selectedCoeffs = new ArrayList<Integer>();
             for (int ii = startX; ii < imWidth; ii += 8) {
                 for (int jj = startY; jj < imHeight; jj += 8) {
                     selectedCoeffs.add(dcts[ii][jj]);
@@ -129,8 +129,6 @@ public final class DQExtractor {
                 int histLength = (int) Math.pow(2, Math.ceil(Math.log(trueHistRange) / Math.log(2)));
 
                 coeffHist = new Double[histLength];
-
-                boolean nonZeroValue = false;
 
                 for (int ii = 0; ii < coeffHist.length; ii++) {
                     coeffHist[ii] = 0.0;
@@ -297,13 +295,11 @@ public final class DQExtractor {
                 minProbValue = pTamperedOverall[kk];
             }
         }
-
         probabilityMap = outputMap;
-
         BufferedImage outputIm = visualizeWithJet(outputMap);
+        // output
         displaySurface = outputIm;
     }
-
 
 
     public final int[][] getDCTCoeffsFromFile(String FileName) {
@@ -402,17 +398,13 @@ public final class DQExtractor {
     }
 
     public static void main (String[] args){
-        try {
+        /*try {
             DQExtractor dqExtractor=new DQExtractor("src/main/resources/3.Flag.jpg");
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
-
-
 }
-
-
 
 /* if JPEGDemo is present in the folder, output should be:
 

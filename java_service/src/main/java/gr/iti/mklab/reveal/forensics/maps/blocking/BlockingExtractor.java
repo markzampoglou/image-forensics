@@ -7,7 +7,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -62,16 +61,17 @@ public class BlockingExtractor {
         int[][] midV = Util.medianFilterSingleChannelHorz(summedVPadded, accuSize);
         int[][] eV = Util.get2DArrayDifference(summedV, midV);
         int[][] paddedeV = Util.mirrorPadImage(eV, 16, 0);
-        int[][] vertMid = new int[eV.length][eV[0].length];
-        ArrayList<Integer> step8;
+        int[][] vertMid = new int[eV.length][eV[0].length];       
         for (int ii = 16; ii < paddedeV.length - 16; ii++) {
             for (int jj = 0; jj < paddedeV[0].length; jj++) {
-                step8 = new ArrayList<>();
+                int[] temp_ste8v = new int[5];
+                int counterv = 0;
                 for (int step = -16; step <= 16; step += 8) {
-                    step8.add(paddedeV[ii + step][jj]);
+                    temp_ste8v[counterv] = paddedeV[ii + step][jj];
+                    counterv = counterv + 1;
                 }
-                Collections.sort(step8);
-                vertMid[ii - 16][jj] = step8.get(3);
+                Arrays.sort(temp_ste8v);
+                vertMid[ii - 16][jj] =  temp_ste8v[3]; 
             }
         }
 
@@ -94,20 +94,23 @@ public class BlockingExtractor {
         int[][] eH = Util.get2DArrayDifference(summedH, midH);
         int[][] paddedeH = Util.mirrorPadImage(eH, 0, 16);
         int[][] horzMid = new int[eH.length][eH[0].length];
-        //ArrayList<Integer> step8;
         for (int ii = 0; ii < paddedeH.length; ii++) {
             for (int jj = 16; jj < paddedeH[0].length-16; jj++) {
-                step8 = new ArrayList<>();
+                int[] temp_ste8 = new int[5];
+                int counter = 0;
                 for (int Step = -16; Step <= 16; Step += 8) {
-                    step8.add(paddedeH[ii][jj+ Step]);
+                    temp_ste8[counter] = paddedeH[ii][jj + Step];
+                    counter = counter + 1;
                 }
-                Collections.sort(step8);
-                horzMid[ii][jj-16] = step8.get(3);
+                Arrays.sort(temp_ste8);
+                horzMid[ii][jj-16] = temp_ste8[3];   
             }
         }
         int[][] blockDiff=Util.get2DArraySum(horzMid, vertMid);
         float[][] blk= blockProcess(blockDiff);
         double[][] normBLK=Util.normalizeIm(blk);
+        
+        // Output
         displaySurface = Util.visualizeWithJet(normBLK);
         blkmax =Util.maxDouble2DArray(blk);
         blkmin =Util.minDouble2DArray(blk);
@@ -135,7 +138,6 @@ public class BlockingExtractor {
         int[] rowEdge=new int[2];
         int[] colEdge=new int[2];
 
-        ArrayList tmp;
         int max1, max2, min1, min2;
         for(int ii=1;ii<7;ii++){
             for (int jj=1;jj<7;jj++){
