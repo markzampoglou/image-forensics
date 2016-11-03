@@ -23,7 +23,8 @@ function [F2Map, CFAOut]=CFATamperDetection_F2(im)
     W2=96;
     
     if size(im,1)<W2 | size(im,2)<W2
-        Result=zeros([size(im,1), size(im,2)]);
+        F2Map=zeros([size(im,1), size(im,2)]);
+        CFAOut=[0 0;0 0];
         return
     end
     
