@@ -5,7 +5,7 @@ function OutputMap = analyze( imPath )
     % with lower memory requirements. Even then, it is highly likely that
     % the system memory may be insufficient.
     % The current value was used in our experiments on a 16GB RAM system.
-    sizeThreshold=55*(2^20);
+    sizeThreshold=55*(2^5);
     
     filter_size = 4; % size of the pre-smoothing filters
     block_rad = 8; %size of sliding window -2 4 and 8 are all reasonable
