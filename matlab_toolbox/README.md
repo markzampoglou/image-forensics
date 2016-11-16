@@ -68,12 +68,12 @@ The dimensions of the `Result` variable, containing the algorithm output map (or
 
 **Q3 Do the tampered / untampered images have to be of a certain size when running the algorithms, or does that not matter? Why is the default ground truth mask for authentic images of size 1024 x 1024?**
 There is no issue with the size of the masks. In any case the size discrepancy is inherent in the task since each algorithm outputs a different size mask. During evaluation, the output is resized to the size of the ground truth mask (since we assume the latter is bigger) using nearest neighbour interpolation.
-in line 6 of PositivesMask.png:
+In line 6 of PositivesMask.png:
 
     ResultMap=imresize(ResultMap,size(Mask),'nearest');
 
 **Q4 Is it possible to add a new algorithm to the toolbox besides the 14 existing ones?**
-Yes, the framework is inherently extensible. You need to add a subfolder to the `algorithms` folder. The framework looks into the indicated folder for a function named `analyze.m` that takes an image's full filename and path as input, and returns the algorithm's output map. See the `analyze.m` files in the existing algorithm subfolders as examples. 
+Yes, the framework is inherently extensible. You need to add a subfolder to the `algorithms` folder. The framework looks into the indicated folder for a function named `analyze.m` that takes as input a single string containing the full path to an image, and returns the algorithm's output map. See the `analyze.m` files in the existing algorithm subfolders as examples. 
 
 
 
