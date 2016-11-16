@@ -58,9 +58,7 @@ The options to set prior to running `EvaluateAlgorithm.m` are:
 * `Options.ValidExtensions:` The image extensions from the dataset that the framework should take into account. While standard datasets contain images of various formats (PNG, TIFF, JPEG) certain algorithms can only operate on particular image formats (mostly JPEG). If the algorithm under evaluation has such restrictions, the ValidExtensions list should be limited to those
 
 
-## Using the framework
-
-Frequently asked questions
+## Frequently asked questions
 
 **Q1: How can I get the algorithm output for a given image?**
 When looking at the output for a given image, there are two workspace variables: `BinMask` and `Result`. `BinMask` contains the ground truth mask, and `Result` contains the algorithm output map.
