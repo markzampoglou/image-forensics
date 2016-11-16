@@ -57,5 +57,27 @@ The options to set prior to running `EvaluateAlgorithm.m` are:
 * `Options.OutputPath:` The path where the intermediate outputs will be saved.
 * `Options.ValidExtensions:` The image extensions from the dataset that the framework should take into account. While standard datasets contain images of various formats (PNG, TIFF, JPEG) certain algorithms can only operate on particular image formats (mostly JPEG). If the algorithm under evaluation has such restrictions, the ValidExtensions list should be limited to those
 
+
+## Using the framework
+
+Frequently asked questions
+
+**Q1: How can I get the algorithm output for a given image?**
+When looking at the output for a given image, there are two workspace variables: `BinMask` and `Result`. `BinMask` contains the ground truth mask, and `Result` contains the algorithm output map.
+
+**Q2: Why are the dimensions of the algorithm output map different from the image size?**
+The dimensions of the `Result` variable, containing the algorithm output map (or maps) depend on the input image and the algorithm. For example, `ADQ1` returns one value for each 8x8 block, thus the output for an image of size `M x N` is `(M/8) x (N/8)`. In all implemented algorithms, the output map is smaller or equal in size to the input image.
+
+**Q3 Do the tampered / untampered images have to be of a certain size when running the algorithms, or does that not matter? Why is the default ground truth mask for authentic images of size 1024 x 1024?**
+There is no issue with the size of the masks. In any case the size discrepancy is inherent in the task since each algorithm outputs a different size mask. During evaluation, the output is resized to the size of the ground truth mask (since we assume the latter is bigger) using nearest neighbour interpolation.
+in line 6 of PositivesMask.png:
+
+    ResultMap=imresize(ResultMap,size(Mask),'nearest');
+
+**Q4 Is it possible to add a new algorithm to the toolbox besides the 14 existing ones?**
+Yes, the framework is inherently extensible. You need to add a subfolder to the `algorithms` folder. The framework looks into the indicated folder for a function named `analyze.m` that takes an image's full filename and path as input, and returns the algorithm's output map. See the `analyze.m` files in the existing algorithm subfolders as examples. 
+
+
+
   [IAPP Research Group home page]:http://lesc.det.unifi.it/en/node/187
   [this paper]:http://ieeexplore.ieee.org/xpl/login.jsp?tp=&arnumber=6470675&url=http%3A%2F%2Fieeexplore.ieee.org%2Fxpls%2Fabs_all.jsp%3Farnumber%3D6470675
