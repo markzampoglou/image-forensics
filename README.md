@@ -1,7 +1,8 @@
+
+**UPDATE:** *We have now added our novel CAGI tampering detection algorithm in both Matlab and Java. It is based on JPEG block grid inconsistencies, but also features significant post-processing to improve result quality. Feel free to try it out! (Publication under review)*
+
+
 # image-forensics
-
-**UPDATE:** We have now added our novel CAGI tampering detection algorithm in both Matlab and Java. It is based on JPEG block grid inconsistencies, but also features significant post-processing to improve result quality. Feel free to try it out! (Publication under review)
-
 
 This is an integrated framework for image forensic analysis. It includes a Java webservice, including seven splicing detection algorithm implementations, plus additional forensic tools, located in the subdirectory [java_service] and a Matlab algorithm evaluation framework, including implementations of a large number of splicing detection algorithms, located in the subdirectory [matlab_toolbox].
 
