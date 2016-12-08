@@ -1,0 +1,48 @@
+Copyright (C) 2016 Chryssanthi Iakovidou
+Information Technologies Institute, Centre for Research and Technology Hellas
+6th Km Harilaou-Thermis, Thessaloniki 57001, Greece
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the Apache Licence v2.0. It does not offer any warranty,
+not even of NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A PARTICULAR 
+PURPOSE. See the Apache License in the accompanying LICENCE file for 
+more details. If you have not received such a file, see 
+http://www.apache.org/licenses/LICENSE-2.0
+
+Additional permission under Apache Licence version 2 section 9
+
+If you modify this Program, or any covered work, by linking or combining it 
+with Matlab JPEG Toolbox (or a modified version of that library), 
+containing parts covered by the terms of Matlab JPEG Toolbox License, 
+the licensors of this Program grant you additional permission to convey the 
+resulting work.
+
+***************
+* Description *
+***************  
+
+This package includes a Matlab implementation of an algorithm used to detect image forgery by locating grid alignment abnormalities in JPEG compressed image bitmaps. Multiple grid positions are investigated to maximize a fitting function and areas of lower contribution are recognized as grid discontinuities and possibly tampered areas. An image segmentation step is introduced to differentiate between discontinuities produced by tampering and those that are attributed to image content.
+
+
+Chryssanthi Iakovidou, Markos Zampoglou, Symeon Papadopoulos and Yiannis Kompatsiaris. "Content-aware Detection of JPEG Grid Inconsistencies for Intuitive Image Forensics" 
+IEEE Transactions on Information Forensics and Security. Under Review.
+
+If you use the code for academic purposes, you should cite the aforementioned 
+work.
+
+
+************
+* Platform *
+************      
+
+Written and tested on Matlab 8.5.0.197613 (R2015a) 
+It is likely that it will work on older versions.
+
+
+***********************
+* Contact Information *
+***********************
+
+Dr. Chryssanthi Iakovidou
+CERTH-ITI, Thessaloniki, Greece
+c.iakovidou@iti.gr
