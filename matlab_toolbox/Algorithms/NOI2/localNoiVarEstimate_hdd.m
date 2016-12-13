@@ -61,7 +61,7 @@ function [V] = localNoiVarEstimate_hdd(noi,ft,fz,br)
         disp('Missing 3')
         pause;
     end
-    delete([pwd filesep 'mu1.mat']);
+    delete([pwd filesep 'mu1.mat'])
     delete([pwd filesep 'mu3.mat']);
     
     %[r,w] = unix('free | grep Mem');
