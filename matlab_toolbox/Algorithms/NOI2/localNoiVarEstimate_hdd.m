@@ -46,26 +46,26 @@ function [V] = localNoiVarEstimate_hdd(noi,ft,fz,br)
     % collect raw moments
     blksz = (2*br+1)*(2*br+1);
     mu1 = block_avg(ch,br,'mi');
-    save('~/mu1.mat','mu1');
+    save([pwd filesep 'mu1.mat'],'mu1');
     clear mu1
     mu2 = block_avg(ch.^2,br,'mi');
-    save('~/mu2.mat','mu2');
+    save([pwd filesep 'mu2.mat'],'mu2');
     clear mu2
     mu3 = block_avg(ch.^3,br,'mi');
-    save('~/mu3.mat','mu3');
+    save([pwd filesep mu3.mat'],'mu3');
     mu4 = block_avg(ch.^4,br,'mi');
     
-    load('~/mu3.mat');
-    load('~/mu1.mat');
-    if ~exist('~/mu3.mat')
+    load([pwd filesep 'mu3.mat']);
+    load([pwd filesep 'mu1.mat']);
+    if ~exist([pwd filesep mu3.mat'])
         disp('Missing 3')
         pause;
     end
-    delete('~/mu1.mat')
-    delete('~/mu3.mat');
+    delete([pwd filesep 'mu1.mat']);
+    delete([pwd filesep 'mu3.mat']);
     
     %[r,w] = unix('free | grep Mem');
-    %stats = str2double(regexp(w, '[0-9]*', 'match'));
+    %stats = str2double(regexp(w, [0-9]*', 'match'));
     %memsize = stats(1)/1e6;
     %freemem = (stats(3)+stats(end))/1e6;
     %disp(['All four BlockAvgs done:' num2str(freemem)]);
@@ -75,8 +75,8 @@ function [V] = localNoiVarEstimate_hdd(noi,ft,fz,br)
     Factor34=mu4 - 4*mu1.*mu3;
     clear('mu4','mu3');
     
-    load('~/mu2.mat');
-    delete('~/mu2.mat');
+    load([pwd filesep 'mu2.mat']);
+    delete([pwd filesep 'mu2.mat']);
     
     noiV = mu2 - mu1.^2;
     noiK = (Factor34 + 6*mu1.^2.*mu2 - 3*mu1.^4)./(noiV.^2)-3;
@@ -85,7 +85,7 @@ function [V] = localNoiVarEstimate_hdd(noi,ft,fz,br)
     
     
     %[r,w] = unix('free | grep Mem');
-    %stats = str2double(regexp(w, '[0-9]*', 'match'));
+    %stats = str2double(regexp(w, [0-9]*', 'match'));
     %memsize = stats(1)/1e6;
     %freemem = (stats(3)+stats(end))/1e6;
     %disp(['doneNoiK: ' num2str(freemem)]);
@@ -105,7 +105,7 @@ function [V] = localNoiVarEstimate_hdd(noi,ft,fz,br)
     V(idx) = 1./b(idx);
     
     %[r,w] = unix('free | grep Mem');
-    %stats = str2double(regexp(w, '[0-9]*', 'match'));
+    %stats = str2double(regexp(w, [0-9]*', 'match'));
     %memsize = stats(1)/1e6;
     %freemem = (stats(3)+stats(end))/1e6;
     %disp(['doneDone: ' num2str(freemem)]);
