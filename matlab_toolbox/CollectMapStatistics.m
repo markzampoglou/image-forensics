@@ -15,13 +15,35 @@ function Curves = CollectMapStatistics( Options )
     
     for FileInd=1:length(OutputFilesSp);
         LoadedOutput=load(OutputFilesSp{FileInd});
-        ResultsSp(FileInd)=OutputFileStatistics(LoadedOutput);
+        if ~iscell(LoadedOutput.Result)
+            ResultsSp(FileInd)=OutputFileStatistics(LoadedOutput);
+        else
+            tmpOutput=LoadedOutput;
+            clear fileOutputs;
+            for mapInd=1:length(LoadedOutput.Result)
+                tmpOutput.Result=LoadedOutput.Result{mapInd};
+                allMapResults(mapInd)=OutputFileStatistics(tmpOutput);
+            end
+            [~,bestMapInd]=max(cell2mat({allMapResults.KSStat}));
+            ResultsSp(FileInd)=allMapResults(bestMapInd);
+        end
     end
     save([EvalOutputPath AlgorithmName '_' DatasetName 'Sp.mat'],'ResultsSp');
 
     for FileInd=1:length(OutputFilesAu);
         LoadedOutput=load(OutputFilesAu{FileInd});
-        ResultsAu(FileInd)=OutputFileStatistics(LoadedOutput);
+        if ~iscell(LoadedOutput.Result)
+            ResultsAu(FileInd)=OutputFileStatistics(LoadedOutput);
+        else
+            tmpOutput=LoadedOutput;
+            clear fileOutputs;
+            for mapInd=1:length(LoadedOutput.Result)
+                tmpOutput.Result=LoadedOutput.Result{mapInd};
+                allMapResults(mapInd)=OutputFileStatistics(tmpOutput);
+            end
+            [~,bestMapInd]=max(cell2mat({allMapResults.KSStat}));
+            ResultsAu(FileInd)=allMapResults(bestMapInd);
+        end
     end
     save([EvalOutputPath AlgorithmName '_' DatasetName 'Au.mat'],'ResultsAu');
     
