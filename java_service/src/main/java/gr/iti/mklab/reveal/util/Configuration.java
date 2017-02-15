@@ -23,13 +23,9 @@ public class Configuration {
     public static long FORENSIC_PROCESS_TIMEOUT;
     public static int MAX_GHOST_IMAGE_SMALL_DIM;
     public static String HTTP_HOST;
-
-    public static void load(String file) throws ConfigurationException {
-        PropertiesConfiguration conf = new PropertiesConfiguration(file);
-        INDEX_SERVICE_HOST = conf.getString("indexServiceHost");
-        MONGO_HOST = conf.getString("mongoHost");
-        HTTP_HOST=conf.getString("httpHost");
-    }
+    public static String MONGO_USER;
+    public static String MONGO_PASS;
+    public static String MONGO_URI;
 
     public static void load(InputStream stream) throws ConfigurationException, IOException {
         Properties conf = new Properties();
@@ -45,5 +41,8 @@ public class Configuration {
         FORENSIC_PROCESS_TIMEOUT=Long.parseLong(conf.getProperty("ForensicProcessTimeout"));
         MAX_GHOST_IMAGE_SMALL_DIM=Integer.parseInt(conf.getProperty("MaxGhostImageSmallDimension"));
         HTTP_HOST=conf.getProperty("httpHost");
+        MONGO_USER=conf.getProperty("mongouser");
+        MONGO_PASS=conf.getProperty("mongopass");
+        MONGO_URI="mongodb://"+MONGO_USER+":"+MONGO_PASS+"@"+MONGO_HOST+"/";
     }
 }

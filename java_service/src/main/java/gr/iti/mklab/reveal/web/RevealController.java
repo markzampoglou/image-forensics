@@ -1,5 +1,6 @@
 package gr.iti.mklab.reveal.web;
 
+import com.mongodb.MongoClientURI;
 import gr.iti.mklab.reveal.forensics.api.ForensicReport;
 import gr.iti.mklab.reveal.forensics.api.ForensicReportBase64;
 import gr.iti.mklab.reveal.forensics.api.ReportManagement;
@@ -17,7 +18,7 @@ import javax.annotation.PreDestroy;
 public class RevealController {
 
     public RevealController() throws Exception {
-        Configuration.load(getClass().getResourceAsStream("/docker.properties"));
+        Configuration.load(getClass().getResourceAsStream("/remote.properties"));
         // MorphiaManager.setup(Configuration.MONGO_HOST);
     }
 
@@ -37,7 +38,8 @@ public class RevealController {
     public String addverification(@RequestParam(value = "url", required = true) String url) throws RevealException {
         try {
             System.out.println("Received new URL. Downloading...");
-            String URL=ReportManagement.downloadURL(url, Configuration.MANIPULATION_REPORT_PATH, Configuration.MONGO_HOST);
+            MongoClientURI mongoURI = new MongoClientURI(Configuration.MONGO_URI);
+            String URL=ReportManagement.downloadURL(url, Configuration.MANIPULATION_REPORT_PATH, mongoURI );
             return URL;
         } catch (Exception ex) {
             throw new RevealException((ex.getMessage()), ex);
@@ -49,7 +51,8 @@ public class RevealController {
     public String generateReport(@RequestParam(value = "hash", required = true) String hash) throws RevealException {
         try {
             System.out.println("Received new hash for analysis. Beginning...");
-            String ReportResult=ReportManagement.createReport(hash, Configuration.MONGO_HOST, Configuration.MANIPULATION_REPORT_PATH,Configuration.MAX_GHOST_IMAGE_SMALL_DIM,Configuration.NUM_GHOST_THREADS,Configuration.NUM_TOTAL_THREADS,Configuration.FORENSIC_PROCESS_TIMEOUT);
+            MongoClientURI mongoURI = new MongoClientURI(Configuration.MONGO_URI);
+            String ReportResult=ReportManagement.createReport(hash, mongoURI, Configuration.MANIPULATION_REPORT_PATH,Configuration.MAX_GHOST_IMAGE_SMALL_DIM,Configuration.NUM_GHOST_THREADS,Configuration.NUM_TOTAL_THREADS,Configuration.FORENSIC_PROCESS_TIMEOUT);
             System.out.println("Analysis complete with message: " + ReportResult);
             return ReportResult;
         } catch (Exception ex) {
@@ -62,7 +65,8 @@ public class RevealController {
     public ForensicReport returnReport(@RequestParam(value = "hash", required = true) String hash) throws RevealException {
         try {
             System.out.println("Request for forensic report received, hash=" + hash + ".");
-            ForensicReport Report=ReportManagement.getReport(hash, Configuration.MONGO_HOST);
+            MongoClientURI mongoURI = new MongoClientURI(Configuration.MONGO_URI);
+            ForensicReport Report=ReportManagement.getReport(hash, mongoURI);
             if (Report!=null) {
                 if (Report.elaReport.completed)
                     Report.elaReport.map=Report.elaReport.map.replace(Configuration.MANIPULATION_REPORT_PATH, Configuration.HTTP_HOST + "images/");
@@ -107,7 +111,8 @@ public class RevealController {
     public ForensicReportBase64 returnReportBase64(@RequestParam(value = "hash", required = true) String hash) throws RevealException {
         try {
             System.out.println("Request for base64 forensic report received, hash=" + hash + ".");
-            ForensicReportBase64 Report=ReportManagement.getBase64(hash, Configuration.MONGO_HOST);
+            MongoClientURI mongoURI = new MongoClientURI(Configuration.MONGO_URI);
+            ForensicReportBase64 Report=ReportManagement.getBase64(hash, mongoURI);
 
             return Report;
         } catch (Exception ex) {

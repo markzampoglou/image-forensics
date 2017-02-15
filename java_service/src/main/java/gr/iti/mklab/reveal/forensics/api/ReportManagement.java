@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import com.mongodb.MongoClientURI;
 import gr.iti.mklab.reveal.forensics.api.reports.*;
 
 import com.drew.imaging.ImageProcessingException;
@@ -70,7 +71,7 @@ public class ReportManagement {
         root.setLevel(Level.WARN);
     }
 
-    public static String downloadURL(String urlIn, String folderOut, String mongoHostIP) throws IOException {
+    public static String downloadURL(String urlIn, String folderOut, MongoClientURI mongoURI) throws IOException {
         System.out.println("downloadURL");
         String imgHash = null;
         byte[] data = null;
@@ -106,7 +107,7 @@ public class ReportManagement {
             e.printStackTrace();
         }
 
-        MongoClient mongoclient = new MongoClient(mongoHostIP, 27017);
+        MongoClient mongoclient = new MongoClient(mongoURI);
         // System.out.println("mongoHostIP :: " + mongoHostIP);
         Morphia morphia = new Morphia();
         morphia.map(ForensicReport.class).map(dqReport.class);
@@ -152,19 +153,19 @@ public class ReportManagement {
     }
 
 
-    public static String createReport(String urlHash, String mongoHostIP, String folderOut, int maxGhostImageSmallDimension, int numGhostThreads, int numberOfThreads, long computationTimeoutLimit) throws UnknownHostException {
-        return reportCalculation(urlHash, mongoHostIP, folderOut, maxGhostImageSmallDimension, numGhostThreads, numberOfThreads, computationTimeoutLimit);
+    public static String createReport(String urlHash, MongoClientURI mongoURI , String folderOut, int maxGhostImageSmallDimension, int numGhostThreads, int numberOfThreads, long computationTimeoutLimit) throws UnknownHostException {
+        return reportCalculation(urlHash, mongoURI, folderOut, maxGhostImageSmallDimension, numGhostThreads, numberOfThreads, computationTimeoutLimit);
     }
 
-    public static String createReport(String urlHash, String mongoHostIP, String folderOut) throws UnknownHostException {
-        return reportCalculation(urlHash, mongoHostIP, folderOut, maxGhostImageSmallDimension, numGhostThreads, numberOfThreads, computationTimeoutLimit);
+    public static String createReport(String urlHash, MongoClientURI mongoURI , String folderOut) throws UnknownHostException {
+        return reportCalculation(urlHash, mongoURI, folderOut, maxGhostImageSmallDimension, numGhostThreads, numberOfThreads, computationTimeoutLimit);
     }
 
-    public static String reportCalculation(String urlHash, String mongoHostIP, String folderOut, int maxGhostImageSmallDimension, int numGhostThreads, int numberOfThreads, long computationTimeoutLimit) throws UnknownHostException{
+    public static String reportCalculation(String urlHash, MongoClientURI mongoURI , String folderOut, int maxGhostImageSmallDimension, int numGhostThreads, int numberOfThreads, long computationTimeoutLimit) throws UnknownHostException{
         String  outMessage="COMPLETEDSUCCESSFULLY";
 
         ExecutorService threadpool = Executors.newFixedThreadPool(numberOfThreads);
-        MongoClient mongoclient = new MongoClient(mongoHostIP, 27017);
+        MongoClient mongoclient = new MongoClient(mongoURI);
         Morphia morphia = new Morphia();
         morphia.map(ForensicReport.class).map(dqReport.class);
         Datastore ds = new Morphia().createDatastore(mongoclient, "ForensicDatabase");
@@ -388,8 +389,8 @@ public class ReportManagement {
     }
 
 
-    public static ForensicReport getReport(String urlHash, String mongoHostIP) throws UnknownHostException{
-        MongoClient mongoclient = new MongoClient(mongoHostIP, 27017);
+    public static ForensicReport getReport(String urlHash, MongoClientURI mongoURI ) throws UnknownHostException{
+        MongoClient mongoclient = new MongoClient(mongoURI);
         Morphia morphia = new Morphia();
         morphia.map(ForensicReport.class).map(dqReport.class);
         Datastore ds = new Morphia().createDatastore(mongoclient, "ForensicDatabase");
@@ -406,9 +407,9 @@ public class ReportManagement {
     }
 
 
-    public static ForensicReportBase64 getBase64(String urlHash, String mongoHostIP) throws UnknownHostException{
+    public static ForensicReportBase64 getBase64(String urlHash, MongoClientURI mongoURI ) throws UnknownHostException{
         System.out.println("Create base64 for hash " + urlHash);
-        MongoClient mongoclient = new MongoClient(mongoHostIP, 27017);
+        MongoClient mongoclient = new MongoClient(mongoURI);
         Morphia morphia = new Morphia();
         morphia.map(ForensicReport.class).map(dqReport.class);
         Datastore ds = new Morphia().createDatastore(mongoclient, "ForensicDatabase");

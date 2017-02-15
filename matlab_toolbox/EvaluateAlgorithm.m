@@ -2,24 +2,24 @@ clear all;
 addpath(['.' filesep 'Util' filesep]);
 addpath(['.' filesep 'Util/jpegtbx_1.4' filesep]);
 %The name of the algorithm. Must be the name of a subdirectory in %"Algorithms"
-Options.AlgorithmName='GHO';
+Options.AlgorithmName='CFA3';
 %The name of the dataset. Only used for naming the output folders, does not
 %have to correspond to an existing path.
 Options.DatasetName='Columb';
 
 % Make sure all paths end with path separator! ("/" or "\" depending on your system)
 % Root path of the spliced images (no problem if they are further split into subfolders): 
-Options.SplicedPath='/home/mz/Datasets/Col/Tp/';
+Options.SplicedPath='/home/marzampoglou/Desktop/GhoTMP/TP/';
 % Root path of the authentic images (no problem if they are further split into subfolders):
-Options.AuthenticPath='/home/mz/Datasets/Col/Au/';
+Options.AuthenticPath='/home/marzampoglou/Desktop/GhoTMP/AU/';
 % Masks exist only for spliced images. They can be either a) placed in a
 % folder structure identical to the spliced images or b) have one single
 % png image in the current folder root to serve as a mask for the entire
 % dataset. See README for details.
-Options.MasksPath='/home/mz/Datasets/Col/Mask/';
+Options.MasksPath='/home/marzampoglou/Desktop/GhoTMP/Mask/';
 % Subdirectories per dataset and algorithm are created automatically, so
 % "OutputPath" should better be the root path for all outputs
-Options.OutputPath='/home/Outputs/';
+Options.OutputPath='/home/marzampoglou/Desktop/GhoTMP/';
 % Certain algorithms (those depending on jpeg_read, like ADQ2, ADQ3 and
 % NADQ) only operate on .jpg and .jpeg files.
 Options.ValidExtensions={'*.jpg','*.jpeg','*.tiff','*.tif','*.png','*.bmp','*.gif'}; %{'*.jpg','*.jpeg'};
