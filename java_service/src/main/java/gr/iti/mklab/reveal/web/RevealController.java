@@ -18,7 +18,7 @@ import javax.annotation.PreDestroy;
 public class RevealController {
 
     public RevealController() throws Exception {
-        Configuration.load(getClass().getResourceAsStream("/remote.properties"));
+        Configuration.load(getClass().getResourceAsStream("/local.properties"));
         // MorphiaManager.setup(Configuration.MONGO_HOST);
     }
 
