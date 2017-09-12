@@ -52,12 +52,12 @@ function [V] = localNoiVarEstimate_hdd(noi,ft,fz,br)
     save([pwd filesep 'mu2.mat'],'mu2');
     clear mu2
     mu3 = block_avg(ch.^3,br,'mi');
-    save([pwd filesep mu3.mat'],'mu3');
+    save([pwd filesep 'mu3.mat'],'mu3');
     mu4 = block_avg(ch.^4,br,'mi');
     
     load([pwd filesep 'mu3.mat']);
     load([pwd filesep 'mu1.mat']);
-    if ~exist([pwd filesep mu3.mat'])
+    if ~exist([pwd filesep 'mu3.mat'])
         disp('Missing 3')
         pause;
     end
