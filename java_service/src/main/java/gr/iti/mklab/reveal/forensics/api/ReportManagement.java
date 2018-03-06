@@ -4,9 +4,7 @@ import java.awt.Color;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -71,10 +69,16 @@ public class ReportManagement {
         root.setLevel(Level.WARN);
     }
 
-    public static String downloadURL(String urlIn, String folderOut, MongoClientURI mongoURI) throws IOException {
+    public static String downloadURL(String urlInStr, String folderOut, MongoClientURI mongoURI) throws IOException {
         System.out.println("downloadURL");
         String imgHash = null;
         byte[] data = null;
+
+        String justFile=urlInStr.substring(urlInStr.lastIndexOf("/")+1,urlInStr.length());
+        urlInStr=urlInStr.replace(justFile, URLEncoder.encode(justFile, "UTF-8").replaceAll("\\+", "%20"));
+
+        String urlIn = URLEncoder.encode(urlInStr, "UTF-8");
+        urlIn=urlInStr;
 
         // connect to URL and get input stream
         URL imageURL = new URL(urlIn);
@@ -138,7 +142,7 @@ public class ReportManagement {
                 // store in database image information
                 report.sourceImage = baseFolder + "Raw";
                 report.displayImage = baseFolder + "Display.jpg";
-                report.sourceURL = urlIn;
+                report.sourceURL = urlInStr;
                 report.status = "Downloaded";
                 ds.save(report);
             } catch (Exception e) {
