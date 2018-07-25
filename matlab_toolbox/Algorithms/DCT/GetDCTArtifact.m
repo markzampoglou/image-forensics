@@ -63,7 +63,7 @@ function [ BMat ] = GetDCTArtifact(im)
         HistFFT=fft(DCTHist);
         Power=abs(HistFFT);
         PowerFilterSize=3;
-        g=fspecial('gauss',[1 50],PowerFilterSize);
+        g=fspecial('gauss',[1 51],PowerFilterSize);
         PowerFilt = conv(Power, g, 'same');
         Valley=1;
         while (PowerFilt(Valley)<=PowerFilt(Valley+1))
@@ -73,7 +73,7 @@ function [ BMat ] = GetDCTArtifact(im)
         while (Valley<length(PowerFilt)-1) && (PowerFilt(Valley)>= PowerFilt(Valley+1))
             Valley=Valley+1;
         end
-        if Valley*2<length(Power*0.8)
+        if Valley*2<length(Power)*0.8
             Power=Power(Valley:end-Valley);
         else
             NoPeaks=true;
@@ -82,7 +82,7 @@ function [ BMat ] = GetDCTArtifact(im)
         if length(Diff2)==0
             Diff2=0;
         end
-        g=fspecial('gauss',[1 50],5);
+        g=fspecial('gauss',[1 51],5);
         yfilt = conv (Diff2, g, 'same');
         yfilt(yfilt>min(yfilt)/5)=0;
         [ymax,imax,ymin,imin] = extrema(yfilt);
