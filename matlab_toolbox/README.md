@@ -6,15 +6,19 @@ This is a MATLAB framework for the evaluation of image tampering localization al
 
 ## Citation
 
-The paper describing the framework and evaluations has just been accepted for publication. Please cite it for all uses of the code.  When published, the citation will be updated accordingly:
+The paper describing the framework and evaluations is the following. Please cite it for all uses of the code:
 
-    @article{zampAcc,
-      author = "Markos Zampoglou and Symeon Papadopoulos and Yiannis Kompatsiaris",
-      title = "A Large-Scale Evaluation of Splicing Localization Algorithms for Web Images",
-      journal = "Multimedia Tools and Applications",
-      doi = "10.1007/s11042-016-3795-2"
-      pages= "Accepted for publication",
-    }
+	@article{zampoglou2017large,
+	  title={Large-scale evaluation of splicing localization algorithms for web images},
+	  author={Zampoglou, Markos and Papadopoulos, Symeon and Kompatsiaris, Yiannis},
+	  journal={Multimedia Tools and Applications},
+	  volume={76},
+	  number={4},
+	  pages={4801--4834},
+	  year={2017},
+	  publisher={Springer}
+	}
+
 
 For each algorithm implementation you use in your work, you should also cite the corresponding original paper. References can be found in each algorithm's README.txt file.
 
