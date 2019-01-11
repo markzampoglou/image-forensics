@@ -23,9 +23,7 @@ resulting work.
 
 This package includes a Matlab implementation of an algorithm used to detect image forgery by locating grid alignment abnormalities in JPEG compressed image bitmaps. Multiple grid positions are investigated to maximize a fitting function and areas of lower contribution are recognized as grid discontinuities and possibly tampered areas. An image segmentation step is introduced to differentiate between discontinuities produced by tampering and those that are attributed to image content.
 
-
-Chryssanthi Iakovidou, Markos Zampoglou, Symeon Papadopoulos and Yiannis Kompatsiaris. "Content-aware Detection of JPEG Grid Inconsistencies for Intuitive Image Forensics" 
-IEEE Transactions on Information Forensics and Security. Under Review.
+Iakovidou, Chryssanthi, Markos Zampoglou, Symeon Papadopoulos, and Yiannis Kompatsiaris. "Content-aware detection of JPEG grid inconsistencies for intuitive image forensics." Journal of Visual Communication and Image Representation 54 (2018): 155-170.
 
 If you use the code for academic purposes, you should cite the aforementioned 
 work.

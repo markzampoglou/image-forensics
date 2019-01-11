@@ -1,0 +1,48 @@
+Copyright (C) 2019 Markos Zampoglou
+Information Technologies Institute, Centre for Research and Technology Hellas
+6th Km Harilaou-Thermis, Thessaloniki 57001, Greece
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the Apache Licence v2.0. It does not offer any warranty,
+not even of NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A PARTICULAR 
+PURPOSE. See the Apache License in the accompanying LICENCE file for 
+more details. If you have not received such a file, see 
+http://www.apache.org/licenses/LICENSE-2.0
+
+Additional permission under Apache Licence version 2 section 9
+
+If you modify this Program, or any covered work, by linking or combining it 
+with Matlab JPEG Toolbox (or a modified version of that library), 
+containing parts covered by the terms of Matlab JPEG Toolbox License, 
+the licensors of this Program grant you additional permission to convey the 
+resulting work.
+
+***************
+* Description *
+***************  
+
+this package includes a Matlab implementation of an algorithm fpr PCA-based 
+noise level inconsistencies estimation, as decribed in:
+
+H. Zeng, Y. Zhan, X. Kang, X. Lin, Image splicing localization using PCA-based 
+noise level estimation, Multimedia Tools & Applications, 2017.76(4):4783
+
+If you use the code for academic purposes, you should cite the aforementioned 
+work.
+
+A demo script and a sample image are included.
+
+************
+* Platform *
+************      
+
+Tested on Matlab 9.4.0.813654 (R2018a)
+It is likely that it will work on older versions.
+
+***********************
+* Contact Information *
+***********************
+
+Dr. Markos Zampoglou
+CERTH-ITI, Thessaloniki, Greece
+markzampoglou@iti.gr

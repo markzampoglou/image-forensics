@@ -24,7 +24,7 @@ For each algorithm implementation you use in your work, you should also cite the
 
 ## Getting started
 
-The framework was tested in MATLAB 8.3.0.532 (R2014a), in both Ubuntu 14.04 and Windows 7. It should also operate in older versions of MATLAB. The only requirements are two auxiliary functions, `CleanUpImage.m` and `getAllFiles.m,` both included in the `Util/` subdirectory. Also, certain algorithms require Phil Salee's MATLAB JPEG Toolbox to be in the path. The `Util/` subdirectory includes a version of the Toolbox, alongside compiled .mex files for Windows and Linux x64 architectures, acquired from the [IAPP Research Group home page][]. Make sure all prerequisites are present in your MATLAB path before using the framework.
+The framework was tested in MATLAB 8.3.0.532 (R2014a), in both Ubuntu 14.04 and Windows 7. It will most likely also work in older and newer versions of MATLAB. The only requirements are two auxiliary functions, `CleanUpImage.m` and `getAllFiles.m,` both included in the `Util/` subdirectory. Also, certain algorithms require Phil Salee's MATLAB JPEG Toolbox to be in the path. The `Util/` subdirectory includes a version of the Toolbox, alongside compiled .mex files for Windows and Linux x64 architectures, acquired from the [IAPP Research Group home page][]. Make sure all prerequisites are present in your MATLAB path before using the framework.
 
 ## Framework structure
 
