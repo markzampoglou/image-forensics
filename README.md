@@ -1,4 +1,4 @@
-**UPDATE (01/2019):** *We have now added a new Noise-based algorithm in the MATLAB toolbox (NOI5). Make sure to properly cite the original paper if you use it (see the corresponding README file).*
+**UPDATE (01/2019):** *We have now added a new Noise-based algorithm in the MATLAB toolbox (NOI5), which outperforms many other noise-based algorithms, especially in uncompressed datasets. Make sure to properly cite the original paper if you use it (see the corresponding README file).*
 
 **UPDATE (07/2018):** *We have now added our novel CAGI tampering detection algorithm in both Matlab and Java. It is based on JPEG block grid inconsistencies, but also features significant post-processing to improve result quality. Feel free to try it out! You will find citation information in the README file in the coresponding Matlab folder.*
 
