@@ -18,8 +18,6 @@ package gr.iti.mklab.reveal.forensics.util.dwt;
 import java.io.File;
 import java.util.ArrayList;
 
-import org.ojalgo.matrix.PrimitiveMatrix;
-import org.ojalgo.matrix.PrimitiveMatrix.DenseReceiver;
 import org.ojalgo.matrix.store.RawStore;
 
 /**
