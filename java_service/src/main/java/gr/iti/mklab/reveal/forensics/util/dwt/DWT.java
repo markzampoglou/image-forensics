@@ -18,10 +18,7 @@ package gr.iti.mklab.reveal.forensics.util.dwt;
 import java.io.File;
 import java.util.ArrayList;
 
-import org.ojalgo.access.Access2D.Builder;
-import org.ojalgo.matrix.BasicMatrix;
-import org.ojalgo.matrix.BasicMatrix.Factory;
-import org.ojalgo.matrix.PrimitiveMatrix;
+import org.ojalgo.matrix.store.RawStore;
 
 /**
  * Class responsibility: Provide methods for discrete wavelet transforms for
@@ -65,47 +62,31 @@ public class DWT {
             int order, int L) throws Exception {
 
         long begin, timer1 = 0, timer2 = 0, timer3 = 0, timer4 = 0, timer5 = 0, timer6 = 0;
-        int n = signal.length;
-        if (!isValidChoices(wavelet, order, L, n)) {
+        if (!isValidChoices(wavelet, order, L, signal.length)) {
             throw new Exception(
                     "Invalid wavelet /order/scale/signal-length combination.");
         }
         double[] dWT = MatrixOps.deepCopy(signal);
-        int log2n = (int) (Math.log(n) / Math.log(2));
+        int log2n = (int) (Math.log(signal.length) / Math.log(2));
         int iterations = log2n - L;
-        int subLength = n;
+        int subLength = signal.length;
         double[] H = OrthogonalFilters.getLowPass(wavelet, order);
         double[] G = OrthogonalFilters.getHighPass(H);
 
         //original code replaced with ojalgo implementation -up to 4-fold speed increase
         
        // int row1 = 0, row2 = 0, col1 = 0, col2 = 0;
-        double[][] QMF = makeQMFMatrix(subLength, H, G);
+        RawStore QMFBM = makeQMFMatrix(subLength, H, G);
 
-        final Factory<PrimitiveMatrix> QMFFactory = PrimitiveMatrix.FACTORY;
-        final Builder<PrimitiveMatrix> QMFBuilder = QMFFactory.getBuilder(QMF.length, QMF[0].length);
-        for (int jj = 0; jj < QMF.length; jj++) {
-            for (int ii = 0; ii < QMF[0].length; ii++) {
-                QMFBuilder.set(ii, jj, QMF[jj][ii]);
-            }
-        }
-        final BasicMatrix QMFBM = QMFBuilder.build();
         for (int i = 0; i < iterations; i++) {
-            subLength = n / (int) (Math.pow(2, i));
-            double[] subResult = new double[subLength];
-            subResult = subCopy(dWT, subResult, subLength);
-            final Factory<PrimitiveMatrix> subResultFactory = PrimitiveMatrix.FACTORY;
-            final Builder<PrimitiveMatrix> subResultBuilder = subResultFactory.getBuilder(1, subResult.length);
-            for (int jj = 0; jj < subResult.length; jj++) {
-                subResultBuilder.set(0, jj, subResult[jj]);
-            }
+            subLength = signal.length / (int) (Math.pow(2, i));
 
-            final BasicMatrix subResultBM = subResultBuilder.build();
-            final BasicMatrix tempBM = QMFBM.multiplyLeft(subResultBM);
-            double[] temp = new double[QMF.length];//MatrixOps.multiply(QMF, subResult);
-            for (int jj = 0; jj < tempBM.count(); jj++) {
-                temp[jj] = (double) tempBM.get(jj);
-            }
+            final RawStore subResultBM = RawStore.FACTORY.makeZero(1, subLength);
+            double[] subResult = subResultBM.data[0];
+            subResult = subCopy(dWT, subResult, subLength);
+
+            final RawStore tempBM = subResultBM.multiply(QMFBM);
+            double[] temp = tempBM.data[0];
             dWT = subCopy(temp, dWT, subLength);
            //  row1 = QMF.length;
            // col1 = QMF[0].length;
@@ -140,7 +121,7 @@ public class DWT {
         double[] G = OrthogonalFilters.getHighPass(H);
         for (int i = L + 1; i <= log2n; i++) {
             subLength = (int) (Math.pow(2, i));
-            double[][] QMF = makeQMFMatrix(subLength, H, G);
+            double[][] QMF = makeQMFMatrix(subLength, H, G).data;
             QMF = MatrixOps.transpose(QMF);
             double[] subResult = new double[subLength];
             subCopy(signal, subResult, subLength);
@@ -161,10 +142,10 @@ public class DWT {
      * @param G high pass filter
      * @return QMF[scale][scale]
      */
-    private static double[][] makeQMFMatrix(int scale, double[] H, double[] G) {
+    private static RawStore makeQMFMatrix(int scale, double[] H, double[] G) {
         int filterLen = H.length;
         int skip = 0;
-        double[][] QMF = new double[scale][scale];
+        RawStore QMF = RawStore.FACTORY.makeZero(scale, scale);
         for (int i = 0; i < (scale / 2); i++) {
             for (int j = 0; j < filterLen; j++) {
                 int location = j + skip;
@@ -172,7 +153,8 @@ public class DWT {
                 {
                     location = location - (scale);
                 }
-                QMF[i][location] = H[j];
+                // QMF[i][location] = H[j];
+                QMF.set(i, location, H[j]);
             }
             skip += 2;
         }
@@ -183,7 +165,8 @@ public class DWT {
                 if (location < 0) {
                     location += scale;
                 }
-                QMF[i][location] = G[filterLen - j - 1];
+                // QMF[i][location] = G[filterLen - j - 1];
+                QMF.set(i, location, G[filterLen - j - 1]);
             }
             skip -= 2;
         }

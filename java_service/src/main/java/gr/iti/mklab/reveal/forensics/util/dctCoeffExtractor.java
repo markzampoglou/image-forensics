@@ -2,11 +2,7 @@ package gr.iti.mklab.reveal.forensics.util;
 
 import java.awt.image.BufferedImage;
 
-import org.ojalgo.access.Access2D.Builder;
-import org.ojalgo.matrix.BasicMatrix;
-import org.ojalgo.matrix.BasicMatrix.Factory;
-import org.ojalgo.matrix.PrimitiveMatrix;
-import org.ojalgo.matrix.store.PhysicalStore;
+import org.ojalgo.matrix.store.RawStore;
 
 /**
  * Created by marzampoglou on 11/6/15.
@@ -61,37 +57,14 @@ public class dctCoeffExtractor {
 
 
     public static double[][] matrixMultiply(double[][] dctm, double[][] v) {
-        final Factory<PrimitiveMatrix> dctmFactory = PrimitiveMatrix.FACTORY;
-        final Builder<PrimitiveMatrix> dctmBuilder = dctmFactory.getBuilder(dctm.length, dctm[0].length);
 
-        for (int ii = 0; ii < dctm.length; ii++) {
-            for (int jj = 0; jj < dctm[0].length; jj++) {
-                dctmBuilder.set(ii, jj, dctm[ii][jj]);
-            }
-        }
-        final BasicMatrix dctmBM = dctmBuilder.build();
+        final RawStore dctmBM = new RawStore(dctm);
 
-        final Factory<PrimitiveMatrix> vFactory = PrimitiveMatrix.FACTORY;
-        final Builder<PrimitiveMatrix> vBuilder = vFactory.getBuilder(v.length, v[0].length);
-        for (int ii = 0; ii < v.length; ii++) {
-            for (int jj = 0; jj < v[0].length; jj++) {
-                vBuilder.set(ii, jj, v[ii][jj]);
-            }
-        }
-        final BasicMatrix vBM = vBuilder.build();
+        final RawStore vBM = new RawStore(v);
 
+        final RawStore outBM = dctmBM.multiply(vBM);
 
-        final BasicMatrix outBM = vBM.multiplyLeft(dctmBM);
-        PhysicalStore<Double> outStore=outBM.toPrimitiveStore();
-
-        double[][] out = new double[(int)outBM.countRows()][(int)outBM.countColumns()];
-        for (int ii = 0; ii < out .length; ii++) {
-            for (int jj = 0; jj < out [0].length; jj++) {
-                out[ii][jj]=outStore.get(ii, jj);
-            }
-        }
-
-        return out;
+        return outBM.data;
     }
 
 
