@@ -5,7 +5,7 @@
 
 # image-forensics
 
-This is an integrated framework for image forensic analysis. It includes a Java webservice, including seven splicing detection algorithm implementations, plus additional forensic tools, located in the subdirectory [java_service] and a Matlab algorithm evaluation framework, including implementations of a large number of splicing detection algorithms, located in the subdirectory [matlab_toolbox].
+This is an integrated framework for image forensic analysis. It includes a Java webservice, including seven splicing detection algorithm implementations, plus additional forensic tools, located in the subdirectory [java_service] and a Matlab algorithm evaluation framework, including implementations of a large number of splicing detection algorithms, located in the subdirectory [matlab_toolbox]. An demo providing online implementations of many of these algorithms can be found here: [Online demo]
 
 ## Citations
 
@@ -34,3 +34,4 @@ Contact Markos Zampoglou <markzampoglou@iti.gr> for any further information.
 
   [matlab_toolbox]:https://github.com/MKLab-ITI/image-forensics/tree/master/matlab_toolbox
   [java_service]:https://github.com/MKLab-ITI/image-forensics/tree/master/java_service
+  [Online demo]:http://reveal-mklab.iti.gr/reveal/
