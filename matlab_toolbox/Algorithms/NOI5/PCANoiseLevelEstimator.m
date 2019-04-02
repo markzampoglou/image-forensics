@@ -146,7 +146,7 @@ function [label, variance] = PCANoiseLevelEstimator( image, Bsize )
     function upper_bound = ComputeUpperBound( block_info )        
         max_index = size(block_info, 1) - 1;
         %%%%%%
-        nozeroindex = max(find (block_info(:,1)== 0))+1; 
+        nozeroindex = min(max(find (block_info(:,1)== 0))+1,size(block_info, 1));
         %%%%%%%%%%
         index = Clamp( round(UpperBoundLevel*max_index) + 1, nozeroindex, size(block_info, 1) );
         upper_bound = UpperBoundFactor * block_info(index,1);
