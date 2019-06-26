@@ -1,12 +1,14 @@
 # A Java Webservice for image forensic analysis
 
-## <span style="color:red">WARNING: this code is no longer maintained
+This is a Java implementation of a Web Service for image forensic analysis. It contains a number of well-established image tampering localization algorithms, plus a number of tools for image metadata extraction and visualization, including GPS localization and the display of embedded thumbnail(s). It includes an API for downloading an image from the web, extracting an integrated forensics report for an image, storing it in a MongoDB collection under a unique hash identifier and returning it upon request.
+
+<span style="color:red">
+
+## WARNING: this code is no longer maintained
 
 This is the source Java code for the early versions of the service found in http://reveal-mklab.iti.gr/reveal/ and is maintained as reference. The implementations are not computationally optimal, include a limited set of algorithms, and depend on deprecated libraries which may pose security risks. We recommend to use the code only as reference.
 
 </span>
-
-This is a Java implementation of a Web Service for image forensic analysis. It contains a number of well-established image tampering localization algorithms, plus a number of tools for image metadata extraction and visualization, including GPS localization and the display of embedded thumbnail(s). It includes an API for downloading an image from the web, extracting an integrated forensics report for an image, storing it in a MongoDB collection under a unique hash identifier and returning it upon request.
 
 ## Citation
 
