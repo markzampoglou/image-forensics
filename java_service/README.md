@@ -6,7 +6,7 @@ This is a Java implementation of a Web Service for image forensic analysis. It c
 
 ## WARNING: this code is no longer maintained
 
-This is the source Java code for the early versions of the service found in http://reveal-mklab.iti.gr/reveal/ and is maintained as reference. The implementations are not computationally optimal, include a limited set of algorithms, and depend on deprecated libraries which may pose security risks. We recommend to use the code only as reference.
+This is the source Java code for the early versions of the service found in http://reveal-mklab.iti.gr/reveal/ and is maintained as reference. The implementations are not computationally optimal, include a limited set of algorithms, and depend on deprecated libraries which may pose security risks. We do not recommend deploying the code online. For experimentation and research on forensics, we recommend using the Matlab code. The code behind the current version of our online demo is not currently publicly available.
 
 </span>
 
